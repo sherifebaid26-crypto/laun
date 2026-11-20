@@ -12,8 +12,8 @@ android {
         applicationId = "com.aura.launcher"
         minSdk = 31          // Android 12+
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 10
+        versionName = "1.0.0"
     }
 
     buildTypes {
@@ -52,6 +52,8 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.biometric:biometric:1.1.0")
 
     implementation(platform("androidx.compose:compose-bom:2024.09.00"))
     implementation("androidx.compose.ui:ui")

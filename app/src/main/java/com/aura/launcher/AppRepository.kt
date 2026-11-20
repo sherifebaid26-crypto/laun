@@ -3,6 +3,7 @@ package com.aura.launcher
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.provider.MediaStore
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -14,38 +15,55 @@ data class AppEntry(
     val packageName: String,
     val component: ComponentName,
     val icon: ImageBitmap,
-)
+    val category: Int,
+) {
+    val key: String = component.flattenToString()
+    val normLabel: String = normalizeForSearch(label)
+}
 
 object AppRepository {
 
-    private const val ICON_SIZE_PX = 128
+    private const val ICON_SIZE_PX = 144
 
-    /** يقرأ كل التطبيقات القابلة للتشغيل ويرتبها أبجدياً (يعمل خارج الـ Main thread). */
+    /** يقرأ كل التطبيقات القابلة للتشغيل ويرتبها أبجدياً (خارج الـ Main thread). */
     @Suppress("DEPRECATION")
-    suspend fun loadApps(context: Context): List<AppEntry> = withContext(Dispatchers.Default) {
+    suspend fun loadApps(context: Context, iconPack: String?): List<AppEntry> =
+        withContext(Dispatchers.Default) {
+            val pm = context.packageManager
+            val pack = iconPack?.let { IconPacks.load(context, it) }
+            val query = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+
+            pm.queryIntentActivities(query, 0)
+                .asSequence()
+                .filter { it.activityInfo.packageName != context.packageName }
+                .map { info ->
+                    val component = ComponentName(info.activityInfo.packageName, info.activityInfo.name)
+                    val drawable = pack?.iconFor(component) ?: info.loadIcon(pm)
+                    AppEntry(
+                        label = info.loadLabel(pm).toString(),
+                        packageName = info.activityInfo.packageName,
+                        component = component,
+                        icon = drawable.toBitmap(ICON_SIZE_PX, ICON_SIZE_PX).asImageBitmap(),
+                        category = info.activityInfo.applicationInfo.category,
+                    )
+                }
+                .sortedBy { it.normLabel }
+                .toList()
+        }
+
+    /** أول تشغيل: اتصال، رسائل، متصفح، كاميرا (لو لقيناهم). */
+    @Suppress("DEPRECATION")
+    fun defaultDock(context: Context, apps: List<AppEntry>): List<String> {
         val pm = context.packageManager
-        val query = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-
-        pm.queryIntentActivities(query, 0)
-            .asSequence()
-            .filter { it.activityInfo.packageName != context.packageName }
-            .map { info ->
-                AppEntry(
-                    label = info.loadLabel(pm).toString(),
-                    packageName = info.activityInfo.packageName,
-                    component = ComponentName(info.activityInfo.packageName, info.activityInfo.name),
-                    icon = info.loadIcon(pm).toBitmap(ICON_SIZE_PX, ICON_SIZE_PX).asImageBitmap(),
-                )
-            }
-            .sortedBy { it.label.lowercase() }
-            .toList()
-    }
-
-    fun launch(context: Context, app: AppEntry) {
-        val intent = Intent(Intent.ACTION_MAIN)
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .setComponent(app.component)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        runCatching { context.startActivity(intent) }
+        val intents = listOf(
+            Intent(Intent.ACTION_DIAL),
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MESSAGING),
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_BROWSER),
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+        )
+        return intents
+            .mapNotNull { runCatching { pm.resolveActivity(it, 0)?.activityInfo?.packageName }.getOrNull() }
+            .mapNotNull { pkg -> apps.firstOrNull { it.packageName == pkg }?.key }
+            .distinct()
     }
 }

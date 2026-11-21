@@ -5,22 +5,47 @@ import org.json.JSONObject
 
 enum class ThemeMode { DARK, LIGHT, GLASS, COLOR }
 
-enum class IconShape { ORIGINAL, CIRCLE, SQUIRCLE, ROUNDED }
+enum class IconShape { ORIGINAL, CIRCLE, SQUIRCLE, ROUNDED, TEARDROP }
 
 enum class ClockStyle { NONE, BIG, BIG_SERIF, SMALL }
+
+/** شكل قائمة الضغط المطوّل. */
+enum class MenuStyle { IOS, SAMSUNG, VIVO }
 
 /** ستايل الأيقونات اللي بيجي مع الثيم: شكل + صحيفة خلفية + (اختياري) أيقونة أحادية اللون. */
 data class IconStyle(
     val shape: IconShape = IconShape.ORIGINAL,
     val plate: Long = 0L,          // ARGB؛ الشفافية صفر = بدون صحيفة
-    val mono: Boolean = false,     // أندرويد 13+ بس: يستخدم الطبقة الأحادية لو موجودة
+    val mono: Boolean = false,     // أيقونة أحادية اللون موحّدة (طبقة النظام لو موجودة، وإلا بديل)
     val tint: Long = 0xFFFFFFFF,
 )
 
+/** عنصر على الشاشة الرئيسية. cell = رقم الخلية في الصفحة (صف*أعمدة+عمود)، و-1 = لسه مالهوش مكان. */
 sealed class HomeItem {
-    data class App(val key: String) : HomeItem()
-    data class Folder(val id: String, val name: String, val keys: List<String>) : HomeItem()
-    data class Widget(val widgetId: Int) : HomeItem()
+    abstract val cell: Int
+    abstract val ref: String
+    abstract fun at(cell: Int): HomeItem
+
+    data class App(val key: String, override val cell: Int = -1) : HomeItem() {
+        override val ref: String get() = "a:$key"
+        override fun at(cell: Int): HomeItem = copy(cell = cell)
+    }
+
+    data class Folder(val id: String, val name: String, val keys: List<String>, override val cell: Int = -1) : HomeItem() {
+        override val ref: String get() = "f:$id"
+        override fun at(cell: Int): HomeItem = copy(cell = cell)
+    }
+
+    data class Widget(val widgetId: Int, override val cell: Int = -1) : HomeItem() {
+        override val ref: String get() = "w:$widgetId"
+        override fun at(cell: Int): HomeItem = copy(cell = cell)
+    }
+
+    /** ودجت داخلية من Aura: clock / battery / search. */
+    data class Builtin(val kind: String, val uid: String, override val cell: Int = -1) : HomeItem() {
+        override val ref: String get() = "b:$uid"
+        override fun at(cell: Int): HomeItem = copy(cell = cell)
+    }
 }
 
 data class UsageStat(val count: Int, val last: Long)
@@ -47,32 +72,88 @@ data class AuraState(
     val iconStyle: IconStyle = IconStyle(),
     val clock: ClockStyle = ClockStyle.NONE,
     val homeText: Long? = null,
+    val menuStyle: MenuStyle = MenuStyle.IOS,
 )
 
 const val MAX_DOCK = 5
 
-// ───────────────────────── عمليات الشاشة الرئيسية ─────────────────────────
+// ───────────────────────── هندسة الشبكة ─────────────────────────
 
-private fun AuraState.slotsOf(item: HomeItem): Int =
-    if (item is HomeItem.Widget) columns * 2 else 1
+fun AuraState.colsOf(i: HomeItem): Int = when (i) {
+    is HomeItem.App, is HomeItem.Folder -> 1
+    is HomeItem.Widget, is HomeItem.Builtin -> columns
+}
 
-private fun AuraState.used(page: List<HomeItem>): Int = page.sumOf { slotsOf(it) }
+fun AuraState.rowsOf(i: HomeItem): Int = when (i) {
+    is HomeItem.App, is HomeItem.Folder -> 1
+    is HomeItem.Widget -> 2
+    is HomeItem.Builtin -> if (i.kind == "search") 1 else 2
+}
+
+fun AuraState.footprint(i: HomeItem, cell: Int): Set<Int> {
+    val r = cell / columns
+    val c = cell % columns
+    val out = HashSet<Int>()
+    for (dr in 0 until rowsOf(i)) for (dc in 0 until colsOf(i)) out += (r + dr) * columns + (c + dc)
+    return out
+}
+
+private fun AuraState.fits(i: HomeItem, cell: Int): Boolean =
+    cell >= 0 && cell < columns * rows &&
+        (cell / columns) + rowsOf(i) <= rows && (cell % columns) + colsOf(i) <= columns
+
+private fun AuraState.occupied(page: List<HomeItem>, ignoreRef: String? = null): Set<Int> {
+    val out = HashSet<Int>()
+    for (it in page) if (it.ref != ignoreRef && it.cell >= 0) out += footprint(it, it.cell)
+    return out
+}
+
+private fun AuraState.firstFree(page: List<HomeItem>, item: HomeItem, nearTo: Int? = null): Int? {
+    val occ = occupied(page, item.ref)
+    val candidates = (0 until columns * rows).filter { c ->
+        fits(item, c) && footprint(item, c).none { it in occ }
+    }
+    if (nearTo == null) return candidates.firstOrNull()
+    val nr = nearTo / columns
+    val nc = nearTo % columns
+    return candidates.minByOrNull { Math.abs(it / columns - nr) + Math.abs(it % columns - nc) }
+}
 
 fun AuraState.trim(): AuraState {
     val nonEmpty = pages.filter { it.isNotEmpty() }
     return copy(pages = if (nonEmpty.isEmpty()) listOf(emptyList()) else nonEmpty)
 }
 
-fun AuraState.addItem(item: HomeItem): AuraState {
-    val need = slotsOf(item)
-    val cap = columns * rows
-    val idx = pages.indexOfFirst { used(it) + need <= cap }
-    val newPages = if (idx >= 0) {
-        pages.mapIndexed { i, p -> if (i == idx) p + item else p }
-    } else {
-        pages + listOf(listOf(item))
+/** يثبّت أي عنصر مالوش خلية صالحة (حفظ قديم أو تغيير الأعمدة) في أول مكان فاضي. */
+fun AuraState.normalizeCells(): AuraState {
+    val out = mutableListOf<List<HomeItem>>()
+    val overflow = mutableListOf<HomeItem>()
+    for (page in pages) {
+        val placed = mutableListOf<HomeItem>()
+        for (item in page) {
+            val ok = fits(item, item.cell) && footprint(item, item.cell).none { it in occupied(placed) }
+            if (ok) {
+                placed += item
+            } else {
+                val spot = firstFree(placed, item)
+                if (spot != null) placed += item.at(spot) else overflow += item
+            }
+        }
+        out += listOf<List<HomeItem>>(placed)
     }
-    return copy(pages = newPages)
+    var res = copy(pages = if (out.isEmpty()) listOf(emptyList()) else out)
+    for (o in overflow) res = res.addItem(o)
+    return res.trim()
+}
+
+fun AuraState.addItem(item: HomeItem): AuraState {
+    for ((pi, page) in pages.withIndex()) {
+        val spot = firstFree(page, item)
+        if (spot != null) {
+            return copy(pages = pages.mapIndexed { i, p -> if (i == pi) p + item.at(spot) else p })
+        }
+    }
+    return copy(pages = pages + listOf(listOf(item.at(0))))
 }
 
 fun AuraState.isOnHome(key: String): Boolean = pages.any { page ->
@@ -85,16 +166,17 @@ fun AuraState.removeApp(key: String): AuraState {
             when (item) {
                 is HomeItem.App -> if (item.key == key) null else item
                 is HomeItem.Folder -> item.copy(keys = item.keys.filter { it != key })
-                is HomeItem.Widget -> item
+                else -> item
             }
         }
     }
     return copy(pages = newPages).trim()
 }
 
-fun AuraState.removeWidget(id: Int): AuraState = copy(
-    pages = pages.map { p -> p.filterNot { it is HomeItem.Widget && it.widgetId == id } }
-).trim()
+fun AuraState.removeByRef(ref: String): AuraState =
+    copy(pages = pages.map { p -> p.filterNot { it.ref == ref } }).trim()
+
+fun AuraState.removeWidget(id: Int): AuraState = removeByRef("w:$id")
 
 fun AuraState.addFolder(id: String, name: String, keys: List<String>): AuraState {
     var s = this
@@ -115,7 +197,7 @@ fun AuraState.setFolderApps(id: String, keys: List<String>): AuraState {
                 is HomeItem.Folder ->
                     if (item.id == id) item.copy(keys = keys)
                     else item.copy(keys = item.keys.filter { it !in set })
-                is HomeItem.Widget -> item
+                else -> item
             }
         }
     }
@@ -128,7 +210,7 @@ fun AuraState.folderKeys(id: String): List<String> =
 fun AuraState.deleteFolder(id: String): AuraState {
     val folder = pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id }
         ?: return this
-    var s = copy(pages = pages.map { p -> p.filterNot { it is HomeItem.Folder && it.id == id } }).trim()
+    var s = removeByRef(folder.ref)
     for (k in folder.keys) s = s.addItem(HomeItem.App(k))
     return s
 }
@@ -145,9 +227,79 @@ fun AuraState.dockRemove(key: String): AuraState = copy(dock = dock - key)
 
 /** يعيد توزيع كل العناصر على الصفحات (بعد تغيير عدد الأعمدة/الصفوف). */
 fun AuraState.reflow(): AuraState {
+    val items = pages.flatMap { p -> p.sortedBy { it.cell } }
     var s = copy(pages = listOf(emptyList()))
-    for (item in pages.flatten()) s = s.addItem(item)
+    for (item in items) s = s.addItem(item.at(-1))
     return s
+}
+
+// ───────────────────────── السحب والإفلات ─────────────────────────
+
+private fun AuraState.placeAt(item: HomeItem, page: Int, rawCell: Int, center: Boolean): AuraState {
+    val pgs = pages.toMutableList()
+    while (pgs.size <= page) pgs.add(emptyList())
+    val wide = item is HomeItem.Widget || item is HomeItem.Builtin
+    var c = if (wide) (rawCell / columns) * columns else rawCell
+    // لو العنصر مش داخل الصفحة من تحت، نطلّعه لآخر صف مناسب
+    val maxRow = rows - rowsOf(item)
+    if (c / columns > maxRow) c = maxRow * columns + (c % columns)
+    if (!wide && c % columns + colsOf(item) > columns) c = (c / columns) * columns
+    val base = copy(pages = pgs)
+    val pageItems = pgs[page]
+    val occ = base.occupied(pageItems)
+    val fp = base.footprint(item, c)
+
+    fun withPage(items: List<HomeItem>): AuraState =
+        base.copy(pages = pgs.mapIndexed { i, p -> if (i == page) items else p })
+
+    if (fp.none { it in occ }) return withPage(pageItems + item.at(c))
+
+    val target = pageItems.firstOrNull { it.cell >= 0 && c in base.footprint(it, it.cell) }
+    if (center && target != null && item is HomeItem.App) {
+        if (target is HomeItem.App && target.key != item.key) {
+            val folder = HomeItem.Folder(newId(), tr("مجلد", "Folder"), listOf(target.key, item.key), target.cell)
+            return withPage(pageItems.map { if (it.ref == target.ref) folder else it })
+        }
+        if (target is HomeItem.Folder) {
+            return withPage(pageItems.map {
+                if (it.ref == target.ref) target.copy(keys = target.keys + item.key) else it
+            })
+        }
+    }
+    val spot = base.firstFree(pageItems, item, nearTo = c)
+    return if (spot != null) withPage(pageItems + item.at(spot)) else base.addItem(item)
+}
+
+/** يسقط عنصر (من الشاشة أو الدوك) على خلية في الصفحة. */
+fun AuraState.dropOnHome(ref: String, fromDock: Boolean, page: Int, cell: Int, center: Boolean): AuraState {
+    val item: HomeItem
+    val s: AuraState
+    if (fromDock) {
+        val key = ref.removePrefix("a:")
+        if (key !in dock) return this
+        item = HomeItem.App(key)
+        s = copy(dock = dock - key)
+    } else {
+        item = pages.flatten().firstOrNull { it.ref == ref } ?: return this
+        s = copy(pages = pages.map { p -> p.filterNot { it.ref == ref } })
+    }
+    return s.placeAt(item, page, cell, center).trim()
+}
+
+/** يسقط تطبيق على الدوك (أو يعيد ترتيبه جواه). */
+fun AuraState.dropOnDock(ref: String, fromDock: Boolean, index: Int): AuraState {
+    if (!ref.startsWith("a:")) return this
+    val key = ref.removePrefix("a:")
+    if (fromDock) {
+        val list = dock.toMutableList()
+        if (!list.remove(key)) return this
+        list.add(index.coerceIn(0, list.size), key)
+        return copy(dock = list)
+    }
+    if (key in dock || dock.size >= MAX_DOCK) return this
+    val list = dock.toMutableList()
+    list.add(index.coerceIn(0, list.size), key)
+    return copy(dock = list).removeApp(key)
 }
 
 // ───────────────────────── JSON ─────────────────────────
@@ -157,21 +309,26 @@ private fun itemToJson(item: HomeItem): JSONObject = when (item) {
     is HomeItem.Folder -> JSONObject().put("t", "f").put("id", item.id)
         .put("n", item.name).put("ks", JSONArray(item.keys))
     is HomeItem.Widget -> JSONObject().put("t", "w").put("id", item.widgetId)
-}
+    is HomeItem.Builtin -> JSONObject().put("t", "b").put("kind", item.kind).put("uid", item.uid)
+}.put("c", item.cell)
 
 internal fun JSONArray?.toStringList(): List<String> =
     if (this == null) emptyList() else List(length()) { getString(it) }
 
-private fun itemFromJson(o: JSONObject): HomeItem? = when (o.optString("t")) {
-    "a" -> HomeItem.App(o.getString("k"))
-    "f" -> HomeItem.Folder(o.getString("id"), o.optString("n"), o.optJSONArray("ks").toStringList())
-    "w" -> HomeItem.Widget(o.getInt("id"))
-    else -> null
+private fun itemFromJson(o: JSONObject): HomeItem? {
+    val cell = o.optInt("c", -1)
+    return when (o.optString("t")) {
+        "a" -> HomeItem.App(o.getString("k"), cell)
+        "f" -> HomeItem.Folder(o.getString("id"), o.optString("n"), o.optJSONArray("ks").toStringList(), cell)
+        "w" -> HomeItem.Widget(o.getInt("id"), cell)
+        "b" -> HomeItem.Builtin(o.optString("kind", "clock"), o.getString("uid"), cell)
+        else -> null
+    }
 }
 
 fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     val o = JSONObject()
-    o.put("v", 1)
+    o.put("v", 2)
     o.put("theme", theme.name)
     o.put("accent", accent)
     o.put("columns", columns)
@@ -205,6 +362,7 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     themeId?.let { o.put("themeId", it) }
     homeText?.let { o.put("homeText", it) }
     o.put("clock", clock.name)
+    o.put("menuStyle", menuStyle.name)
     o.put(
         "icon",
         JSONObject().put("shape", iconStyle.shape.name).put("plate", iconStyle.plate)
@@ -258,5 +416,6 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         iconStyle = icon,
         clock = runCatching { ClockStyle.valueOf(o.optString("clock", "NONE")) }.getOrDefault(ClockStyle.NONE),
         homeText = if (o.has("homeText")) o.getLong("homeText") else null,
-    )
+        menuStyle = runCatching { MenuStyle.valueOf(o.optString("menuStyle", "IOS")) }.getOrDefault(MenuStyle.IOS),
+    ).normalizeCells()
 }

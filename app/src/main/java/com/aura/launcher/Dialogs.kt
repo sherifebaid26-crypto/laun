@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -159,17 +161,47 @@ fun AppPickerDialog(apps: List<AppEntry>, hidden: Set<String>, req: PickerReques
 }
 
 @Composable
-fun WidgetPickerDialog(host: WidgetHost, onPick: (AppWidgetProviderInfo) -> Unit, onDismiss: () -> Unit) {
+fun WidgetPickerDialog(
+    host: WidgetHost,
+    onPick: (AppWidgetProviderInfo) -> Unit,
+    onPickBuiltin: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
     val context = LocalContext.current
     val providers = remember { host.providers() }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(tr("اختر ودجت", "Choose a widget")) },
         text = {
-            LazyColumn(Modifier.heightIn(max = 400.dp)) {
+            LazyColumn(Modifier.heightIn(max = 420.dp)) {
+                item {
+                    Text(tr("ودجتس Aura", "Aura widgets"), color = Color(0xFF00BFA5), fontSize = 13.sp,
+                        modifier = Modifier.padding(bottom = 4.dp))
+                }
+                items(BuiltinKinds) { (kind, names) ->
+                    Text(
+                        tr(names.first, names.second),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPickBuiltin(kind); onDismiss() }
+                            .padding(vertical = 12.dp),
+                    )
+                }
+                item {
+                    Text(tr("ودجتس التطبيقات", "App widgets"), color = Color(0xFF00BFA5), fontSize = 13.sp,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+                }
+                if (providers.isEmpty()) {
+                    item {
+                        Text(
+                            tr("مفيش ودجتس تطبيقات ظاهرة", "No app widgets found"),
+                            color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp),
+                        )
+                    }
+                }
                 items(providers) { p ->
                     val pm = context.packageManager
-                    val label = p.loadLabel(pm)?.toString() ?: p.provider.shortClassName
+                    val label = runCatching { p.loadLabel(pm)?.toString() }.getOrNull() ?: p.provider.shortClassName
                     val app = runCatching {
                         pm.getApplicationLabel(pm.getApplicationInfo(p.provider.packageName, 0)).toString()
                     }.getOrDefault(p.provider.packageName)
@@ -220,8 +252,22 @@ fun SimpleChoiceDialog(
 
 @Composable
 fun FolderDialog(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPalette, folder: HomeItem.Folder) {
-    Dialog(onDismissRequest = { ui.folderId = null }) {
-        Surface(shape = RoundedCornerShape(28.dp), color = pal.dialog) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.45f))
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                ui.folderId = null
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = pal.dialog,
+            modifier = Modifier
+                .padding(28.dp)
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { },
+        ) {
             Column(Modifier.padding(18.dp)) {
                 Text(
                     folder.name,

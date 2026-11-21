@@ -26,6 +26,10 @@
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
+        <!-- مزوّدو الودجت -->
+        <intent>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent>
         <!-- حزم الأيقونات -->
         <intent>
             <action android:name="org.adw.launcher.THEMES" />

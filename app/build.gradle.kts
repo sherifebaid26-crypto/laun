@@ -12,8 +12,8 @@ android {
         applicationId = "com.aura.launcher"
         minSdk = 31          // Android 12+
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.1.0"
+        versionCode = 12
+        versionName = "1.2.0"
     }
 
     buildTypes {

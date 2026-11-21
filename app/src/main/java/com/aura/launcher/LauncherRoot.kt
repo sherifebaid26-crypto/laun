@@ -85,9 +85,12 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 WidgetPickerDialog(
                     host = actions.widgetHost,
                     onPick = { actions.addWidget(it) },
+                    onPickBuiltin = { kind -> vm.update { it.addItem(HomeItem.Builtin(kind, newId())) } },
                     onDismiss = { ui.widgetPicker = false },
                 )
             }
+
+            ContextMenuHost(ui, pal, state.menuStyle)
 
             ui.textInput?.let { req -> TextInputDialog(req) { ui.textInput = null } }
             ui.picker?.let { req -> AppPickerDialog(appList, state.hidden, req) { ui.picker = null } }
@@ -114,10 +117,12 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
 
         // الرجوع: كل زرار يقفل أقرب طبقة مفتوحة (الأحدث تسجيلاً له الأولوية)
         BackHandler(enabled = ui.drawerOpen) { ui.drawerOpen = false }
+        BackHandler(enabled = ui.folderId != null) { ui.folderId = null }
         BackHandler(enabled = ui.settingsOpen) { ui.settingsOpen = false }
         BackHandler(enabled = ui.hiddenOpen) { ui.hiddenOpen = false }
         BackHandler(enabled = ui.storeOpen) {
             if (ui.storeDetail != null) ui.storeDetail = null else ui.storeOpen = false
         }
+        BackHandler(enabled = ui.menu != null) { ui.menu = null }
     }
 }

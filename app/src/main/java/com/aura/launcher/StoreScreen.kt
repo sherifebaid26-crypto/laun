@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -35,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -113,6 +116,7 @@ fun StoreScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
     val busy by vm.busy.collectAsState()
     val insets = WindowInsets.systemBars.asPaddingValues()
     var tab by remember { mutableIntStateOf(0) }
+    var cat by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) { vm.loadCatalog() }
 
@@ -141,7 +145,18 @@ fun StoreScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
                 )
             }
 
-            val list = if (tab == 0) ready else installed.values.toList()
+            if (tab == 0 && ready.isNotEmpty()) {
+                val cats = ready.map { it.categoryEn to it.category }.distinctBy { it.first }
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 10.dp),
+                ) {
+                    item { Chip(tr("الكل", "All"), cat == null, pal) { cat = null } }
+                    items(cats) { (k, label) -> Chip(label, cat == k, pal) { cat = k } }
+                }
+            }
+            val list = if (tab == 0) ready.filter { cat == null || it.categoryEn == cat } else installed.values.toList()
             when {
                 tab == 0 && cat is CatalogState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                     CircularProgressIndicator(color = pal.accent)
@@ -287,6 +302,12 @@ private fun ThemeDetail(
                     )
                 }
             }
+            Text(
+                tr("شاشة القفل: لو جهازك ما غيّرهاش، غيّرها من إعدادات الخلفية في الجهاز.",
+                    "Lock screen: if your device doesn't change it, set it from the system wallpaper settings."),
+                color = pal.onPanel.copy(alpha = 0.45f), fontSize = 11.sp,
+                modifier = Modifier.padding(top = 8.dp),
+            )
             if (installed && !applied) {
                 TextButton(onClick = { vm.deleteTheme(def.id) }, modifier = Modifier.padding(top = 4.dp)) {
                     Text(tr("حذف الثيم من الجهاز", "Delete from device"), color = Color(0xFFFF5252))

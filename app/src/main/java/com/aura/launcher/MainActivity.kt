@@ -37,7 +37,10 @@ class MainActivity : FragmentActivity(), LauncherActions {
 
     private val bindLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) afterBind() else cancelPendingWidget()
+            if (result.resultCode == RESULT_OK) afterBind() else {
+                cancelPendingWidget()
+                vm.postMessage(tr("ماتمّش السماح بإضافة الودجت", "Widget permission wasn't granted"))
+            }
         }
 
     private val configLauncher =
@@ -144,7 +147,10 @@ class MainActivity : FragmentActivity(), LauncherActions {
             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider.provider)
-            runCatching { bindLauncher.launch(intent) }.onFailure { cancelPendingWidget() }
+            runCatching { bindLauncher.launch(intent) }.onFailure {
+                cancelPendingWidget()
+                vm.postMessage(tr("الجهاز رفض إضافة الودجت", "The device refused to add this widget"))
+            }
         }
     }
 

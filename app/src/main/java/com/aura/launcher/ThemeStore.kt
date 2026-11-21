@@ -20,6 +20,8 @@ data class ThemeDef(
     val tagsAr: List<String>,
     val tagsEn: List<String>,
     val author: String,
+    val categoryAr: String = "",
+    val categoryEn: String = "",
     val sizeKb: Int,
     val wallpaperUrl: String,
     val previewUrl: String,
@@ -33,6 +35,7 @@ data class ThemeDef(
     private val ar get() = Locale.getDefault().language == "ar"
     val name: String get() = if (ar) nameAr else nameEn
     val tags: List<String> get() = if (ar) tagsAr else tagsEn
+    val category: String get() = (if (ar) categoryAr else categoryEn).ifBlank { tr("أخرى", "Other") }
 }
 
 private fun colorOf(s: String): Long = android.graphics.Color.parseColor(s).toLong() and 0xFFFFFFFFL
@@ -66,6 +69,8 @@ fun themeFromJson(o: JSONObject, base: String): ThemeDef {
         tagsAr = tags?.optJSONArray("ar").toStringList(),
         tagsEn = tags?.optJSONArray("en").toStringList(),
         author = o.optString("author", "Aura"),
+        categoryAr = o.optJSONObject("category")?.optString("ar", "") ?: "",
+        categoryEn = o.optJSONObject("category")?.optString("en", "") ?: "",
         sizeKb = o.optInt("sizeKb", 0),
         wallpaperUrl = resolveUrl(base, o.getString("wallpaper")),
         previewUrl = resolveUrl(base, o.getString("preview")),
@@ -186,19 +191,22 @@ object ThemeStore {
         withContext(Dispatchers.IO) { dir(ctx, id).deleteRecursively() }
     }
 
-    /** يحط الخلفية على الشاشة الرئيسية وشاشة القفل. */
-    suspend fun applyWallpaper(ctx: Context, id: String): Boolean = withContext(Dispatchers.IO) {
+    /** يحط الخلفية على الشاشة الرئيسية وعلى القفل بنداءين منفصلين (أوثق مع الأجهزة المختلفة). */
+    suspend fun applyWallpaper(ctx: Context, id: String): WallpaperResult = withContext(Dispatchers.IO) {
         val f = wallpaperFile(ctx, id)
         if (!f.exists()) {
-            false
+            WallpaperResult(system = false, lock = false)
         } else {
-            runCatching {
-                f.inputStream().use {
-                    WallpaperManager.getInstance(ctx).setStream(
-                        it, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK,
-                    )
-                }
+            val wm = WallpaperManager.getInstance(ctx)
+            val system = runCatching {
+                f.inputStream().use { wm.setStream(it, null, true, WallpaperManager.FLAG_SYSTEM) }
             }.isSuccess
+            val lock = runCatching {
+                f.inputStream().use { wm.setStream(it, null, true, WallpaperManager.FLAG_LOCK) }
+            }.isSuccess
+            WallpaperResult(system, lock)
         }
     }
 }
+
+data class WallpaperResult(val system: Boolean, val lock: Boolean)

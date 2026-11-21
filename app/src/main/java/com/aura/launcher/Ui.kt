@@ -5,10 +5,20 @@ import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 
 enum class Where { HOME, DOCK, DRAWER, FOLDER }
 
-data class MenuEntry(val label: String, val onClick: () -> Unit)
+data class MenuEntry(
+    val label: String,
+    val glyph: String = "",
+    val danger: Boolean = false,
+    val onClick: () -> Unit,
+)
+
+/** قائمة عائمة قريبة من العنصر (anchor بإحداثيات الشاشة). */
+data class MenuRequest(val anchor: Rect, val entries: List<MenuEntry>)
+
 data class TextRequest(val title: String, val initial: String, val onOk: (String) -> Unit)
 data class PickerRequest(
     val title: String,
@@ -41,12 +51,21 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var hiddenOpen by mutableStateOf(false)
     var folderId by mutableStateOf<String?>(null)
     var widgetPicker by mutableStateOf(false)
-    var homeMenu by mutableStateOf(false)
     var textInput by mutableStateOf<TextRequest?>(null)
     var picker by mutableStateOf<PickerRequest?>(null)
     var auth by mutableStateOf<(() -> Unit)?>(null)
     var storeOpen by mutableStateOf(false)
     var storeDetail by mutableStateOf<String?>(null)
+    var menu by mutableStateOf<MenuRequest?>(null)
+
+    /** لو أي طبقة فوق الشاشة الرئيسية مفتوحة، إيماءات الشاشة الرئيسية تتعطل. */
+    val overlayOpen: Boolean
+        get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
+            widgetPicker || menu != null || auth != null || textInput != null || picker != null
+
+    fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
+        if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
+    }
 
     fun openDrawer(focus: Boolean) {
         focusSearch = focus
@@ -59,9 +78,9 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         hiddenOpen = false
         folderId = null
         widgetPicker = false
-        homeMenu = false
         storeOpen = false
         storeDetail = null
+        menu = null
     }
 
     /** لو في PIN نطلبه، لو مفيش ننفذ على طول. */
@@ -87,26 +106,50 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         }
     }
 
+    fun homeEntries(): List<MenuEntry> = listOf(
+        MenuEntry(tr("إضافة ودجت", "Add widget"), "▦") { widgetPicker = true },
+        MenuEntry(tr("مجلد جديد", "New folder"), "🗀") { newFolder() },
+        MenuEntry(tr("متجر الثيمات", "Theme store"), "✦") { storeOpen = true },
+        MenuEntry(tr("الخلفية", "Wallpaper"), "▣") { actions.openWallpaperPicker() },
+        MenuEntry(tr("الإعدادات", "Settings"), "⚙") { settingsOpen = true },
+    )
+
+    fun folderEntries(f: HomeItem.Folder): List<MenuEntry> = listOf(
+        MenuEntry(tr("إعادة تسمية", "Rename"), "✎") {
+            textInput = TextRequest(tr("اسم المجلد", "Folder name"), f.name) { n ->
+                vm.update { it.renameFolder(f.id, n.ifBlank { f.name }) }
+            }
+        },
+        MenuEntry(tr("حذف المجلد", "Delete folder"), "⌫", danger = true) { vm.update { it.deleteFolder(f.id) } },
+    )
+
+    fun widgetEntries(item: HomeItem): List<MenuEntry> = listOf(
+        MenuEntry(tr("إزالة الودجت", "Remove widget"), "⌫", danger = true) {
+            if (item is HomeItem.Widget) actions.removeWidget(item.widgetId)
+            vm.update { it.removeByRef(item.ref) }
+        },
+    )
+
     fun menuFor(app: AppEntry, where: Where, folder: String? = null): List<MenuEntry> {
         val s = vm.state.value
         val k = app.key
         val out = mutableListOf<MenuEntry>()
 
         when (where) {
-            Where.HOME -> out += MenuEntry(tr("إزالة من الشاشة", "Remove from home")) {
+            Where.HOME -> out += MenuEntry(tr("إزالة من الشاشة", "Remove from home"), "⊖") {
                 vm.update { it.removeApp(k) }
             }
-            Where.DOCK -> out += MenuEntry(tr("إزالة من الدوك", "Remove from dock")) {
+            Where.DOCK -> out += MenuEntry(tr("إزالة من الدوك", "Remove from dock"), "⊖") {
                 vm.update { it.dockRemove(k) }
             }
-            Where.FOLDER -> out += MenuEntry(tr("إخراج من المجلد", "Remove from folder")) {
+            Where.FOLDER -> out += MenuEntry(tr("إخراج من المجلد", "Remove from folder"), "⇱") {
                 vm.update { st ->
                     val fid = folder ?: return@update st
                     st.setFolderApps(fid, st.folderKeys(fid) - k).addItem(HomeItem.App(k))
                 }
             }
             Where.DRAWER -> if (!s.isOnHome(k)) {
-                out += MenuEntry(tr("إضافة للشاشة الرئيسية", "Add to home")) {
+                out += MenuEntry(tr("إضافة للشاشة الرئيسية", "Add to home"), "⊕") {
                     vm.update { it.addItem(HomeItem.App(k)) }
                 }
             }
@@ -114,34 +157,34 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
 
         if (where != Where.DOCK) {
             if (k in s.dock) {
-                out += MenuEntry(tr("إزالة من الدوك", "Remove from dock")) { vm.update { it.dockRemove(k) } }
+                out += MenuEntry(tr("إزالة من الدوك", "Remove from dock"), "⊖") { vm.update { it.dockRemove(k) } }
             } else if (s.dock.size < MAX_DOCK) {
-                out += MenuEntry(tr("إضافة للدوك", "Add to dock")) { vm.update { it.dockAdd(k) } }
+                out += MenuEntry(tr("إضافة للدوك", "Add to dock"), "⌑") { vm.update { it.dockAdd(k) } }
             }
         }
 
         if (where == Where.HOME || where == Where.DRAWER) {
             s.pages.flatten().filterIsInstance<HomeItem.Folder>().forEach { f ->
-                out += MenuEntry(tr("نقل إلى «${f.name}»", "Move to “${f.name}”")) {
+                out += MenuEntry(tr("نقل إلى «${f.name}»", "Move to “${f.name}”"), "🗀") {
                     vm.update { it.setFolderApps(f.id, it.folderKeys(f.id) + k) }
                 }
             }
         }
 
-        out += MenuEntry(tr("إخفاء", "Hide")) { vm.update { it.hideApp(k) } }
+        out += MenuEntry(tr("إخفاء", "Hide"), "◌") { vm.update { it.hideApp(k) } }
 
         if (k in s.locked) {
-            out += MenuEntry(tr("إلغاء القفل", "Unlock")) {
+            out += MenuEntry(tr("إلغاء القفل", "Unlock"), "🔓") {
                 requireAuth { vm.update { it.copy(locked = it.locked - k) } }
             }
         } else if (s.pinHash == null) {
-            out += MenuEntry(tr("قفل (اضبط PIN أولاً)", "Lock (set a PIN first)")) { settingsOpen = true }
+            out += MenuEntry(tr("قفل (اضبط PIN أولاً)", "Lock (set a PIN first)"), "🔒") { settingsOpen = true }
         } else {
-            out += MenuEntry(tr("قفل التطبيق", "Lock app")) { vm.update { it.copy(locked = it.locked + k) } }
+            out += MenuEntry(tr("قفل التطبيق", "Lock app"), "🔒") { vm.update { it.copy(locked = it.locked + k) } }
         }
 
-        out += MenuEntry(tr("معلومات التطبيق", "App info")) { actions.openAppInfo(app) }
-        out += MenuEntry(tr("إلغاء التثبيت", "Uninstall")) { actions.uninstall(app) }
+        out += MenuEntry(tr("معلومات التطبيق", "App info"), "ⓘ") { actions.openAppInfo(app) }
+        out += MenuEntry(tr("إلغاء التثبيت", "Uninstall"), "🗑", danger = true) { actions.uninstall(app) }
         return out
     }
 

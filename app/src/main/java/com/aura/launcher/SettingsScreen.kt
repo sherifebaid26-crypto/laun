@@ -198,6 +198,29 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
             }
 
             item {
+                Text(
+                    tr("شكل قائمة الضغط المطوّل", "Long-press menu style"),
+                    color = pal.onPanel, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(MenuStyle.IOS to "iPhone", MenuStyle.SAMSUNG to "Samsung", MenuStyle.VIVO to "Vivo")
+                        .forEach { (m, n) -> Chip(n, state.menuStyle == m, pal) { vm.update { it.copy(menuStyle = m) } } }
+                }
+                Text(
+                    tr("الساعة على الشاشة الرئيسية", "Home screen clock"),
+                    color = pal.onPanel, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        ClockStyle.NONE to tr("بدون", "None"),
+                        ClockStyle.SMALL to tr("صغيرة", "Small"),
+                        ClockStyle.BIG to tr("كبيرة", "Big"),
+                        ClockStyle.BIG_SERIF to tr("كلاسيك", "Classic"),
+                    ).forEach { (c, n) -> Chip(n, state.clock == c, pal) { vm.update { it.copy(clock = c) } } }
+                }
+            }
+
+            item {
                 Section(tr("الشبكة والأيقونات", "Grid & icons"), pal)
                 SliderRow(
                     tr("عدد الأعمدة", "Columns"), state.columns.toFloat(), 3f..6f, 2, pal,
@@ -313,7 +336,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Text(
-                    "Aura Launcher 1.1",
+                    "Aura Launcher 1.2",
                     color = pal.onPanel.copy(alpha = 0.4f), fontSize = 12.sp,
                     modifier = Modifier.padding(top = 28.dp),
                 )

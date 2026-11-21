@@ -106,7 +106,7 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun applyTheme(def: ThemeDef) {
         viewModelScope.launch {
-            val ok = ThemeStore.applyWallpaper(app, def.id)
+            val r = ThemeStore.applyWallpaper(app, def.id)
             update {
                 it.copy(
                     themeId = def.id, theme = def.mode, accent = def.accent,
@@ -114,10 +114,20 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
                 )
             }
             reloadApps()
-            _message.value = if (ok) tr("اتطبّق الثيم", "Theme applied")
-            else tr("اتطبّق الستايل بس، والخلفية ماتغيرتش", "Style applied, but the wallpaper wasn't changed")
+            val vivo = android.os.Build.MANUFACTURER.lowercase().let { m -> "vivo" in m || "iqoo" in m }
+            _message.value = when {
+                !r.system -> tr("اتطبّق الستايل بس، والخلفية ماتغيرتش", "Style applied, but the wallpaper wasn't changed")
+                !r.lock -> tr("اتطبّق الثيم، لكن الجهاز رفض تغيير شاشة القفل", "Theme applied, but the device refused to change the lock screen")
+                vivo -> tr(
+                    "اتطبّق الثيم. لو شاشة القفل ماتغيّرتش، غيّرها من إعدادات فيفو ← الخلفية",
+                    "Theme applied. If the lock screen didn't change, set it from Vivo's wallpaper settings",
+                )
+                else -> tr("اتطبّق الثيم", "Theme applied")
+            }
         }
     }
+
+    fun postMessage(text: String) { _message.value = text }
 
     /** يرجّع الستايل الافتراضي (الخلفية بتفضل زي ما هي). */
     fun resetTheme() {

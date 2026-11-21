@@ -32,6 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +54,36 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
     val insets = WindowInsets.systemBars.asPaddingValues()
     var query by remember { mutableStateOf("") }
     val focus = remember { FocusRequester() }
+    val density = LocalDensity.current
+    val focusManager = LocalFocusManager.current
+    val threshold = with(density) { 110.dp.toPx() }
+
+    // سحب لتحت وإحنا في أول القائمة = نرجع للشاشة الرئيسية
+    val pullToClose = remember {
+        object : NestedScrollConnection {
+            var pulled = 0f
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y > 0f) {
+                        pulled += available.y
+                        if (pulled > threshold) {
+                            pulled = 0f
+                            focusManager.clearFocus()
+                            ui.drawerOpen = false
+                        }
+                    } else if (consumed.y != 0f) {
+                        pulled = 0f
+                    }
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                pulled = 0f
+                return Velocity.Zero
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (ui.focusSearch) {
@@ -72,7 +109,8 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
             .fillMaxSize()
             .background(pal.drawerBg)
             .padding(top = insets.calculateTopPadding())
-            .imePadding(),
+            .imePadding()
+            .nestedScroll(pullToClose),
     ) {
         TextField(
             value = query,

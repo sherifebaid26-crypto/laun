@@ -6,7 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,41 +24,62 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
-private fun itemKey(item: HomeItem): String = when (item) {
-    is HomeItem.App -> "a:" + item.key
-    is HomeItem.Folder -> "f:" + item.id
-    is HomeItem.Widget -> "w:" + item.widgetId
-}
+private data class DragState(
+    val ref: String,
+    val fromDock: Boolean,
+    val pos: Offset,
+    val moved: Boolean,
+    val icon: ImageBitmap?,
+    val wCells: Int,
+    val hCells: Int,
+)
+
+private data class GridHit(val cell: Int, val center: Boolean)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -70,130 +93,141 @@ fun AppCell(
     modifier: Modifier = Modifier,
     showLabel: Boolean = state.showLabels,
     folder: String? = null,
+    interactive: Boolean = true,
 ) {
-    var menu by remember { mutableStateOf(false) }
-    Box(modifier) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .combinedClickable(onClick = { ui.launch(app) }, onLongClick = { menu = true })
-                .padding(vertical = 6.dp),
-        ) {
-            Image(
-                bitmap = app.icon,
-                contentDescription = app.label,
-                modifier = Modifier.size((56 * state.iconScale).dp),
+    var rect by remember { mutableStateOf(Rect.Zero) }
+    val click = if (interactive) {
+        Modifier.combinedClickable(
+            onClick = { ui.launch(app) },
+            onLongClick = { ui.showMenu(rect, ui.menuFor(app, where, folder)) },
+        )
+    } else {
+        Modifier.clickable { ui.launch(app) }
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { rect = it.boundsInWindow() }
+            .clip(RoundedCornerShape(16.dp))
+            .then(click)
+            .padding(vertical = 6.dp),
+    ) {
+        Image(
+            bitmap = app.icon,
+            contentDescription = app.label,
+            modifier = Modifier.size((56 * state.iconScale).dp),
+        )
+        if (showLabel) {
+            Text(
+                text = if (app.key in state.locked) app.label + " 🔒" else app.label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    color = textColor,
+                    fontSize = 12.sp,
+                    shadow = Shadow(color = shadow, blurRadius = 4f),
+                ),
+                modifier = Modifier.padding(top = 5.dp, start = 2.dp, end = 2.dp),
             )
-            if (showLabel) {
-                Text(
-                    text = if (app.key in state.locked) app.label + " 🔒" else app.label,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(
-                        color = textColor,
-                        fontSize = 12.sp,
-                        shadow = Shadow(color = shadow, blurRadius = 4f),
-                    ),
-                    modifier = Modifier.padding(top = 5.dp, start = 2.dp, end = 2.dp),
-                )
-            }
-        }
-        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-            ui.menuFor(app, where, folder).forEach { e ->
-                DropdownMenuItem(text = { Text(e.label) }, onClick = { menu = false; e.onClick() })
-            }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FolderCell(
-    ui: Ui,
     folder: HomeItem.Folder,
     apps: Map<String, AppEntry>,
     state: AuraState,
     pal: AuraPalette,
+    onClick: () -> Unit,
 ) {
-    var menu by remember { mutableStateOf(false) }
     val size = (56 * state.iconScale).dp
-    Box {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+    ) {
         Column(
+            verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
+                .size(size)
                 .clip(RoundedCornerShape(16.dp))
-                .combinedClickable(onClick = { ui.folderId = folder.id }, onLongClick = { menu = true })
-                .padding(vertical = 6.dp),
+                .background(pal.panel)
+                .border(1.dp, pal.border, RoundedCornerShape(16.dp)),
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .size(size)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(pal.panel)
-                    .border(1.dp, pal.border, RoundedCornerShape(16.dp)),
-            ) {
-                folder.keys.mapNotNull { apps[it] }.take(4).chunked(2).forEach { row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        row.forEach { Image(it.icon, null, Modifier.size(size * 0.38f)) }
-                    }
+            folder.keys.mapNotNull { apps[it] }.take(4).chunked(2).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                    row.forEach { Image(it.icon, null, Modifier.size(size * 0.38f)) }
                 }
             }
-            if (state.showLabels) {
-                Text(
-                    text = folder.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(
-                        color = pal.homeText,
-                        fontSize = 12.sp,
-                        shadow = Shadow(color = pal.homeShadow, blurRadius = 4f),
-                    ),
-                    modifier = Modifier.padding(top = 5.dp, start = 2.dp, end = 2.dp),
-                )
-            }
         }
-        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-            DropdownMenuItem(
-                text = { Text(tr("إعادة تسمية", "Rename")) },
-                onClick = {
-                    menu = false
-                    ui.textInput = TextRequest(tr("اسم المجلد", "Folder name"), folder.name) { n ->
-                        ui.vm.update { it.renameFolder(folder.id, n.ifBlank { folder.name }) }
-                    }
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(tr("حذف المجلد", "Delete folder")) },
-                onClick = { menu = false; ui.vm.update { it.deleteFolder(folder.id) } },
+        if (state.showLabels) {
+            Text(
+                text = folder.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    color = pal.homeText,
+                    fontSize = 12.sp,
+                    shadow = Shadow(color = pal.homeShadow, blurRadius = 4f),
+                ),
+                modifier = Modifier.padding(top = 5.dp, start = 2.dp, end = 2.dp),
             )
         }
     }
 }
 
 @Composable
-private fun WidgetCell(ui: Ui, widgetId: Int, height: androidx.compose.ui.unit.Dp, pal: AuraPalette) {
-    Box(Modifier.fillMaxWidth().height(height).padding(4.dp).clip(RoundedCornerShape(20.dp))) {
+private fun WidgetCell(ui: Ui, widgetId: Int) {
+    Box(Modifier.fillMaxSize().padding(4.dp).clip(RoundedCornerShape(20.dp))) {
         WidgetView(ui.actions.widgetHost, widgetId, Modifier.fillMaxSize())
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(6.dp)
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(pal.panel)
-                .clickable {
-                    ui.actions.removeWidget(widgetId)
-                    ui.vm.update { it.removeWidget(widgetId) }
-                },
-        ) { Text("✕", color = pal.onPanel, fontSize = 12.sp) }
+    }
+}
+
+@Composable
+private fun PageGrid(
+    page: List<HomeItem>,
+    ui: Ui,
+    state: AuraState,
+    apps: Map<String, AppEntry>,
+    pal: AuraPalette,
+    cellW: Dp,
+    cellH: Dp,
+    draggingRef: String?,
+) {
+    Box(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
+        for (item in page) {
+            key(item.ref) {
+                if (item.cell >= 0) {
+                    val col = item.cell % state.columns
+                    val row = item.cell / state.columns
+                    Box(
+                        Modifier
+                            .absoluteOffset(cellW * col, cellH * row)
+                            .size(cellW * state.colsOf(item), cellH * state.rowsOf(item))
+                            .alpha(if (item.ref == draggingRef) 0f else 1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        when (item) {
+                            is HomeItem.App -> apps[item.key]?.let {
+                                AppCell(ui, it, Where.HOME, state, pal.homeText, pal.homeShadow, interactive = false)
+                            }
+                            is HomeItem.Folder -> FolderCell(item, apps, state, pal) { ui.folderId = item.id }
+                            is HomeItem.Widget -> WidgetCell(ui, item.widgetId)
+                            is HomeItem.Builtin ->
+                                BuiltinWidget(item.kind, pal, ui, Modifier.fillMaxSize().padding(4.dp))
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -201,8 +235,22 @@ private fun WidgetCell(ui: Ui, widgetId: Int, height: androidx.compose.ui.unit.D
 @Composable
 fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPalette) {
     val insets = WindowInsets.systemBars.asPaddingValues()
-    val pagerState = rememberPagerState(pageCount = { state.pages.size })
+    val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val homeTick by ui.vm.homeTick.collectAsState()
+
+    val st = rememberUpdatedState(state)
+    val appsRef = rememberUpdatedState(apps)
+
+    var drag by remember { mutableStateOf<DragState?>(null) }
+    var dragEdge by remember { mutableIntStateOf(0) }
+    var rootPos by remember { mutableStateOf(Offset.Zero) }
+    var gridWin by remember { mutableStateOf(Rect.Zero) }
+    var dockWin by remember { mutableStateOf(Rect.Zero) }
+
+    val dragging = drag?.moved == true
+    val pagerState = rememberPagerState(pageCount = { state.pages.size + if (dragging) 1 else 0 })
 
     LaunchedEffect(homeTick) {
         if (homeTick > 0) {
@@ -211,159 +259,357 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
         }
     }
 
-    Column(
+    // لما الإصبع يقعد عند حافة الشاشة أثناء السحب: نقلّب الصفحة
+    LaunchedEffect(dragEdge) {
+        if (dragEdge != 0) {
+            while (true) {
+                delay(650)
+                val step = if (dragEdge > 0) (if (rtl) -1 else 1) else (if (rtl) 1 else -1)
+                val target = pagerState.currentPage + step
+                if (target in 0 until pagerState.pageCount) pagerState.animateScrollToPage(target)
+            }
+        }
+    }
+
+    val padPx = with(density) { 8.dp.toPx() }
+    val dockPadPx = with(density) { 6.dp.toPx() }
+    val edgePx = with(density) { 36.dp.toPx() }
+
+    // ───── هندسة الشبكة (إحداثيات النافذة) ─────
+    fun cellW(): Float = (gridWin.width - 2 * padPx) / st.value.columns
+    fun cellH(): Float = gridWin.height / st.value.rows
+
+    fun cellRectWin(cell: Int, wC: Int, hC: Int): Rect {
+        val s = st.value
+        val col = cell % s.columns
+        val row = cell / s.columns
+        val left = gridWin.left + padPx + col * cellW()
+        val top = gridWin.top + row * cellH()
+        return Rect(left, top, left + cellW() * wC, top + cellH() * hC)
+    }
+
+    fun gridHit(w: Offset): GridHit? {
+        if (!gridWin.contains(w)) return null
+        val s = st.value
+        val fx = (w.x - gridWin.left - padPx) / cellW()
+        val fy = (w.y - gridWin.top) / cellH()
+        val col = fx.toInt().coerceIn(0, s.columns - 1)
+        val row = fy.toInt().coerceIn(0, s.rows - 1)
+        val cx = fx - col
+        val cy = fy - row
+        return GridHit(row * s.columns + col, cx in 0.2f..0.8f && cy in 0.2f..0.8f)
+    }
+
+    fun dockCount(): Int = minOf(st.value.dock.size, MAX_DOCK)
+
+    fun dockSlotW(): Float = (dockWin.width - 2 * dockPadPx) / (dockCount() + 1)
+
+    fun dockIndexAt(w: Offset): Int {
+        val idx = ((w.x - dockWin.left - dockPadPx) / dockSlotW()).toInt()
+        return idx.coerceIn(0, dockCount())
+    }
+
+    fun dockSlotRect(i: Int): Rect {
+        val left = dockWin.left + dockPadPx + i * dockSlotW()
+        return Rect(left, dockWin.top, left + dockSlotW(), dockWin.bottom)
+    }
+
+    fun itemAt(page: Int, cell: Int): HomeItem? {
+        val s = st.value
+        return s.pages.getOrNull(page)?.firstOrNull { it.cell >= 0 && cell in s.footprint(it, it.cell) }
+    }
+
+    fun showItemMenu(d: DragState) {
+        val s = st.value
+        val ui2 = ui
+        if (d.fromDock) {
+            val key = d.ref.removePrefix("a:")
+            val app = appsRef.value[key] ?: return
+            val idx = s.dock.indexOf(key)
+            ui2.showMenu(dockSlotRect(idx.coerceAtLeast(0)), ui2.menuFor(app, Where.DOCK))
+            return
+        }
+        val item = s.pages.flatten().firstOrNull { it.ref == d.ref } ?: return
+        val rect = cellRectWin(item.cell, s.colsOf(item), s.rowsOf(item))
+        val entries = when (item) {
+            is HomeItem.App -> appsRef.value[item.key]?.let { ui2.menuFor(it, Where.HOME) } ?: emptyList()
+            is HomeItem.Folder -> ui2.folderEntries(item)
+            else -> ui2.widgetEntries(item)
+        }
+        ui2.showMenu(rect, entries)
+    }
+
+    fun performDrop(d: DragState) {
+        val w = d.pos + rootPos
+        if (dockWin.contains(w)) {
+            val idx = dockIndexAt(w)
+            ui.vm.update { it.dropOnDock(d.ref, d.fromDock, idx) }
+            return
+        }
+        val g = gridHit(w) ?: return
+        val page = pagerState.currentPage
+        ui.vm.update { it.dropOnHome(d.ref, d.fromDock, page, g.cell, g.center) }
+    }
+
+    Box(
         Modifier
             .fillMaxSize()
-            .padding(top = insets.calculateTopPadding(), bottom = insets.calculateBottomPadding()),
-    ) {
-        ClockHeader(state.clock, pal.homeText, pal.homeShadow)
+            .onGloballyPositioned { rootPos = it.positionInWindow() }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    if (ui.overlayOpen) return@awaitEachGesture
+                    val slop = viewConfiguration.touchSlop
 
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .pointerInput(state.gestures) {
-                    if (state.gestures) {
-                        var total = 0f
-                        detectVerticalDragGestures(
-                            onDragStart = { total = 0f },
-                            onDragEnd = {
-                                if (total < -140f) ui.openDrawer(false)
-                                else if (total > 140f) ui.openDrawer(true)
-                            },
-                            onDragCancel = {},
-                            onVerticalDrag = { _, dy -> total += dy },
+                    // ننتظر الضغطة المطوّلة (لو الإصبع اتحرك أو اتشال قبلها نسيب الإيماءات العادية)
+                    val notLong = withTimeoutOrNull(400L) {
+                        var abort = false
+                        while (!abort) {
+                            val ev = awaitPointerEvent(PointerEventPass.Initial)
+                            val ch = ev.changes.firstOrNull { it.id == down.id }
+                            if (ch == null || ch.changedToUp() || ch.isConsumed ||
+                                (ch.position - down.position).getDistance() > slop
+                            ) abort = true
+                        }
+                        true
+                    }
+                    if (notLong != null) return@awaitEachGesture
+
+                    val w0 = down.position + rootPos
+                    val s = st.value
+
+                    // مين تحت الإصبع؟
+                    var ref: String? = null
+                    var fromDock = false
+                    var icon: ImageBitmap? = null
+                    var wC = 1
+                    var hC = 1
+                    if (dockWin.contains(w0)) {
+                        val idx = dockIndexAt(w0)
+                        if (idx < dockCount()) {
+                            val key = s.dock[idx]
+                            ref = "a:$key"
+                            fromDock = true
+                            icon = appsRef.value[key]?.icon
+                        }
+                    } else {
+                        val g = gridHit(w0)
+                        if (g == null) return@awaitEachGesture
+                        val item = itemAt(pagerState.currentPage, g.cell)
+                        if (item != null) {
+                            ref = item.ref
+                            wC = s.colsOf(item)
+                            hC = s.rowsOf(item)
+                            if (item is HomeItem.App) icon = appsRef.value[item.key]?.icon
+                        }
+                    }
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+
+                    if (ref == null) {
+                        // ضغطة مطوّلة على مكان فاضي = قائمة الشاشة الرئيسية
+                        ui.showMenu(Rect(w0, w0), ui.homeEntries())
+                        while (true) {
+                            val ev = awaitPointerEvent(PointerEventPass.Initial)
+                            val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                            ch.consume()
+                            if (ch.changedToUp() || !ch.pressed) break
+                        }
+                        return@awaitEachGesture
+                    }
+
+                    drag = DragState(ref, fromDock, down.position, false, icon, wC, hC)
+                    var moved = false
+                    while (true) {
+                        val ev = awaitPointerEvent(PointerEventPass.Initial)
+                        val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                        ch.consume()
+                        if (ch.changedToUp() || !ch.pressed) break
+                        val p = ch.position
+                        if (!moved && (p - down.position).getDistance() > slop) moved = true
+                        drag = drag?.copy(pos = p, moved = moved)
+                        val wx = p.x + rootPos.x
+                        dragEdge = when {
+                            !moved -> 0
+                            wx < edgePx -> -1
+                            wx > gridWin.right - edgePx -> 1
+                            else -> 0
+                        }
+                    }
+                    dragEdge = 0
+                    val d = drag
+                    drag = null
+                    if (d != null) {
+                        if (d.moved) performDrop(d) else showItemMenu(d)
+                    }
+                }
+            },
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(top = insets.calculateTopPadding(), bottom = insets.calculateBottomPadding()),
+        ) {
+            ClockHeader(state.clock, pal.homeText, pal.homeShadow)
+
+            BoxWithConstraints(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .onGloballyPositioned { gridWin = it.boundsInWindow() }
+                    .pointerInput(state.gestures) {
+                        if (state.gestures) {
+                            var total = 0f
+                            detectVerticalDragGestures(
+                                onDragStart = { total = 0f },
+                                onDragEnd = {
+                                    if (total < -140f) ui.openDrawer(false)
+                                    else if (total > 140f) ui.openDrawer(true)
+                                },
+                                onDragCancel = {},
+                                onVerticalDrag = { _, dy -> total += dy },
+                            )
+                        }
+                    },
+            ) {
+                val cw = (maxWidth - 16.dp) / state.columns
+                val ch = maxHeight / state.rows
+
+                HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
+                    PageGrid(
+                        page = state.pages.getOrNull(pageIndex) ?: emptyList(),
+                        ui = ui, state = state, apps = apps, pal = pal,
+                        cellW = cw, cellH = ch,
+                        draggingRef = if (dragging) drag?.ref else null,
+                    )
+                }
+
+                if (state.pages.all { it.isEmpty() }) {
+                    Text(
+                        tr(
+                            "اسحب لأعلى لفتح التطبيقات\nاضغط مطولاً هنا للودجتس والإعدادات",
+                            "Swipe up for all apps\nLong-press here for widgets & settings",
+                        ),
+                        color = pal.homeText.copy(alpha = 0.75f),
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(shadow = Shadow(color = pal.homeShadow, blurRadius = 4f)),
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                    )
+                }
+            }
+
+            val dotCount = state.pages.size + if (dragging) 1 else 0
+            if (dotCount > 1) {
+                Row(
+                    Modifier.fillMaxWidth().padding(bottom = 2.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    repeat(dotCount) { i ->
+                        val current = i == pagerState.currentPage
+                        Box(
+                            Modifier
+                                .padding(3.dp)
+                                .size(if (current) 8.dp else 6.dp)
+                                .clip(CircleShape)
+                                .background(if (current) pal.homeText else pal.homeText.copy(alpha = 0.4f))
                         )
                     }
                 }
-                .pointerInput(Unit) { detectTapGestures(onLongPress = { ui.homeMenu = true }) },
-        ) {
-            val cellH = maxHeight / state.rows
-
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
-                val page = state.pages.getOrNull(pageIndex) ?: emptyList()
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(state.columns),
-                    userScrollEnabled = false,
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
-                ) {
-                    items(
-                        page,
-                        key = { itemKey(it) },
-                        span = { item -> GridItemSpan(if (item is HomeItem.Widget) maxLineSpan else 1) },
-                    ) { item ->
-                        when (item) {
-                            is HomeItem.App -> apps[item.key]?.let {
-                                AppCell(
-                                    ui, it, Where.HOME, state, pal.homeText, pal.homeShadow,
-                                    Modifier.height(cellH),
-                                )
-                            }
-                            is HomeItem.Folder -> Box(Modifier.height(cellH)) {
-                                FolderCell(ui, item, apps, state, pal)
-                            }
-                            is HomeItem.Widget -> WidgetCell(ui, item.widgetId, cellH * 2, pal)
-                        }
-                    }
-                }
             }
 
-            if (state.pages.all { it.isEmpty() }) {
-                Text(
-                    tr(
-                        "اسحب لأعلى لفتح التطبيقات\nاضغط مطولاً هنا للإعدادات والودجتس",
-                        "Swipe up for all apps\nLong-press here for settings & widgets",
-                    ),
-                    color = pal.homeText.copy(alpha = 0.75f),
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(shadow = Shadow(color = pal.homeShadow, blurRadius = 4f)),
-                    modifier = Modifier.align(Alignment.Center).padding(32.dp),
+            Box(
+                Modifier.fillMaxWidth().height(26.dp).clickable { ui.openDrawer(false) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    Modifier
+                        .width(40.dp)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(pal.homeText.copy(alpha = 0.6f))
                 )
             }
 
-            Box(Modifier.align(Alignment.Center)) {
-                DropdownMenu(expanded = ui.homeMenu, onDismissRequest = { ui.homeMenu = false }) {
-                    DropdownMenuItem(
-                        text = { Text(tr("إضافة ودجت", "Add widget")) },
-                        onClick = { ui.homeMenu = false; ui.widgetPicker = true },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(tr("مجلد جديد", "New folder")) },
-                        onClick = { ui.homeMenu = false; ui.newFolder() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(tr("متجر الثيمات", "Theme store")) },
-                        onClick = { ui.homeMenu = false; ui.storeOpen = true },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(tr("الخلفية", "Wallpaper")) },
-                        onClick = { ui.homeMenu = false; ui.actions.openWallpaperPicker() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(tr("الإعدادات", "Settings")) },
-                        onClick = { ui.homeMenu = false; ui.settingsOpen = true },
-                    )
-                }
-            }
-        }
-
-        if (state.pages.size > 1) {
+            val shape = RoundedCornerShape(30.dp)
             Row(
-                Modifier.fillMaxWidth().padding(bottom = 2.dp),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .onGloballyPositioned { dockWin = it.boundsInWindow() }
+                    .clip(shape)
+                    .background(pal.panel)
+                    .border(1.dp, pal.border, shape)
+                    .padding(horizontal = 6.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                repeat(state.pages.size) { i ->
-                    val current = i == pagerState.currentPage
-                    Box(
-                        Modifier
-                            .padding(3.dp)
-                            .size(if (current) 8.dp else 6.dp)
-                            .clip(CircleShape)
-                            .background(if (current) pal.homeText else pal.homeText.copy(alpha = 0.4f))
+                state.dock.take(MAX_DOCK).mapNotNull { apps[it] }.forEach { app ->
+                    val hide = dragging && drag?.fromDock == true && drag?.ref == "a:${app.key}"
+                    AppCell(
+                        ui, app, Where.DOCK, state, pal.onPanel, Color.Transparent,
+                        Modifier.weight(1f).alpha(if (hide) 0f else 1f),
+                        showLabel = false, interactive = false,
                     )
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(68.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { ui.openDrawer(false) },
+                ) {
+                    Text("⋮⋮⋮", color = pal.onPanel, fontSize = 20.sp)
                 }
             }
         }
 
-        Box(
-            Modifier.fillMaxWidth().height(26.dp).clickable { ui.openDrawer(false) },
-            contentAlignment = Alignment.Center,
-        ) {
+        // ───── مكان الإفلات + العنصر المسحوب ─────
+        val d = drag
+        if (d != null && d.moved) {
+            val w = d.pos + rootPos
+            val target: Rect? = when {
+                dockWin.contains(w) -> dockWin
+                else -> gridHit(w)?.let { g ->
+                    val s = state
+                    val wide = d.wCells > 1 || d.hCells > 1
+                    var cell = if (wide) (g.cell / s.columns) * s.columns else g.cell
+                    val maxRow = s.rows - d.hCells
+                    if (cell / s.columns > maxRow) cell = maxRow * s.columns + cell % s.columns
+                    cellRectWin(cell, d.wCells, d.hCells)
+                }
+            }
+            if (target != null) {
+                val r = target.translate(-rootPos.x, -rootPos.y)
+                Box(
+                    Modifier
+                        .absoluteOffset { IntOffset(r.left.roundToInt(), r.top.roundToInt()) }
+                        .size(with(density) { r.width.toDp() }, with(density) { r.height.toDp() })
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(pal.accent.copy(alpha = 0.14f))
+                        .border(2.dp, pal.accent.copy(alpha = 0.8f), RoundedCornerShape(18.dp))
+                )
+            }
+
+            val gw = if (d.wCells > 1 || d.hCells > 1) cellW() * d.wCells else with(density) { 64.dp.toPx() }
+            val gh = if (d.wCells > 1 || d.hCells > 1) cellH() * d.hCells else gw
             Box(
                 Modifier
-                    .width(40.dp)
-                    .height(5.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(pal.homeText.copy(alpha = 0.6f))
-            )
-        }
-
-        val shape = RoundedCornerShape(30.dp)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-                .clip(shape)
-                .background(pal.panel)
-                .border(1.dp, pal.border, shape)
-                .padding(horizontal = 6.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            state.dock.mapNotNull { apps[it] }.take(MAX_DOCK).forEach { app ->
-                AppCell(
-                    ui, app, Where.DOCK, state, pal.onPanel, Color.Transparent,
-                    Modifier.weight(1f), showLabel = false,
-                )
-            }
-            Box(
+                    .absoluteOffset { IntOffset((d.pos.x - gw / 2).roundToInt(), (d.pos.y - gh / 2).roundToInt()) }
+                    .size(with(density) { gw.toDp() }, with(density) { gh.toDp() })
+                    .alpha(0.92f),
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(68.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { ui.openDrawer(false) },
             ) {
-                Text("⋮⋮⋮", color = pal.onPanel, fontSize = 20.sp)
+                if (d.icon != null) {
+                    Image(d.icon, null, Modifier.fillMaxSize())
+                } else {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(pal.panel)
+                            .border(1.5.dp, pal.accent, RoundedCornerShape(18.dp))
+                    )
+                }
             }
         }
     }

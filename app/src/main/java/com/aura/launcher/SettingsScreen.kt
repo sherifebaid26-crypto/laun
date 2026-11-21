@@ -161,6 +161,12 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Section(tr("المظهر", "Appearance"), pal)
+                ActionRow(tr("متجر الثيمات", "Theme store"), pal) { ui.storeOpen = true }
+                if (state.themeId != null) {
+                    ActionRow(tr("إلغاء الثيم والرجوع للستايل الافتراضي", "Remove theme (default style)"), pal) {
+                        vm.resetTheme()
+                    }
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
                         ThemeMode.DARK to "Dark",
@@ -307,7 +313,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Text(
-                    "Aura Launcher 0.1 → 1.0",
+                    "Aura Launcher 1.1",
                     color = pal.onPanel.copy(alpha = 0.4f), fontSize = 12.sp,
                     modifier = Modifier.padding(top = 28.dp),
                 )

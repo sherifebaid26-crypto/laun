@@ -5,6 +5,18 @@ import org.json.JSONObject
 
 enum class ThemeMode { DARK, LIGHT, GLASS, COLOR }
 
+enum class IconShape { ORIGINAL, CIRCLE, SQUIRCLE, ROUNDED }
+
+enum class ClockStyle { NONE, BIG, BIG_SERIF, SMALL }
+
+/** ستايل الأيقونات اللي بيجي مع الثيم: شكل + صحيفة خلفية + (اختياري) أيقونة أحادية اللون. */
+data class IconStyle(
+    val shape: IconShape = IconShape.ORIGINAL,
+    val plate: Long = 0L,          // ARGB؛ الشفافية صفر = بدون صحيفة
+    val mono: Boolean = false,     // أندرويد 13+ بس: يستخدم الطبقة الأحادية لو موجودة
+    val tint: Long = 0xFFFFFFFF,
+)
+
 sealed class HomeItem {
     data class App(val key: String) : HomeItem()
     data class Folder(val id: String, val name: String, val keys: List<String>) : HomeItem()
@@ -31,6 +43,10 @@ data class AuraState(
     val hidden: Set<String> = emptySet(),
     val locked: Set<String> = emptySet(),
     val usage: Map<String, UsageStat> = emptyMap(),
+    val themeId: String? = null,
+    val iconStyle: IconStyle = IconStyle(),
+    val clock: ClockStyle = ClockStyle.NONE,
+    val homeText: Long? = null,
 )
 
 const val MAX_DOCK = 5
@@ -143,7 +159,7 @@ private fun itemToJson(item: HomeItem): JSONObject = when (item) {
     is HomeItem.Widget -> JSONObject().put("t", "w").put("id", item.widgetId)
 }
 
-private fun JSONArray?.toStringList(): List<String> =
+internal fun JSONArray?.toStringList(): List<String> =
     if (this == null) emptyList() else List(length()) { getString(it) }
 
 private fun itemFromJson(o: JSONObject): HomeItem? = when (o.optString("t")) {
@@ -186,6 +202,14 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     val u = JSONObject()
     for ((k, v) in usage) u.put(k, JSONObject().put("c", v.count).put("l", v.last))
     o.put("usage", u)
+    themeId?.let { o.put("themeId", it) }
+    homeText?.let { o.put("homeText", it) }
+    o.put("clock", clock.name)
+    o.put(
+        "icon",
+        JSONObject().put("shape", iconStyle.shape.name).put("plate", iconStyle.plate)
+            .put("mono", iconStyle.mono).put("tint", iconStyle.tint),
+    )
     return o
 }
 
@@ -203,6 +227,15 @@ fun auraStateFromJson(o: JSONObject): AuraState {
             UsageStat(e.optInt("c"), e.optLong("l"))
         }
     } ?: emptyMap()
+    val icon = o.optJSONObject("icon")?.let { j ->
+        IconStyle(
+            shape = runCatching { IconShape.valueOf(j.optString("shape", "ORIGINAL")) }
+                .getOrDefault(IconShape.ORIGINAL),
+            plate = j.optLong("plate", 0L),
+            mono = j.optBoolean("mono", false),
+            tint = j.optLong("tint", 0xFFFFFFFF),
+        )
+    } ?: IconStyle()
     return AuraState(
         theme = runCatching { ThemeMode.valueOf(o.optString("theme", "DARK")) }.getOrDefault(ThemeMode.DARK),
         accent = o.optLong("accent", d.accent),
@@ -221,5 +254,9 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         hidden = o.optJSONArray("hidden").toStringList().toSet(),
         locked = o.optJSONArray("locked").toStringList().toSet(),
         usage = usage,
+        themeId = if (o.has("themeId")) o.getString("themeId") else null,
+        iconStyle = icon,
+        clock = runCatching { ClockStyle.valueOf(o.optString("clock", "NONE")) }.getOrDefault(ClockStyle.NONE),
+        homeText = if (o.has("homeText")) o.getLong("homeText") else null,
     )
 }

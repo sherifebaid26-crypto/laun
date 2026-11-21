@@ -45,6 +45,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var textInput by mutableStateOf<TextRequest?>(null)
     var picker by mutableStateOf<PickerRequest?>(null)
     var auth by mutableStateOf<(() -> Unit)?>(null)
+    var storeOpen by mutableStateOf(false)
+    var storeDetail by mutableStateOf<String?>(null)
 
     fun openDrawer(focus: Boolean) {
         focusSearch = focus
@@ -58,6 +60,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         folderId = null
         widgetPicker = false
         homeMenu = false
+        storeOpen = false
+        storeDetail = null
     }
 
     /** لو في PIN نطلبه، لو مفيش ننفذ على طول. */

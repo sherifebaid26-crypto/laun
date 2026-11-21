@@ -1,6 +1,11 @@
 package com.aura.launcher
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,7 +29,26 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
 
     val ui = remember { Ui(vm, actions) }
     val apps = remember(appList) { appList.associateBy { it.key } }
-    val pal = remember(state.theme, state.accent) { paletteFor(state.theme, state.accent) }
+    val pal = remember(state.theme, state.accent, state.homeText) {
+        val base = paletteFor(state.theme, state.accent)
+        val custom = state.homeText
+        if (custom == null) base else {
+            val col = Color(custom)
+            base.copy(
+                homeText = col,
+                homeShadow = if (col.luminance() > 0.5f) Color(0x99000000) else Color(0x66FFFFFF),
+            )
+        }
+    }
+
+    val message by vm.message.collectAsState()
+    val toastContext = LocalContext.current
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(toastContext, it, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
+        }
+    }
 
     var authErrors by remember { mutableIntStateOf(0) }
 
@@ -45,6 +69,9 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
             }
             AnimatedVisibility(visible = ui.hiddenOpen, enter = fadeIn(), exit = fadeOut()) {
                 HiddenAppsScreen(ui, state, appList, pal)
+            }
+            AnimatedVisibility(visible = ui.storeOpen, enter = fadeIn(), exit = fadeOut()) {
+                StoreScreen(ui, state, pal)
             }
 
             // مجلد مفتوح
@@ -89,5 +116,8 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
         BackHandler(enabled = ui.drawerOpen) { ui.drawerOpen = false }
         BackHandler(enabled = ui.settingsOpen) { ui.settingsOpen = false }
         BackHandler(enabled = ui.hiddenOpen) { ui.hiddenOpen = false }
+        BackHandler(enabled = ui.storeOpen) {
+            if (ui.storeDetail != null) ui.storeDetail = null else ui.storeOpen = false
+        }
     }
 }

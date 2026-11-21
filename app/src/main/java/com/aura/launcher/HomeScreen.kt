@@ -216,6 +216,8 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
             .fillMaxSize()
             .padding(top = insets.calculateTopPadding(), bottom = insets.calculateBottomPadding()),
     ) {
+        ClockHeader(state.clock, pal.homeText, pal.homeShadow)
+
         BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
@@ -288,6 +290,10 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                     DropdownMenuItem(
                         text = { Text(tr("مجلد جديد", "New folder")) },
                         onClick = { ui.homeMenu = false; ui.newFolder() },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(tr("متجر الثيمات", "Theme store")) },
+                        onClick = { ui.homeMenu = false; ui.storeOpen = true },
                     )
                     DropdownMenuItem(
                         text = { Text(tr("الخلفية", "Wallpaper")) },

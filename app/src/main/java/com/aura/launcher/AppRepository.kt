@@ -27,7 +27,7 @@ object AppRepository {
 
     /** يقرأ كل التطبيقات القابلة للتشغيل ويرتبها أبجدياً (خارج الـ Main thread). */
     @Suppress("DEPRECATION")
-    suspend fun loadApps(context: Context, iconPack: String?): List<AppEntry> =
+    suspend fun loadApps(context: Context, iconPack: String?, style: IconStyle): List<AppEntry> =
         withContext(Dispatchers.Default) {
             val pm = context.packageManager
             val pack = iconPack?.let { IconPacks.load(context, it) }
@@ -43,12 +43,26 @@ object AppRepository {
                         label = info.loadLabel(pm).toString(),
                         packageName = info.activityInfo.packageName,
                         component = component,
-                        icon = drawable.toBitmap(ICON_SIZE_PX, ICON_SIZE_PX).asImageBitmap(),
+                        icon = IconRenderer.render(drawable, style, ICON_SIZE_PX).asImageBitmap(),
                         category = info.activityInfo.applicationInfo.category,
                     )
                 }
                 .sortedBy { it.normLabel }
                 .toList()
+        }
+
+    /** أيقونات تطبيقاتك الحقيقية بستايل ثيم معيّن (لمعاينة المتجر). */
+    @Suppress("DEPRECATION")
+    suspend fun previewIcons(context: Context, style: IconStyle, count: Int): List<Pair<String, ImageBitmap>> =
+        withContext(Dispatchers.Default) {
+            val pm = context.packageManager
+            val query = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+            pm.queryIntentActivities(query, 0)
+                .filter { it.activityInfo.packageName != context.packageName }
+                .map { it.loadLabel(pm).toString() to it }
+                .sortedBy { it.first.lowercase() }
+                .take(count)
+                .map { (label, info) -> label to IconRenderer.render(info.loadIcon(pm), style, 128).asImageBitmap() }
         }
 
     /** أول تشغيل: اتصال، رسائل، متصفح، كاميرا (لو لقيناهم). */

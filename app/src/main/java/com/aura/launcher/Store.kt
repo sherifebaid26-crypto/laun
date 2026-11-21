@@ -14,6 +14,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
+sealed interface CatalogState {
+    data object Loading : CatalogState
+    data class Error(val msg: String) : CatalogState
+    data class Ready(val themes: List<ThemeDef>, val offline: Boolean) : CatalogState
+}
+
 private val Application.dataStore by preferencesDataStore(name = "aura")
 private val STATE_KEY = stringPreferencesKey("state")
 
@@ -41,11 +47,94 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
                 update { it.copy(dock = dock, dockInitialized = true) }
             }
             _ready.value = true
+            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
         }
     }
 
     private suspend fun loadAppsNow() {
-        _apps.value = AppRepository.loadApps(app, _state.value.iconPack)
+        _apps.value = AppRepository.loadApps(app, _state.value.iconPack, _state.value.iconStyle)
+    }
+
+    // ───────────── متجر الثيمات ─────────────
+
+    private val _catalog = MutableStateFlow<CatalogState>(CatalogState.Loading)
+    val catalog: StateFlow<CatalogState> = _catalog.asStateFlow()
+
+    private val _installed = MutableStateFlow<Map<String, ThemeDef>>(emptyMap())
+    val installed: StateFlow<Map<String, ThemeDef>> = _installed.asStateFlow()
+
+    private val _busy = MutableStateFlow<Set<String>>(emptySet())
+    val busy: StateFlow<Set<String>> = _busy.asStateFlow()
+
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message.asStateFlow()
+
+    fun clearMessage() { _message.value = null }
+
+    fun refreshInstalled() {
+        viewModelScope.launch {
+            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+        }
+    }
+
+    fun loadCatalog() {
+        _catalog.value = CatalogState.Loading
+        viewModelScope.launch {
+            _catalog.value = try {
+                val (list, offline) = ThemeStore.fetchCatalog(app)
+                CatalogState.Ready(list, offline)
+            } catch (e: Exception) {
+                CatalogState.Error(e.message ?: "error")
+            }
+        }
+    }
+
+    fun downloadTheme(def: ThemeDef) {
+        if (def.id in _busy.value) return
+        _busy.update { it + def.id }
+        viewModelScope.launch {
+            try {
+                ThemeStore.download(app, def)
+                _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+            } catch (e: Exception) {
+                _message.value = tr("تعذّر التحميل، اتأكد من الإنترنت", "Download failed. Check your connection.")
+            } finally {
+                _busy.update { it - def.id }
+            }
+        }
+    }
+
+    fun applyTheme(def: ThemeDef) {
+        viewModelScope.launch {
+            val ok = ThemeStore.applyWallpaper(app, def.id)
+            update {
+                it.copy(
+                    themeId = def.id, theme = def.mode, accent = def.accent,
+                    homeText = def.homeText, clock = def.clock, iconStyle = def.icon,
+                )
+            }
+            reloadApps()
+            _message.value = if (ok) tr("اتطبّق الثيم", "Theme applied")
+            else tr("اتطبّق الستايل بس، والخلفية ماتغيرتش", "Style applied, but the wallpaper wasn't changed")
+        }
+    }
+
+    /** يرجّع الستايل الافتراضي (الخلفية بتفضل زي ما هي). */
+    fun resetTheme() {
+        update {
+            it.copy(
+                themeId = null, theme = ThemeMode.DARK, accent = 0xFF00E5FF,
+                homeText = null, clock = ClockStyle.NONE, iconStyle = IconStyle(),
+            )
+        }
+        reloadApps()
+    }
+
+    fun deleteTheme(id: String) {
+        viewModelScope.launch {
+            ThemeStore.delete(app, id)
+            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+        }
     }
 
     fun reloadApps() {

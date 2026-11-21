@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "themes": [
+    {
+      "id": "dunes",
+      "name": {
+        "ar": "كثبان الغروب",
+        "en": "Sunset Dunes"
+      },
+      "tags": {
+        "ar": [
+          "برتقالي",
+          "صحراء",
+          "واقعي"
+        ],
+        "en": [
+          "Orange",
+          "Desert",
+          "Realistic"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 138,
+      "wallpaper": "themes/dunes/wallpaper.jpg",
+      "preview": "themes/dunes/preview.jpg",
+      "style": {
+        "mode": "GLASS",
+        "accent": "#FFB74D",
+        "homeText": "#FFFFFF",
+        "clock": "BIG",
+        "icon": {
+          "shape": "SQUIRCLE",
+          "plate": "#59000000",
+          "mono": false,
+          "tint": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "id": "nile-night",
+      "name": {
+        "ar": "ليل النيل",
+        "en": "Nile Night"
+      },
+      "tags": {
+        "ar": [
+          "أزرق",
+          "ليل",
+          "نيل"
+        ],
+        "en": [
+          "Blue",
+          "Night",
+          "Nile"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 145,
+      "wallpaper": "themes/nile-night/wallpaper.jpg",
+      "preview": "themes/nile-night/preview.jpg",
+      "style": {
+        "mode": "DARK",
+        "accent": "#4FC3F7",
+        "homeText": "#FFFFFF",
+        "clock": "BIG",
+        "icon": {
+          "shape": "CIRCLE",
+          "plate": "#40FFFFFF",
+          "mono": false,
+          "tint": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "id": "mountain-lake",
+      "name": {
+        "ar": "جبال وبحيرة",
+        "en": "Misty Lake"
+      },
+      "tags": {
+        "ar": [
+          "أخضر",
+          "طبيعة",
+          "واقعي"
+        ],
+        "en": [
+          "Green",
+          "Scenery",
+          "Realistic"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 204,
+      "wallpaper": "themes/mountain-lake/wallpaper.jpg",
+      "preview": "themes/mountain-lake/preview.jpg",
+      "style": {
+        "mode": "COLOR",
+        "accent": "#6FBF9A",
+        "homeText": "#FFFFFF",
+        "clock": "BIG_SERIF",
+        "icon": {
+          "shape": "ROUNDED",
+          "plate": "#66264A3E",
+          "mono": false,
+          "tint": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "id": "aurora",
+      "name": {
+        "ar": "الشفق القطبي",
+        "en": "Aurora"
+      },
+      "tags": {
+        "ar": [
+          "أخضر",
+          "فضاء",
+          "فن"
+        ],
+        "en": [
+          "Green",
+          "Space",
+          "Art"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 191,
+      "wallpaper": "themes/aurora/wallpaper.jpg",
+      "preview": "themes/aurora/preview.jpg",
+      "style": {
+        "mode": "DARK",
+        "accent": "#69F0AE",
+        "homeText": "#FFFFFF",
+        "clock": "SMALL",
+        "icon": {
+          "shape": "CIRCLE",
+          "plate": "#33FFFFFF",
+          "mono": false,
+          "tint": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "id": "soft-rose",
+      "name": {
+        "ar": "وردي هادئ",
+        "en": "Soft Rose"
+      },
+      "tags": {
+        "ar": [
+          "وردي",
+          "بسيط",
+          "فاتح"
+        ],
+        "en": [
+          "Pink",
+          "Minimal",
+          "Light"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 73,
+      "wallpaper": "themes/soft-rose/wallpaper.jpg",
+      "preview": "themes/soft-rose/preview.jpg",
+      "style": {
+        "mode": "LIGHT",
+        "accent": "#EC407A",
+        "homeText": "#4A2B3A",
+        "clock": "BIG_SERIF",
+        "icon": {
+          "shape": "CIRCLE",
+          "plate": "#D9FFFFFF",
+          "mono": true,
+          "tint": "#B03A62"
+        }
+      }
+    },
+    {
+      "id": "carbon",
+      "name": {
+        "ar": "كربون أسود",
+        "en": "Carbon Black"
+      },
+      "tags": {
+        "ar": [
+          "أسود",
+          "أحمر",
+          "عصري"
+        ],
+        "en": [
+          "Black",
+          "Red",
+          "Modern"
+        ]
+      },
+      "author": "Aura",
+      "sizeKb": 186,
+      "wallpaper": "themes/carbon/wallpaper.jpg",
+      "preview": "themes/carbon/preview.jpg",
+      "style": {
+        "mode": "DARK",
+        "accent": "#FF5252",
+        "homeText": "#FFFFFF",
+        "clock": "SMALL",
+        "icon": {
+          "shape": "ROUNDED",
+          "plate": "#26FFFFFF",
+          "mono": false,
+          "tint": "#FFFFFF"
+        }
+      }
+    }
+  ]
+}

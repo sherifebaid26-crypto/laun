@@ -116,7 +116,7 @@ fun StoreScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
     val busy by vm.busy.collectAsState()
     val insets = WindowInsets.systemBars.asPaddingValues()
     var tab by remember { mutableIntStateOf(0) }
-    var cat by remember { mutableStateOf<String?>(null) }
+    var catFilter by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) { vm.loadCatalog() }
 
@@ -152,11 +152,11 @@ fun StoreScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(bottom = 10.dp),
                 ) {
-                    item { Chip(tr("الكل", "All"), cat == null, pal) { cat = null } }
-                    items(cats) { (k, label) -> Chip(label, cat == k, pal) { cat = k } }
+                    item { Chip(tr("الكل", "All"), catFilter == null, pal) { catFilter = null } }
+                    items(cats) { (k, label) -> Chip(label, catFilter == k, pal) { catFilter = k } }
                 }
             }
-            val list = if (tab == 0) ready.filter { cat == null || it.categoryEn == cat } else installed.values.toList()
+            val list = if (tab == 0) ready.filter { catFilter == null || it.categoryEn == catFilter } else installed.values.toList()
             when {
                 tab == 0 && cat is CatalogState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                     CircularProgressIndicator(color = pal.accent)

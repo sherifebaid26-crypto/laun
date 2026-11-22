@@ -1,34 +1,73 @@
 package com.aura.launcher
 
-import android.app.Notification
+import android.content.Context
+import android.content.SharedPreferences
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/** عدد الإشعارات الظاهرة لكل تطبيق (باكدج). */
+/**
+ * عدد الإشعارات اللي ما شفتهاش لكل تطبيق. بيفضل ظاهر حتى لو مسحت الإشعار من الشريط،
+ * ويتصفّر لما تفتح التطبيق من Aura.
+ */
 object Badges {
     val counts = MutableStateFlow<Map<String, Int>>(emptyMap())
-}
+    private var prefs: SharedPreferences? = null
 
-/** بيقرأ الإشعارات علشان نعمل شارات (نقط/أرقام) على الأيقونات. بيحتاج إذن "الوصول للإشعارات". */
-class AuraNotificationService : NotificationListenerService() {
-
-    override fun onListenerConnected() = refresh()
-    override fun onNotificationPosted(sbn: StatusBarNotification?) = refresh()
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) = refresh()
-
-    override fun onListenerDisconnected() {
-        Badges.counts.value = emptyMap()
+    @Synchronized
+    fun init(ctx: Context) {
+        if (prefs != null) return
+        val p = ctx.applicationContext.getSharedPreferences("aura_badges", Context.MODE_PRIVATE)
+        prefs = p
+        counts.value = p.all.mapNotNull { (k, v) -> (v as? Int)?.takeIf { it > 0 }?.let { k to it } }.toMap()
     }
 
-    private fun refresh() {
-        val out = HashMap<String, Int>()
-        val list = runCatching { activeNotifications }.getOrNull() ?: emptyArray()
-        for (sbn in list) {
-            if (sbn.isOngoing) continue
-            if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) continue
-            out[sbn.packageName] = (out[sbn.packageName] ?: 0) + sbn.notification.number.coerceAtLeast(1)
+    @Synchronized
+    private fun set(pkg: String, n: Int) {
+        val v = n.coerceIn(0, 99)
+        val m = counts.value.toMutableMap()
+        if (v <= 0) m.remove(pkg) else m[pkg] = v
+        counts.value = m
+        prefs?.edit()?.apply { if (v <= 0) remove(pkg) else putInt(pkg, v) }?.apply()
+    }
+
+    fun add(pkg: String, n: Int) = set(pkg, (counts.value[pkg] ?: 0) + n)
+    fun clear(pkg: String) { if (counts.value.containsKey(pkg)) set(pkg, 0) }
+    fun setIfEmpty(pkg: String, n: Int) { if ((counts.value[pkg] ?: 0) == 0) set(pkg, n) }
+}
+
+/** بيقرأ الإشعارات علشان نعمل شارات على الأيقونات. بيحتاج إذن "الوصول للإشعارات". */
+class AuraNotificationService : NotificationListenerService() {
+    private val seen = HashMap<String, Long>()
+
+    private fun relevant(sbn: StatusBarNotification): Boolean =
+        !sbn.isOngoing &&
+            (sbn.notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY) == 0 &&
+            sbn.packageName != packageName
+
+    override fun onListenerConnected() {
+        Badges.init(this)
+        val active = runCatching { activeNotifications }.getOrNull() ?: emptyArray()
+        val per = HashMap<String, Int>()
+        for (sbn in active) {
+            if (!relevant(sbn)) continue
+            seen[sbn.key] = sbn.postTime
+            per[sbn.packageName] = (per[sbn.packageName] ?: 0) + sbn.notification.number.coerceAtLeast(1)
         }
-        Badges.counts.value = out
+        per.forEach { (pkg, n) -> Badges.setIfEmpty(pkg, n) }
+    }
+
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        sbn ?: return
+        Badges.init(this)
+        if (!relevant(sbn)) return
+        val prev = seen[sbn.key]
+        seen[sbn.key] = sbn.postTime
+        if (prev == null || sbn.postTime > prev) Badges.add(sbn.packageName, sbn.notification.number.coerceAtLeast(1))
+    }
+
+    // مقصود: مسح الإشعار مش بيصفّر الرقم، علشان تفتكر إنك ما فتحتش التطبيق.
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        sbn?.let { seen.remove(it.key) }
     }
 }

@@ -54,6 +54,13 @@ interface LauncherActions {
     fun openNotificationAccess()
     fun openUrl(url: String)
     fun pickImage(onResult: (Uri?) -> Unit)
+    fun pickPhoto(uid: String)
+    fun hasLocationPermission(): Boolean
+    fun requestLocation(onDone: () -> Unit)
+    fun hasCalendarPermission(): Boolean
+    fun requestCalendar(onDone: () -> Unit)
+    fun appVersion(): String
+    fun shareText(text: String)
     fun hasContactsPermission(): Boolean
     fun requestContacts(onDone: () -> Unit)
     fun notificationAccessEnabled(): Boolean
@@ -90,6 +97,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var resizeUid by mutableStateOf<String?>(null)
     var hour by androidx.compose.runtime.mutableIntStateOf(java.time.LocalTime.now().hour)
     var limitDialog by mutableStateOf<LimitRequest?>(null)
+    var permsOpen by mutableStateOf(false)
+    var diagOpen by mutableStateOf(false)
     private val snoozed = HashMap<String, Long>()
 
     fun launchOverLimit(r: LimitRequest) {
@@ -120,13 +129,18 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     }
 
     fun editCity(b: HomeItem.Builtin) {
-        textInput = TextRequest(tr("اسم المدينة (مثلاً: القاهرة)", "City name (e.g. Cairo)"), b.data) { c ->
-            vm.update { it.updateBuiltin(b.uid) { old -> old.copy(data = c.trim()) } }
+        textInput = TextRequest(
+            tr("اسم المدينة (سيبه فاضي = موقعي تلقائياً)", "City name (blank = my location)"),
+            if (b.data == "gps") "" else b.data,
+        ) { c ->
+            val v = c.trim().ifBlank { "gps" }
+            vm.update { it.updateBuiltin(b.uid) { old -> old.copy(data = v) } }
+            if (v == "gps" && !actions.hasLocationPermission()) actions.requestLocation { }
         }
     }
 
     fun pickPhoto(uid: String) {
-        actions.pickImage { uri -> if (uri != null) vm.setPhoto(uid, uri) }
+        actions.pickPhoto(uid)
     }
 
     fun editNote(b: HomeItem.Builtin) {
@@ -139,7 +153,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
             widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
-            editWidget != null
+            editWidget != null || permsOpen || diagOpen
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -171,6 +185,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     fun launch(app: AppEntry, bounds: Rect? = null) {
         val go = {
             vm.recordLaunch(app.key)
+            Badges.clear(app.packageName)
             drawerOpen = false
             folderId = null
             actions.launchApp(app, bounds)
@@ -242,6 +257,10 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             if (item.kind == "notes") out += MenuEntry(tr("تعديل النص", "Edit text"), "✎") { editNote(item) }
             if (item.kind == "photo") out += MenuEntry(tr("تغيير الصورة", "Change photo"), "🖼") { pickPhoto(item.uid) }
             if (item.kind == "weather" || item.kind == "prayer") {
+                out += MenuEntry(tr("استخدام موقعي تلقائياً", "Use my location"), "◎") {
+                    vm.update { it.updateBuiltin(item.uid) { old -> old.copy(data = "gps") } }
+                    if (!actions.hasLocationPermission()) actions.requestLocation { }
+                }
                 out += MenuEntry(tr("تغيير المدينة", "Change city"), "⌖") { editCity(item) }
             }
             out += MenuEntry(tr("تغيير الحجم بالسحب", "Resize by dragging"), "⤡") { resizeUid = item.uid }

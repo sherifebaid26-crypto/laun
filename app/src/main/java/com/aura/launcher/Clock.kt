@@ -48,7 +48,7 @@ fun ClockHeader(
     val is24 = DateFormat.is24HourFormat(context)
     val timeText = now.format(DateTimeFormatter.ofPattern(if (is24) "HH:mm" else "h:mm"))
     val dateText = now.format(
-        DateTimeFormatter.ofPattern(tr("EEEE، d MMMM", "EEEE, d MMMM"), Locale.getDefault()),
+        DateTimeFormatter.ofPattern(tr("EEEE، d MMMM", "EEEE, d MMMM"), (if (Lang.isAr) Locale("ar") else Locale.ENGLISH)),
     )
 
     val family: FontFamily

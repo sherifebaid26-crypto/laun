@@ -69,6 +69,28 @@ class MainActivity : FragmentActivity(), LauncherActions {
             imageCallback = null
         }
 
+    private val miscPrefs get() = getSharedPreferences("aura_misc", MODE_PRIVATE)
+    private val photoLauncher =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            val uid = miscPrefs.getString("pending_photo", null)
+            miscPrefs.edit().remove("pending_photo").apply()
+            if (uri != null && uid != null) vm.setPhoto(uid, uri)
+        }
+
+    private var locCallback: (() -> Unit)? = null
+    private val locLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            locCallback?.invoke()
+            locCallback = null
+        }
+
+    private var calCallback: (() -> Unit)? = null
+    private val calLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            calCallback?.invoke()
+            calCallback = null
+        }
+
     private var contactsCallback: (() -> Unit)? = null
     private val contactsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -106,6 +128,8 @@ class MainActivity : FragmentActivity(), LauncherActions {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        CrashLog.install(applicationContext)
+        Badges.init(applicationContext)
 
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
@@ -225,6 +249,46 @@ class MainActivity : FragmentActivity(), LauncherActions {
         runCatching { imageLauncher.launch("image/*") }.onFailure {
             imageCallback = null
             onResult(null)
+        }
+    }
+
+    override fun pickPhoto(uid: String) {
+        miscPrefs.edit().putString("pending_photo", uid).apply()
+        runCatching {
+            photoLauncher.launch(
+                androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+            )
+        }.onFailure { miscPrefs.edit().remove("pending_photo").apply() }
+    }
+
+    override fun hasLocationPermission(): Boolean = DeviceLoc.granted(this)
+
+    override fun requestLocation(onDone: () -> Unit) {
+        locCallback = onDone
+        runCatching {
+            locLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
+        }.onFailure { locCallback = null }
+    }
+
+    override fun hasCalendarPermission(): Boolean =
+        ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
+
+    override fun requestCalendar(onDone: () -> Unit) {
+        calCallback = onDone
+        runCatching { calLauncher.launch(Manifest.permission.READ_CALENDAR) }.onFailure { calCallback = null }
+    }
+
+    override fun appVersion(): String =
+        runCatching { packageManager.getPackageInfo(packageName, 0).versionName ?: "?" }.getOrDefault("?")
+
+    override fun shareText(text: String) {
+        runCatching {
+            startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text),
+                    null,
+                ),
+            )
         }
     }
 

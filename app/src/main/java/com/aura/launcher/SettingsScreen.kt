@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @Composable
 private fun Section(title: String, pal: AuraPalette) {
@@ -174,6 +175,15 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                             .padding(horizontal = 14.dp, vertical = 2.dp),
                     )
                     Text(tr("الإعدادات", "Settings"), color = pal.onPanel, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            item {
+                Section(tr("اللغة / Language", "Language"), pal)
+                ScrollRow {
+                    Chip("العربية", state.lang == "ar", pal) { vm.update { it.copy(lang = "ar") }; vm.reloadApps() }
+                    Chip("English", state.lang == "en", pal) { vm.update { it.copy(lang = "en") }; vm.reloadApps() }
+                    Chip(tr("لغة الجهاز", "Device language"), state.lang == "auto", pal) { vm.update { it.copy(lang = "auto") }; vm.reloadApps() }
                 }
             }
 
@@ -319,6 +329,13 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Section(tr("مظهر ذكي", "Smart look"), pal)
+                SwitchRow(tr("وضع الاسترخاء بالليل (لمسة دافئة على الشاشة)", "Night relax (warm tint)"), state.relaxOn, pal) { b ->
+                    vm.update { it.copy(relaxOn = b) }
+                }
+                if (state.relaxOn) {
+                    Text(tr("يبدأ الساعة", "Starts at"), color = pal.onPanel, modifier = Modifier.padding(top = 6.dp, bottom = 6.dp))
+                    ScrollRow { (18..23).forEach { h -> Chip("$h:00", state.relaxHour == h, pal) { vm.update { it.copy(relaxHour = h) } } } }
+                }
                 SwitchRow(tr("أيقونات أدفأ بالليل", "Warmer icons at night"), state.nightIcons, pal) { b ->
                     vm.update { it.copy(nightIcons = b) }
                 }
@@ -534,6 +551,22 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                 Section(tr("النسخ الاحتياطي", "Backup"), pal)
                 ActionRow(tr("حفظ نسخة احتياطية (ملف)", "Export backup (file)"), pal) { ui.actions.exportBackup() }
                 ActionRow(tr("استعادة من ملف", "Restore from file"), pal) { ui.actions.importBackup() }
+                val updScope = androidx.compose.runtime.rememberCoroutineScope()
+                ActionRow(tr("الأذونات (شرح وتفعيل)", "Permissions"), pal) { ui.permsOpen = true }
+                ActionRow(tr("التشخيص والأداء", "Diagnostics & performance"), pal) { ui.diagOpen = true }
+                ActionRow(tr("التحقق من تحديث", "Check for updates"), pal) {
+                    updScope.launch {
+                        val r = latestRelease()
+                        when {
+                            r == null -> vm.say(tr("تعذّر التحقق، جرّب لاحقاً", "Couldn't check, try later"))
+                            isNewer(r.first, ui.actions.appVersion()) -> {
+                                vm.say(tr("فيه تحديث ${r.first}", "Update ${r.first} available"))
+                                ui.actions.openUrl(r.second)
+                            }
+                            else -> vm.say(tr("أنت على آخر إصدار ✓", "You're up to date ✓"))
+                        }
+                    }
+                }
                 ActionRow(tr("إعادة ضبط الشاشة الرئيسية", "Reset home screen"), pal, danger = true) {
                     resetDialog = true
                 }
@@ -541,7 +574,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Text(
-                    "Aura Launcher 1.3",
+                    "Aura Launcher " + ui.actions.appVersion(),
                     color = pal.onPanel.copy(alpha = 0.4f), fontSize = 12.sp,
                     modifier = Modifier.padding(top = 28.dp),
                 )

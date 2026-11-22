@@ -98,6 +98,10 @@ data class AuraState(
     val nightIcons: Boolean = false,
     val removed: List<String> = emptyList(),
     val swipeDown: GestureAction = GestureAction.SEARCH,
+    val lang: String = "ar",
+    val iconShape: Int = 0,
+    val relaxOn: Boolean = false,
+    val relaxHour: Int = 23,
     val doubleTap: GestureAction = GestureAction.NONE,
     val badges: Boolean = false,
     val scheduleOn: Boolean = false,
@@ -128,7 +132,7 @@ fun defaultBuiltinRows(kind: String): Int = when (kind) {
     "calendar" -> 3
     "notes" -> 2
     "apps" -> 1
-    "photo", "prayer" -> 3
+    "photo", "prayer", "stack", "agenda" -> 3
     else -> 2
 }
 
@@ -466,6 +470,10 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("nightIcons", nightIcons)
     o.put("removed", JSONArray(removed))
     o.put("swipeDown", swipeDown.name)
+    o.put("lang", lang)
+    o.put("iconShape", iconShape)
+    o.put("relaxOn", relaxOn)
+    o.put("relaxHour", relaxHour)
     o.put("doubleTap", doubleTap.name)
     o.put("badges", badges)
     o.put("schedOn", scheduleOn)
@@ -539,6 +547,10 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         drawerSort = o.optInt("drawerSort", 0).coerceIn(0, 2),
         nightIcons = o.optBoolean("nightIcons", false),
         removed = o.optJSONArray("removed").toStringList(),
+        lang = o.optString("lang", "ar").let { if (it in listOf("ar", "en", "auto")) it else "ar" },
+        iconShape = o.optInt("iconShape", 0).coerceIn(0, 3),
+        relaxOn = o.optBoolean("relaxOn", false),
+        relaxHour = o.optInt("relaxHour", 23).coerceIn(0, 23),
         swipeDown = runCatching { GestureAction.valueOf(o.optString("swipeDown", "SEARCH")) }
             .getOrDefault(GestureAction.SEARCH),
         doubleTap = runCatching { GestureAction.valueOf(o.optString("doubleTap", "NONE")) }

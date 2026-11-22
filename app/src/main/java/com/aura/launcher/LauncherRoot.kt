@@ -17,6 +17,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.draw.alpha
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     val appList by vm.apps.collectAsState()
     val ready by vm.ready.collectAsState()
 
+    Lang.code = state.lang
     val ui = remember { Ui(vm, actions) }
     val apps = remember(appList) { appList.associateBy { it.key } }
     val pal = remember(state.theme, state.accent, state.homeText) {
@@ -65,12 +67,20 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     }
 
     // تلميح مرة واحدة: فعّل الوصول للإشعارات علشان الأرقام تظهر على الأيقونات
-    var badgeAsk by remember { mutableStateOf(false) }
     LaunchedEffect(ready) {
         if (ready && !vm.state.value.badgePrompted) {
-            delay(4_000L)
-            if (!actions.notificationAccessEnabled()) badgeAsk = true
+            delay(2_500L)
+            if (!vm.state.value.badgePrompted) ui.permsOpen = true
             vm.update { it.copy(badgePrompted = true) }
+        }
+    }
+
+    LaunchedEffect(ready) {
+        if (ready) {
+            delay(6_000L)
+            latestRelease()?.let { (tag, _) ->
+                if (isNewer(tag, actions.appVersion())) vm.say(tr("فيه تحديث جديد $tag — من الإعدادات > التحقق من تحديث", "Update $tag available — Settings > Check for updates"))
+            }
         }
     }
 
@@ -85,6 +95,11 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
 
     var authErrors by remember { mutableIntStateOf(0) }
 
+    androidx.compose.runtime.key(state.lang) {
+    androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.ui.platform.LocalLayoutDirection provides
+            (if (Lang.isAr) androidx.compose.ui.unit.LayoutDirection.Rtl else androidx.compose.ui.unit.LayoutDirection.Ltr),
+    ) {
     AuraTheme(pal) {
         Box(Modifier.fillMaxSize()) {
             if (ready) HomeLayer(ui, state, apps, pal)
@@ -122,11 +137,15 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                     host = actions.widgetHost,
                     onPick = { actions.addWidget(it) },
                     onPickBuiltin = { kind ->
-                        val b = HomeItem.Builtin(kind, newId())
+                        var b = HomeItem.Builtin(kind, newId())
+                        when (kind) {
+                            "weather", "prayer" -> b = b.copy(data = "gps")
+                            "stack" -> b = b.copy(data = "weather,prayer,ayat,agenda")
+                        }
                         vm.update { it.addItem(b) }
                         when (kind) {
                             "photo" -> ui.pickPhoto(b.uid)
-                            "weather", "prayer" -> ui.editCity(b)
+                            "weather", "prayer" -> if (!actions.hasLocationPermission()) actions.requestLocation { }
                         }
                     },
                     onDismiss = { ui.widgetPicker = false },
@@ -164,29 +183,11 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 )
             }
 
-            if (badgeAsk) {
-                androidx.compose.material3.AlertDialog(
-                    onDismissRequest = { badgeAsk = false },
-                    title = { androidx.compose.material3.Text(tr("أرقام الإشعارات", "Notification badges")) },
-                    text = {
-                        androidx.compose.material3.Text(
-                            tr(
-                                "علشان يظهر رقم (1، 2، 3…) فوق التطبيق اللي عليه إشعارات، فعّل «الوصول للإشعارات» للّانشر. بنعدّ بس، مبنقرأش محتوى.",
-                                "To show a count (1, 2, 3…) on apps with notifications, enable Notification access. We only count, never read content.",
-                            ),
-                        )
-                    },
-                    confirmButton = {
-                        androidx.compose.material3.TextButton(onClick = { badgeAsk = false; actions.openNotificationAccess() }) {
-                            androidx.compose.material3.Text(tr("تفعيل", "Enable"))
-                        }
-                    },
-                    dismissButton = {
-                        androidx.compose.material3.TextButton(onClick = { badgeAsk = false }) {
-                            androidx.compose.material3.Text(tr("لاحقاً", "Later"))
-                        }
-                    },
-                )
+            if (ui.permsOpen) PermissionsDialog(ui) { ui.permsOpen = false }
+            if (ui.diagOpen) DiagnosticsDialog(ui) { ui.diagOpen = false }
+
+            if (state.relaxOn && (ui.hour >= state.relaxHour || ui.hour < state.dayHour)) {
+                Box(Modifier.fillMaxSize().background(Color(0x30FF8F2E)))
             }
 
             ContextMenuHost(ui, pal, state.menuStyle)
@@ -223,5 +224,7 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
             if (ui.storeDetail != null) ui.storeDetail = null else ui.storeOpen = false
         }
         BackHandler(enabled = ui.menu != null) { ui.menu = null }
+    }
+    }
     }
 }

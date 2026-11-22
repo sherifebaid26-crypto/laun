@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -60,7 +61,7 @@ import kotlin.math.tan
 
 // ───────────── شبكة بسيطة + بحث المدينة ─────────────
 
-private fun httpText(url: String): String {
+internal fun httpText(url: String): String {
     val c = URL(url).openConnection() as HttpURLConnection
     c.connectTimeout = 10_000
     c.readTimeout = 15_000
@@ -85,7 +86,7 @@ object Geo {
         return withContext(Dispatchers.IO) {
             runCatching {
                 val q = URLEncoder.encode(city.trim(), "UTF-8")
-                val lang = if (java.util.Locale.getDefault().language == "ar") "ar" else "en"
+                val lang = if (Lang.isAr) "ar" else "en"
                 val r = JSONObject(
                     httpText("https://geocoding-api.open-meteo.com/v1/search?name=$q&count=1&language=$lang&format=json"),
                 ).getJSONArray("results").getJSONObject(0)
@@ -122,8 +123,7 @@ fun PhotoWidget(item: HomeItem.Builtin, ui: Ui, fg: Color) {
 
 private data class WeatherData(val temp: Int, val code: Int, val hi: Int, val lo: Int, val place: String)
 
-private suspend fun fetchWeather(city: String): WeatherData? {
-    val p = Geo.find(city) ?: return null
+private suspend fun fetchWeather(p: Geo.Place): WeatherData? {
     return withContext(Dispatchers.IO) {
         runCatching {
             val j = JSONObject(
@@ -160,21 +160,30 @@ private fun weatherLook(code: Int): Pair<String, String> = when (code) {
 
 @Composable
 fun WeatherWidget(item: HomeItem.Builtin, ui: Ui, fg: Color, accent: Color) {
+    val ctx = LocalContext.current
     val city = item.data
-    val w by produceState<WeatherData?>(null, city) {
+    var tick by remember { mutableIntStateOf(0) }
+    val needPerm = city == "gps" && !ui.actions.hasLocationPermission()
+    val w by produceState<WeatherData?>(null, city, tick) {
         value = null
-        if (city.isNotBlank()) {
+        if (city.isNotBlank() && !(city == "gps" && !ui.actions.hasLocationPermission())) {
             while (true) {
-                fetchWeather(city)?.let { value = it }
+                resolvePlace(ctx, city)?.let { p -> fetchWeather(p)?.let { value = it } }
                 delay(30 * 60_000L)
             }
         }
     }
-    Box(Modifier.fillMaxSize().clickable { ui.editCity(item) }.padding(horizontal = 18.dp), contentAlignment = Alignment.CenterStart) {
+    Box(
+        Modifier.fillMaxSize().clickable {
+            if (needPerm) ui.actions.requestLocation { tick++ } else ui.editCity(item)
+        }.padding(horizontal = 18.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
         val d = w
         when {
+            needPerm -> Text(tr("اضغط لإعطاء إذن الموقع", "Tap to allow location"), color = fg.copy(alpha = 0.7f), fontSize = 15.sp)
             city.isBlank() -> Text(tr("اضغط لتحديد المدينة", "Tap to set your city"), color = fg.copy(alpha = 0.7f), fontSize = 15.sp)
-            d == null -> Text(tr("جاري التحميل… ($city)", "Loading… ($city)"), color = fg.copy(alpha = 0.7f), fontSize = 14.sp)
+            d == null -> Text(tr("جاري التحميل…", "Loading…"), color = fg.copy(alpha = 0.7f), fontSize = 14.sp)
             else -> {
                 val (emoji, desc) = weatherLook(d.code)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -193,10 +202,11 @@ fun WeatherWidget(item: HomeItem.Builtin, ui: Ui, fg: Color, accent: Color) {
 // ───────────── مواعيد الصلاة (الهيئة المصرية: فجر 19.5° وعشاء 17.5°، عصر شافعي) ─────────────
 
 object Prayer {
-    val names = listOf(
-        tr("الفجر", "Fajr"), tr("الشروق", "Sunrise"), tr("الظهر", "Dhuhr"),
-        tr("العصر", "Asr"), tr("المغرب", "Maghrib"), tr("العشاء", "Isha"),
-    )
+    val names: List<String>
+        get() = listOf(
+            tr("الفجر", "Fajr"), tr("الشروق", "Sunrise"), tr("الظهر", "Dhuhr"),
+            tr("العصر", "Asr"), tr("المغرب", "Maghrib"), tr("العشاء", "Isha"),
+        )
 
     private fun fix(a: Double, m: Double) = a - m * floor(a / m)
     private const val D2R = Math.PI / 180.0
@@ -240,13 +250,23 @@ object Prayer {
 
 @Composable
 fun PrayerWidget(item: HomeItem.Builtin, ui: Ui, fg: Color, accent: Color) {
-    val place by produceState<Geo.Place?>(null, item.data) {
-        value = if (item.data.isBlank()) null else Geo.find(item.data)
+    val ctx = LocalContext.current
+    var tick by remember { mutableIntStateOf(0) }
+    val needPerm = item.data == "gps" && !ui.actions.hasLocationPermission()
+    val place by produceState<Geo.Place?>(null, item.data, tick) {
+        value = if (item.data.isBlank() || needPerm) null else resolvePlace(ctx, item.data)
     }
     val now = rememberNow(30_000L)
     val p = place
-    Box(Modifier.fillMaxSize().clickable { ui.editCity(item) }.padding(14.dp), contentAlignment = Alignment.Center) {
-        if (item.data.isBlank()) {
+    Box(
+        Modifier.fillMaxSize().clickable {
+            if (needPerm) ui.actions.requestLocation { tick++ } else ui.editCity(item)
+        }.padding(14.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (needPerm) {
+            Text(tr("اضغط لإعطاء إذن الموقع", "Tap to allow location"), color = fg.copy(alpha = 0.7f))
+        } else if (item.data.isBlank()) {
             Text(tr("اضغط لتحديد المدينة", "Tap to set your city"), color = fg.copy(alpha = 0.7f))
         } else if (p == null) {
             Text(tr("جاري تحديد المدينة…", "Locating city…"), color = fg.copy(alpha = 0.7f))

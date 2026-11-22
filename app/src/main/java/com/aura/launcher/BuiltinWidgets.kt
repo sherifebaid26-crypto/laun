@@ -72,6 +72,9 @@ val BuiltinKinds = listOf(
     "photo" to ("صورة" to "Photo"),
     "weather" to ("الطقس" to "Weather"),
     "prayer" to ("مواعيد الصلاة" to "Prayer times"),
+    "ayat" to ("آيات" to "Quran verses"),
+    "agenda" to ("المواعيد القادمة" to "Upcoming events"),
+    "stack" to ("ستاك ودجت (سحب للتبديل)" to "Widget stack (swipe)"),
     "dhikr" to ("أذكار ومسبحة" to "Adhkar & tasbih"),
     "music" to ("مشغّل الموسيقى" to "Music player"),
     "apps" to ("الأكثر استخداماً" to "Most used apps"),
@@ -114,6 +117,10 @@ fun BuiltinWidget(
     ui: Ui,
     modifier: Modifier = Modifier,
 ) {
+    if (item.kind == "stack") {
+        StackWidget(item, state, apps, pal, ui, modifier)
+        return
+    }
     val shape = RoundedCornerShape(item.radius.dp)
     val bgColor = when (item.bg) {
         0 -> pal.panel
@@ -164,6 +171,8 @@ fun BuiltinWidget(
             "photo" -> PhotoWidget(item, ui, fg)
             "weather" -> WeatherWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
             "prayer" -> PrayerWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
+            "ayat" -> AyatWidget(fg, if (item.bg == 3) fg else pal.accent)
+            "agenda" -> AgendaWidget(ui, fg, if (item.bg == 3) fg else pal.accent)
             "dhikr" -> DhikrWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
             "music" -> MusicWidget(ui, fg, if (item.bg == 3) fg else pal.accent)
             else -> Box(
@@ -214,7 +223,7 @@ private fun AnalogClock(fg: Color, accent: Color, modifier: Modifier) {
 @Composable
 private fun DateWidget(fg: Color, accent: Color) {
     val now = rememberNow(60_000L)
-    val loc = Locale.getDefault()
+    val loc = if (Lang.isAr) Locale("ar") else Locale.ENGLISH
     Column(
         Modifier.fillMaxSize().padding(horizontal = 18.dp),
         verticalArrangement = Arrangement.Center,
@@ -228,7 +237,7 @@ private fun DateWidget(fg: Color, accent: Color) {
 @Composable
 private fun CalendarWidget(fg: Color, accent: Color, onAccent: Color) {
     val now = rememberNow(60_000L)
-    val loc = Locale.getDefault()
+    val loc = if (Lang.isAr) Locale("ar") else Locale.ENGLISH
     val ym = YearMonth.from(now)
     val fdow = WeekFields.of(loc).firstDayOfWeek
     val offset = (ym.atDay(1).dayOfWeek.value - fdow.value + 7) % 7
@@ -405,6 +414,28 @@ fun WidgetEditDialog(ui: Ui, state: AuraState, item: HomeItem.Builtin, onDismiss
                 Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                if (item.kind == "stack") {
+                    Text(tr("محتويات الستاك (اضغط للتفعيل/الإلغاء)", "Stack contents (tap to toggle)"), fontSize = 13.sp)
+                    val cur = item.data.split(",").filter { it.isNotBlank() }
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StackKinds.forEach { (k, n) ->
+                            val on = k in cur
+                            Text(
+                                (if (on) "✓ " else "") + tr(n.first, n.second),
+                                fontSize = 13.sp,
+                                color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                                    .clickable {
+                                        val next = if (on) cur - k else cur + k
+                                        if (next.isNotEmpty()) edit { it.copy(data = next.joinToString(",")) }
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                            )
+                        }
+                    }
+                }
                 Text(tr("العرض (أعمدة)", "Width (columns)"), fontSize = 13.sp)
                 ChipRow(
                     (2..maxCols).map { it to (if (it == maxCols) tr("كامل", "Full") else it.toString()) },

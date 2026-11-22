@@ -70,7 +70,10 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
             withContext(Dispatchers.IO) { ThemeIcons.load(ThemeStore.iconsDir(app, id)) }.ifEmpty { null }
         } else null
         val prev = _apps.value
+        val t0 = System.currentTimeMillis()
         val list = AppRepository.loadApps(app, s.iconPack, s.iconStyle, icons)
+        Perf.loadMs = System.currentTimeMillis() - t0
+        Perf.appCount = list.size
         _apps.value = list
         if (prev.isNotEmpty()) trackRemoved(prev, list)
     }
@@ -313,10 +316,31 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
         _homeTick.update { it + 1 }
     }
 
-    fun exportJson(): String = _state.value.toJson(forBackup = true).toString(2)
+    fun say(m: String) { _message.value = m }
+
+    /** نسخة احتياطية كاملة: الترتيب + الإعدادات + صور الودجتس. */
+    fun exportJson(): String {
+        val o = _state.value.toJson(forBackup = true)
+        val photos = JSONObject()
+        java.io.File(app.filesDir, "photos").listFiles()?.forEach { f ->
+            runCatching { photos.put(f.nameWithoutExtension, android.util.Base64.encodeToString(f.readBytes(), android.util.Base64.NO_WRAP)) }
+        }
+        o.put("photos", photos)
+        return o.toString(2)
+    }
 
     fun importJson(text: String): Boolean {
-        val parsed = runCatching { auraStateFromJson(JSONObject(text)) }.getOrNull() ?: return false
+        val root = runCatching { JSONObject(text) }.getOrNull() ?: return false
+        val parsed = runCatching { auraStateFromJson(root) }.getOrNull() ?: return false
+        root.optJSONObject("photos")?.let { ph ->
+            val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
+            ph.keys().forEach { k ->
+                runCatching {
+                    if (k.all { it.isLetterOrDigit() || it == '-' || it == '_' })
+                        java.io.File(dir, "$k.jpg").writeBytes(android.util.Base64.decode(ph.getString(k), android.util.Base64.NO_WRAP))
+                }
+            }
+        }
         update { cur ->
             parsed.copy(
                 pinHash = cur.pinHash,

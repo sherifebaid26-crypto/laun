@@ -36,7 +36,7 @@ data class ThemeDef(
     val icon: IconStyle,
     val rawJson: String,
 ) {
-    private val ar get() = Locale.getDefault().language == "ar"
+    private val ar get() = Lang.isAr
     val name: String get() = if (ar) nameAr else nameEn
     val tags: List<String> get() = if (ar) tagsAr else tagsEn
     val category: String get() = (if (ar) categoryAr else categoryEn).ifBlank { tr("أخرى", "Other") }

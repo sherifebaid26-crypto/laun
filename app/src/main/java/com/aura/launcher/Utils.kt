@@ -3,9 +3,14 @@ package com.aura.launcher
 import java.util.Locale
 import java.util.UUID
 
-/** نص حسب لغة الجهاز: عربي أو إنجليزي. */
-fun tr(ar: String, en: String): String =
-    if (Locale.getDefault().language == "ar") ar else en
+/** لغة التطبيق: auto (حسب الجهاز) أو ar أو en. */
+object Lang {
+    @Volatile var code: String = "ar"
+    val isAr: Boolean get() = (if (code == "auto") Locale.getDefault().language else code) == "ar"
+}
+
+/** نص حسب لغة التطبيق: عربي أو إنجليزي. */
+fun tr(ar: String, en: String): String = if (Lang.isAr) ar else en
 
 fun newId(): String = UUID.randomUUID().toString().take(8)
 

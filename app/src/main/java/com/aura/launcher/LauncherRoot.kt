@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -52,6 +53,24 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
         while (vm.state.value.scheduleOn) {
             vm.applyScheduled()
             delay(60_000L)
+        }
+    }
+
+    // ساعة بتتحدّث كل دقيقة (وضع التركيز + أيقونات الليل)
+    LaunchedEffect(Unit) {
+        while (true) {
+            ui.hour = java.time.LocalTime.now().hour
+            delay(60_000L)
+        }
+    }
+
+    // تلميح مرة واحدة: فعّل الوصول للإشعارات علشان الأرقام تظهر على الأيقونات
+    var badgeAsk by remember { mutableStateOf(false) }
+    LaunchedEffect(ready) {
+        if (ready && !vm.state.value.badgePrompted) {
+            delay(4_000L)
+            if (!actions.notificationAccessEnabled()) badgeAsk = true
+            vm.update { it.copy(badgePrompted = true) }
         }
     }
 
@@ -102,7 +121,14 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 WidgetPickerDialog(
                     host = actions.widgetHost,
                     onPick = { actions.addWidget(it) },
-                    onPickBuiltin = { kind -> vm.update { it.addItem(HomeItem.Builtin(kind, newId())) } },
+                    onPickBuiltin = { kind ->
+                        val b = HomeItem.Builtin(kind, newId())
+                        vm.update { it.addItem(b) }
+                        when (kind) {
+                            "photo" -> ui.pickPhoto(b.uid)
+                            "weather", "prayer" -> ui.editCity(b)
+                        }
+                    },
                     onDismiss = { ui.widgetPicker = false },
                 )
             }
@@ -111,6 +137,56 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 val item = state.builtinByUid(uid)
                 if (item == null) ui.editWidget = null
                 else WidgetEditDialog(ui, state, item) { ui.editWidget = null }
+            }
+
+            ui.limitDialog?.let { r ->
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { ui.limitDialog = null },
+                    title = { androidx.compose.material3.Text(r.app.label) },
+                    text = {
+                        androidx.compose.material3.Text(
+                            tr(
+                                "وصلت للحد اليومي (${r.limit} دقيقة) — استخدمت ${r.used} دقيقة النهاردة.",
+                                "Daily limit reached (${r.limit} min) — used ${r.used} min today.",
+                            ),
+                        )
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { ui.launchOverLimit(r) }) {
+                            androidx.compose.material3.Text(tr("افتح برضه (5 دقايق)", "Open anyway (5 min)"))
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { ui.limitDialog = null }) {
+                            androidx.compose.material3.Text(tr("إلغاء", "Cancel"))
+                        }
+                    },
+                )
+            }
+
+            if (badgeAsk) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { badgeAsk = false },
+                    title = { androidx.compose.material3.Text(tr("أرقام الإشعارات", "Notification badges")) },
+                    text = {
+                        androidx.compose.material3.Text(
+                            tr(
+                                "علشان يظهر رقم (1، 2، 3…) فوق التطبيق اللي عليه إشعارات، فعّل «الوصول للإشعارات» للّانشر. بنعدّ بس، مبنقرأش محتوى.",
+                                "To show a count (1, 2, 3…) on apps with notifications, enable Notification access. We only count, never read content.",
+                            ),
+                        )
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { badgeAsk = false; actions.openNotificationAccess() }) {
+                            androidx.compose.material3.Text(tr("تفعيل", "Enable"))
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { badgeAsk = false }) {
+                            androidx.compose.material3.Text(tr("لاحقاً", "Later"))
+                        }
+                    },
+                )
             }
 
             ContextMenuHost(ui, pal, state.menuStyle)

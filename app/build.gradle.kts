@@ -12,8 +12,17 @@ android {
         applicationId = "com.aura.launcher"
         minSdk = 31          // Android 12+
         targetSdk = 34
-        versionCode = 13
-        versionName = "1.3.0"
+        versionCode = 14
+        versionName = "1.4.0"
+    }
+
+    signingConfigs {
+        create("aura") {
+            storeFile = file("aura-release.jks")
+            storePassword = "aura1234"
+            keyAlias = "aura"
+            keyPassword = "aura1234"
+        }
     }
 
     buildTypes {
@@ -22,6 +31,7 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
+            signingConfig = signingConfigs.getByName("aura")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

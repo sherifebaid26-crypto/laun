@@ -28,6 +28,8 @@ data class TextRequest(
     val onOk: (String) -> Unit,
 )
 
+data class LimitRequest(val app: AppEntry, val used: Int, val limit: Int, val bounds: Rect?)
+
 /** اختصار تطبيق (من LauncherApps). */
 data class AppShortcut(val pkg: String, val id: String, val label: String)
 
@@ -54,6 +56,10 @@ interface LauncherActions {
     fun pickImage(onResult: (Uri?) -> Unit)
     fun hasContactsPermission(): Boolean
     fun requestContacts(onDone: () -> Unit)
+    fun notificationAccessEnabled(): Boolean
+    fun usageMinutes(pkg: String): Int
+    fun hasUsageAccess(): Boolean
+    fun openUsageAccess()
     fun openAppInfo(app: AppEntry)
     fun uninstall(app: AppEntry)
     fun addWidget(provider: AppWidgetProviderInfo)
@@ -81,6 +87,16 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var storeDetail by mutableStateOf<String?>(null)
     var menu by mutableStateOf<MenuRequest?>(null)
     var editWidget by mutableStateOf<String?>(null)
+    var resizeUid by mutableStateOf<String?>(null)
+    var hour by androidx.compose.runtime.mutableIntStateOf(java.time.LocalTime.now().hour)
+    var limitDialog by mutableStateOf<LimitRequest?>(null)
+    private val snoozed = HashMap<String, Long>()
+
+    fun launchOverLimit(r: LimitRequest) {
+        snoozed[r.app.key] = System.currentTimeMillis() + 5 * 60_000L
+        limitDialog = null
+        launch(r.app, r.bounds)
+    }
     var extDrag by mutableStateOf<ExtDrag?>(null)
 
     /** بيسجّله HomeLayer: ينفّذ الإفلات على الشاشة الرئيسية ويرجّع true لو اتنفذ. */
@@ -101,6 +117,16 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             GestureAction.SETTINGS -> settingsOpen = true
             GestureAction.LOCK -> actions.lockScreen()
         }
+    }
+
+    fun editCity(b: HomeItem.Builtin) {
+        textInput = TextRequest(tr("اسم المدينة (مثلاً: القاهرة)", "City name (e.g. Cairo)"), b.data) { c ->
+            vm.update { it.updateBuiltin(b.uid) { old -> old.copy(data = c.trim()) } }
+        }
+    }
+
+    fun pickPhoto(uid: String) {
+        actions.pickImage { uri -> if (uri != null) vm.setPhoto(uid, uri) }
     }
 
     fun editNote(b: HomeItem.Builtin) {
@@ -134,6 +160,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         storeDetail = null
         menu = null
         editWidget = null
+        resizeUid = null
     }
 
     /** لو في PIN نطلبه، لو مفيش ننفذ على طول. */
@@ -148,7 +175,16 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             folderId = null
             actions.launchApp(app, bounds)
         }
-        if (app.key in vm.state.value.locked) requireAuth(go) else go()
+        val s = vm.state.value
+        val limit = s.limits[app.key]
+        if (limit != null && (snoozed[app.key] ?: 0L) < System.currentTimeMillis()) {
+            val used = actions.usageMinutes(app.packageName)
+            if (used >= limit) {
+                limitDialog = LimitRequest(app, used, limit, bounds)
+                return
+            }
+        }
+        if (app.key in s.locked) requireAuth(go) else go()
     }
 
     fun newFolder() {
@@ -160,6 +196,16 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     }
 
     fun homeEntries(): List<MenuEntry> = listOf(
+        MenuEntry(
+            if (vm.state.value.focusOn) tr("إيقاف وضع التركيز", "Turn off Focus") else tr("تشغيل وضع التركيز", "Turn on Focus"),
+            "◎",
+        ) {
+            val s = vm.state.value
+            if (!s.focusOn && s.focusApps.isEmpty()) {
+                settingsOpen = true
+                vm.postMessage(tr("اختار تطبيقات التركيز من الإعدادات الأول", "Choose Focus apps in Settings first"))
+            } else vm.update { it.copy(focusOn = !it.focusOn) }
+        },
         MenuEntry(tr("إضافة ودجت", "Add widget"), "▦") { widgetPicker = true },
         MenuEntry(tr("مجلد جديد", "New folder"), "🗀") { newFolder() },
         MenuEntry(tr("متجر الثيمات", "Theme store"), "✦") { storeOpen = true },
@@ -167,7 +213,20 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         MenuEntry(tr("الإعدادات", "Settings"), "⚙") { settingsOpen = true },
     )
 
+    fun editFolderApps(f: HomeItem.Folder) {
+        picker = PickerRequest(
+            title = tr("تطبيقات المجلد", "Folder apps"),
+            selected = f.keys.toSet(),
+        ) { sel ->
+            vm.update { st ->
+                val old = st.folderKeys(f.id)
+                st.setFolderApps(f.id, old.filter { it in sel } + sel.filter { it !in old })
+            }
+        }
+    }
+
     fun folderEntries(f: HomeItem.Folder): List<MenuEntry> = listOf(
+        MenuEntry(tr("إضافة / إزالة تطبيقات", "Add / remove apps"), "⊕") { editFolderApps(f) },
         MenuEntry(tr("إعادة تسمية", "Rename"), "✎") {
             textInput = TextRequest(tr("اسم المجلد", "Folder name"), f.name) { n ->
                 vm.update { it.renameFolder(f.id, n.ifBlank { f.name }) }
@@ -181,6 +240,11 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         if (item is HomeItem.Builtin) {
             out += MenuEntry(tr("تعديل الحجم والشكل", "Edit size & style"), "◧") { editWidget = item.uid }
             if (item.kind == "notes") out += MenuEntry(tr("تعديل النص", "Edit text"), "✎") { editNote(item) }
+            if (item.kind == "photo") out += MenuEntry(tr("تغيير الصورة", "Change photo"), "🖼") { pickPhoto(item.uid) }
+            if (item.kind == "weather" || item.kind == "prayer") {
+                out += MenuEntry(tr("تغيير المدينة", "Change city"), "⌖") { editCity(item) }
+            }
+            out += MenuEntry(tr("تغيير الحجم بالسحب", "Resize by dragging"), "⤡") { resizeUid = item.uid }
         }
         out += MenuEntry(tr("إزالة الودجت", "Remove widget"), "⌫", danger = true) {
             if (item is HomeItem.Widget) actions.removeWidget(item.widgetId)

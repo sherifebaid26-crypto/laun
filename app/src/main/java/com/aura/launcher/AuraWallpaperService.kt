@@ -6,6 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.os.Handler
+import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.view.SurfaceHolder
 
@@ -14,6 +16,14 @@ import android.view.SurfaceHolder
  * شاشة القفل والرئيسية أكتر من الصورة العادية.
  */
 class AuraWallpaperService : WallpaperService() {
+
+    companion object {
+        const val PREFS = "aura_wall"
+        const val KEY_MOTION = "motion"
+        fun motion(c: android.content.Context) = c.getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(KEY_MOTION, false)
+        fun setMotion(c: android.content.Context, on: Boolean) =
+            c.getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_MOTION, on).apply()
+    }
 
     override fun onCreateEngine(): Engine = AuraEngine()
 
@@ -24,6 +34,15 @@ class AuraWallpaperService : WallpaperService() {
         private var h = 0
         private var xOffset = 0.5f
         private val paint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
+        private val handler = Handler(Looper.getMainLooper())
+        private var visible = false
+        private val tick = object : Runnable {
+            override fun run() {
+                if (!visible) return
+                draw()
+                if (motion(applicationContext)) handler.postDelayed(this, 40L)
+            }
+        }
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -39,7 +58,15 @@ class AuraWallpaperService : WallpaperService() {
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            if (visible) draw()
+            this.visible = visible
+            handler.removeCallbacks(tick)
+            if (visible) tick.run()
+        }
+
+        override fun onDestroy() {
+            visible = false
+            handler.removeCallbacks(tick)
+            super.onDestroy()
         }
 
         override fun onOffsetsChanged(
@@ -76,10 +103,14 @@ class AuraWallpaperService : WallpaperService() {
                 val b = bmp
                 if (b != null && w > 0 && h > 0) {
                     // نملا الشاشة (center-crop) مع حركة خفيفة مع تغيير الصفحات
-                    val scale = maxOf(w / b.width.toFloat(), h / b.height.toFloat()) * 1.06f
+                    val moving = motion(applicationContext)
+                    val t = System.currentTimeMillis() / 1000.0
+                    val breathe = if (moving) 1f + 0.04f * (0.5f + 0.5f * Math.sin(t / 6.0).toFloat()) else 1f
+                    val scale = maxOf(w / b.width.toFloat(), h / b.height.toFloat()) * 1.1f * breathe
                     val extraX = b.width * scale - w
-                    val dx = -extraX * xOffset
-                    val dy = -(b.height * scale - h) / 2f
+                    val sway = if (moving) 0.5f + 0.35f * Math.sin(t / 9.0).toFloat() else xOffset
+                    val dx = -extraX * (if (moving) (xOffset * 0.4f + sway * 0.6f) else xOffset)
+                    val dy = -(b.height * scale - h) / 2f + if (moving) (h * 0.012f * Math.cos(t / 7.0).toFloat()) else 0f
                     val m = Matrix()
                     m.postScale(scale, scale)
                     m.postTranslate(dx, dy)

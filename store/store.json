@@ -236,3902 +236,3802 @@
    }
   },
   {
-   "id": "pack-001",
+   "id": "t-001",
    "name": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
+    "ar": "أسد في الظلام",
+    "en": "Lion in the Dark"
    },
    "category": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
+    "ar": "حياة برية",
+    "en": "Wildlife"
    },
    "tags": {
     "ar": [
-     "ذهبي ملكي",
-     "مربع مدوّر",
-     "أحادي"
+     "حياة برية",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Royal Gold",
-     "Rounded",
-     "Mono"
+     "Wildlife",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-001/wallpaper.jpg",
-   "preview": "themes/pack-001/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 71,
+   "wallpaper": "themes/t-001/wallpaper.jpg",
+   "preview": "themes/t-001/preview.jpg",
+   "icons": "themes/t-001/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#D4AF37",
-    "homeText": "#F5E6A8",
-    "clock": "SMALL",
+    "accent": "#D8D8D8",
+    "homeText": "#777777",
+    "clock": "BIG",
     "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E619140A",
-     "mono": true,
-     "tint": "#F5E6A8"
+     "shape": "CIRCLE",
+     "plate": "#E6050505",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-002",
+   "id": "t-002",
    "name": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
+    "ar": "جبل وبحر",
+    "en": "Mountain & Sea"
    },
    "category": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
+    "ar": "طبيعة",
+    "en": "Nature"
    },
    "tags": {
     "ar": [
-     "ألماس أسود",
-     "دائري",
-     "ملوّن"
+     "طبيعة",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Black Diamond",
-     "Circle",
-     "Colored"
+     "Nature",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-002/wallpaper.jpg",
-   "preview": "themes/pack-002/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 69,
+   "wallpaper": "themes/t-002/wallpaper.jpg",
+   "preview": "themes/t-002/preview.jpg",
+   "icons": "themes/t-002/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#526B5B",
+    "homeText": "#101010",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6EAF0E9",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-003",
+   "name": {
+    "ar": "وردي كاواي",
+    "en": "Pink Kawaii"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "لطيف",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Cute",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-003/wallpaper.jpg",
+   "preview": "themes/t-003/preview.jpg",
+   "icons": "themes/t-003/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#E85D9E",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6FFE0EE",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-004",
+   "name": {
+    "ar": "حلم أزرق",
+    "en": "Blue Dream"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "لطيف",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Cute",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 78,
+   "wallpaper": "themes/t-004/wallpaper.jpg",
+   "preview": "themes/t-004/preview.jpg",
+   "icons": "themes/t-004/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#357FC4",
+    "homeText": "#101010",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6B8DDFB",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-005",
+   "name": {
+    "ar": "حديقة زن",
+    "en": "Zen Garden"
+   },
+   "category": {
+    "ar": "ياباني",
+    "en": "Japanese"
+   },
+   "tags": {
+    "ar": [
+     "ياباني",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Japanese",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 114,
+   "wallpaper": "themes/t-005/wallpaper.jpg",
+   "preview": "themes/t-005/preview.jpg",
+   "icons": "themes/t-005/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#BFC7D5",
+    "accent": "#A7B88A",
+    "homeText": "#E7D8C2",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E618251D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-006",
+   "name": {
+    "ar": "ذهب ملكي",
+    "en": "Royal Gold"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "فخامة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Luxury",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-006/wallpaper.jpg",
+   "preview": "themes/t-006/preview.jpg",
+   "icons": "themes/t-006/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#D6AC52",
+    "homeText": "#F7E8B8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6080808",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-007",
+   "name": {
+    "ar": "مدينة سايبربنك",
+    "en": "Cyberpunk City"
+   },
+   "category": {
+    "ar": "مستقبلي",
+    "en": "Futuristic"
+   },
+   "tags": {
+    "ar": [
+     "مستقبلي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Futuristic",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 98,
+   "wallpaper": "themes/t-007/wallpaper.jpg",
+   "preview": "themes/t-007/preview.jpg",
+   "icons": "themes/t-007/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#D52BFF",
+    "homeText": "#29D9FF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E609051C",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-008",
+   "name": {
+    "ar": "الفضاء العميق",
+    "en": "Deep Space"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-008/wallpaper.jpg",
+   "preview": "themes/t-008/preview.jpg",
+   "icons": "themes/t-008/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6D8DFF",
+    "homeText": "#C6E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6020817",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-009",
+   "name": {
+    "ar": "هروب للمحيط",
+    "en": "Ocean Escape"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 77,
+   "wallpaper": "themes/t-009/wallpaper.jpg",
+   "preview": "themes/t-009/preview.jpg",
+   "icons": "themes/t-009/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#168FA5",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6D9F4F7",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-010",
+   "name": {
+    "ar": "ليل الأنمي",
+    "en": "Anime Night"
+   },
+   "category": {
+    "ar": "أنمي",
+    "en": "Anime"
+   },
+   "tags": {
+    "ar": [
+     "أنمي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Anime",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-010/wallpaper.jpg",
+   "preview": "themes/t-010/preview.jpg",
+   "icons": "themes/t-010/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#E94B65",
+    "homeText": "#FFC3CE",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6170B12",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-011",
+   "name": {
+    "ar": "كثبان الصحراء",
+    "en": "Desert Dunes"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-011/wallpaper.jpg",
+   "preview": "themes/t-011/preview.jpg",
+   "icons": "themes/t-011/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#A75D36",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6F2C78B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-012",
+   "name": {
+    "ar": "حقول اللافندر",
+    "en": "Lavender Fields"
+   },
+   "category": {
+    "ar": "زهور",
+    "en": "Floral"
+   },
+   "tags": {
+    "ar": [
+     "زهور",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Floral",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-012/wallpaper.jpg",
+   "preview": "themes/t-012/preview.jpg",
+   "icons": "themes/t-012/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#8B72B5",
+    "homeText": "#101010",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6E8DDF7",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-013",
+   "name": {
+    "ar": "مطر الساكورا",
+    "en": "Sakura Rain"
+   },
+   "category": {
+    "ar": "ياباني",
+    "en": "Japanese"
+   },
+   "tags": {
+    "ar": [
+     "ياباني",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Japanese",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 118,
+   "wallpaper": "themes/t-013/wallpaper.jpg",
+   "preview": "themes/t-013/preview.jpg",
+   "icons": "themes/t-013/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C65B86",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6F9DCE8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-014",
+   "name": {
+    "ar": "زجاج زمردي",
+    "en": "Emerald Glass"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "فخامة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Luxury",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-014/wallpaper.jpg",
+   "preview": "themes/t-014/preview.jpg",
+   "icons": "themes/t-014/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#36B58A",
+    "homeText": "#C4F4DF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6061E19",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-015",
+   "name": {
+    "ar": "ألعاب الأركيد",
+    "en": "Retro Arcade"
+   },
+   "category": {
+    "ar": "ريترو",
+    "en": "Retro"
+   },
+   "tags": {
+    "ar": [
+     "ريترو",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Retro",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-015/wallpaper.jpg",
+   "preview": "themes/t-015/preview.jpg",
+   "icons": "themes/t-015/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#FFB52E",
+    "homeText": "#70F5E8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6170C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-016",
+   "name": {
+    "ar": "قيادة منتصف الليل",
+    "en": "Midnight Drive"
+   },
+   "category": {
+    "ar": "سيارات",
+    "en": "Cars"
+   },
+   "tags": {
+    "ar": [
+     "سيارات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Cars",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 86,
+   "wallpaper": "themes/t-016/wallpaper.jpg",
+   "preview": "themes/t-016/preview.jpg",
+   "icons": "themes/t-016/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#F04F72",
+    "homeText": "#D7E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6080D18",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-017",
+   "name": {
+    "ar": "الشفق القطبي",
+    "en": "Aurora Borealis"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 78,
+   "wallpaper": "themes/t-017/wallpaper.jpg",
+   "preview": "themes/t-017/preview.jpg",
+   "icons": "themes/t-017/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4FD6C5",
+    "homeText": "#B4F3E9",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6061B2C",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-018",
+   "name": {
+    "ar": "قهوة وكتب",
+    "en": "Coffee & Books"
+   },
+   "category": {
+    "ar": "دافئ",
+    "en": "Cozy"
+   },
+   "tags": {
+    "ar": [
+     "دافئ",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Cozy",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 81,
+   "wallpaper": "themes/t-018/wallpaper.jpg",
+   "preview": "themes/t-018/preview.jpg",
+   "icons": "themes/t-018/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B98257",
+    "homeText": "#F4DEC8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E62B1B17",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-019",
+   "name": {
+    "ar": "قصر رخامي",
+    "en": "Marble Palace"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "فخامة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Luxury",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 73,
+   "wallpaper": "themes/t-019/wallpaper.jpg",
+   "preview": "themes/t-019/preview.jpg",
+   "icons": "themes/t-019/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#A78B58",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6F4F1EA",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-020",
+   "name": {
+    "ar": "دوائر نيون",
+    "en": "Neon Circuit"
+   },
+   "category": {
+    "ar": "مستقبلي",
+    "en": "Futuristic"
+   },
+   "tags": {
+    "ar": [
+     "مستقبلي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Futuristic",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 102,
+   "wallpaper": "themes/t-020/wallpaper.jpg",
+   "preview": "themes/t-020/preview.jpg",
+   "icons": "themes/t-020/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#00E5FF",
+    "homeText": "#C6FAFF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6050C16",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-021",
+   "name": {
+    "ar": "همس الغابة",
+    "en": "Forest Whisper"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 76,
+   "wallpaper": "themes/t-021/wallpaper.jpg",
+   "preview": "themes/t-021/preview.jpg",
+   "icons": "themes/t-021/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#69A88A",
+    "homeText": "#D8F1E4",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E60B241B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-022",
+   "name": {
+    "ar": "نزهة الخريف",
+    "en": "Autumn Walk"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 116,
+   "wallpaper": "themes/t-022/wallpaper.jpg",
+   "preview": "themes/t-022/preview.jpg",
+   "icons": "themes/t-022/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#D88942",
+    "homeText": "#FFE1B2",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E64B2419",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-023",
+   "name": {
+    "ar": "بحيرة متجمدة",
+    "en": "Frozen Lake"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-023/wallpaper.jpg",
+   "preview": "themes/t-023/preview.jpg",
+   "icons": "themes/t-023/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#5386A8",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6DDEBF4",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-024",
+   "name": {
+    "ar": "جمر بركاني",
+    "en": "Volcanic Ember"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Nature"
+   },
+   "tags": {
+    "ar": [
+     "طبيعة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Nature",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 81,
+   "wallpaper": "themes/t-024/wallpaper.jpg",
+   "preview": "themes/t-024/preview.jpg",
+   "icons": "themes/t-024/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#F05A2A",
+    "homeText": "#FFC078",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E61C0907",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-025",
+   "name": {
+    "ar": "ساكورا القمر",
+    "en": "Moonlit Sakura"
+   },
+   "category": {
+    "ar": "ياباني",
+    "en": "Japanese"
+   },
+   "tags": {
+    "ar": [
+     "ياباني",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Japanese",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-025/wallpaper.jpg",
+   "preview": "themes/t-025/preview.jpg",
+   "icons": "themes/t-025/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#D78AAE",
+    "homeText": "#FBE6F0",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E614182A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-026",
+   "name": {
+    "ar": "طائر الورق",
+    "en": "Paper Crane"
+   },
+   "category": {
+    "ar": "ياباني",
+    "en": "Japanese"
+   },
+   "tags": {
+    "ar": [
+     "ياباني",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Japanese",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-026/wallpaper.jpg",
+   "preview": "themes/t-026/preview.jpg",
+   "icons": "themes/t-026/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#647B8B",
+    "homeText": "#101010",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6EDE8DE",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-027",
+   "name": {
+    "ar": "رمل بسيط",
+    "en": "Minimal Sand"
+   },
+   "category": {
+    "ar": "بسيط",
+    "en": "Minimal"
+   },
+   "tags": {
+    "ar": [
+     "بسيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Minimal",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-027/wallpaper.jpg",
+   "preview": "themes/t-027/preview.jpg",
+   "icons": "themes/t-027/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B99B78",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6E9DCC8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-028",
+   "name": {
+    "ar": "استوديو أحادي",
+    "en": "Mono Studio"
+   },
+   "category": {
+    "ar": "بسيط",
+    "en": "Minimal"
+   },
+   "tags": {
+    "ar": [
+     "بسيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Minimal",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 73,
+   "wallpaper": "themes/t-028/wallpaper.jpg",
+   "preview": "themes/t-028/preview.jpg",
+   "icons": "themes/t-028/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#EEEEEE",
     "homeText": "#FFFFFF",
     "clock": "SMALL",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E6151A22",
+     "plate": "#E6111111",
      "mono": false,
-     "tint": "#FFFFFF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-003",
+   "id": "t-029",
    "name": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
+    "ar": "باستيل بوب",
+    "en": "Pastel Pop"
    },
    "category": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
+    "ar": "لطيف",
+    "en": "Cute"
    },
    "tags": {
     "ar": [
-     "أزرق منتصف الليل",
-     "سكويركل",
-     "ملوّن"
+     "لطيف",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Midnight Blue",
-     "Squircle",
-     "Colored"
+     "Cute",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-003/wallpaper.jpg",
-   "preview": "themes/pack-003/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#3D8BFF",
-    "homeText": "#A9D4FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E60B2342",
-     "mono": false,
-     "tint": "#A9D4FF"
-    }
-   }
-  },
-  {
-   "id": "pack-004",
-   "name": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
-   },
-   "category": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي ملكي",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Royal Purple",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-004/wallpaper.jpg",
-   "preview": "themes/pack-004/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#A66BFF",
-    "homeText": "#E0C7FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E62A1242",
-     "mono": true,
-     "tint": "#E0C7FF"
-    }
-   }
-  },
-  {
-   "id": "pack-005",
-   "name": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
-   },
-   "category": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
-   },
-   "tags": {
-    "ar": [
-     "زمردي فاخر",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Emerald Luxe",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-005/wallpaper.jpg",
-   "preview": "themes/pack-005/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#21B887",
-    "homeText": "#B8FFE2",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E60C3025",
-     "mono": false,
-     "tint": "#B8FFE2"
-    }
-   }
-  },
-  {
-   "id": "pack-006",
-   "name": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
-   },
-   "category": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي وردي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Rose Gold",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-006/wallpaper.jpg",
-   "preview": "themes/pack-006/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D99A9A",
-    "homeText": "#FFE0D6",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6392027",
-     "mono": false,
-     "tint": "#FFE0D6"
-    }
-   }
-  },
-  {
-   "id": "pack-007",
-   "name": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "category": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "tags": {
-    "ar": [
-     "تيتانيوم",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Titanium",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-007/wallpaper.jpg",
-   "preview": "themes/pack-007/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#9CA9B7",
-    "homeText": "#E8EEF5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E629323C",
-     "mono": true,
-     "tint": "#E8EEF5"
-    }
-   }
-  },
-  {
-   "id": "pack-008",
-   "name": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "category": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهب الصحراء",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Desert Gold",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-008/wallpaper.jpg",
-   "preview": "themes/pack-008/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C58B45",
-    "homeText": "#F2D2A0",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E648301A",
-     "mono": false,
-     "tint": "#F2D2A0"
-    }
-   }
-  },
-  {
-   "id": "pack-009",
-   "name": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "category": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "tags": {
-    "ar": [
-     "فضي قطبي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Arctic Silver",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-009/wallpaper.jpg",
-   "preview": "themes/pack-009/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#9EDCEB",
-    "homeText": "#E7FAFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6203746",
-     "mono": false,
-     "tint": "#E7FAFF"
-    }
-   }
-  },
-  {
-   "id": "pack-010",
-   "name": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "category": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "tags": {
-    "ar": [
-     "ليل قرمزي",
-     "قطرة",
-     "أحادي"
-    ],
-    "en": [
-     "Crimson Night",
-     "Teardrop",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-010/wallpaper.jpg",
-   "preview": "themes/pack-010/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D83A52",
-    "homeText": "#FFC0C9",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E63A101A",
-     "mono": true,
-     "tint": "#FFC0C9"
-    }
-   }
-  },
-  {
-   "id": "pack-011",
-   "name": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "category": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "tags": {
-    "ar": [
-     "تركواز المحيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ocean Teal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-011/wallpaper.jpg",
-   "preview": "themes/pack-011/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#23B7B2",
-    "homeText": "#B4FFF4",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E60B353B",
-     "mono": false,
-     "tint": "#B4FFF4"
-    }
-   }
-  },
-  {
-   "id": "pack-012",
-   "name": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "category": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "tags": {
-    "ar": [
-     "ياقوتي",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Sapphire",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-012/wallpaper.jpg",
-   "preview": "themes/pack-012/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#4169E1",
-    "homeText": "#C5D4FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E614275A",
-     "mono": false,
-     "tint": "#C5D4FF"
-    }
-   }
-  },
-  {
-   "id": "pack-013",
-   "name": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "category": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "tags": {
-    "ar": [
-     "نحاسي داكن",
-     "سكويركل",
-     "أحادي"
-    ],
-    "en": [
-     "Copper Noir",
-     "Squircle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-013/wallpaper.jpg",
-   "preview": "themes/pack-013/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C87941",
-    "homeText": "#F3C19D",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6382116",
-     "mono": true,
-     "tint": "#F3C19D"
-    }
-   }
-  },
-  {
-   "id": "pack-014",
-   "name": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "category": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "tags": {
-    "ar": [
-     "عاجي بسيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ivory Minimal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-014/wallpaper.jpg",
-   "preview": "themes/pack-014/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-029/wallpaper.jpg",
+   "preview": "themes/t-029/preview.jpg",
+   "icons": "themes/t-029/icons.zip",
    "style": {
     "mode": "LIGHT",
-    "accent": "#9C8055",
-    "homeText": "#453A2B",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6D7CEBD",
-     "mono": false,
-     "tint": "#453A2B"
-    }
-   }
-  },
-  {
-   "id": "pack-015",
-   "name": {
-    "ar": "جرافيت",
-    "en": "Graphite"
-   },
-   "category": {
-    "ar": "جرافيت",
-    "en": "Graphite"
-   },
-   "tags": {
-    "ar": [
-     "جرافيت",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Graphite",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-015/wallpaper.jpg",
-   "preview": "themes/pack-015/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#747E88",
-    "homeText": "#D8DEE5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E6252B31",
-     "mono": false,
-     "tint": "#D8DEE5"
-    }
-   }
-  },
-  {
-   "id": "pack-016",
-   "name": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
-   },
-   "category": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي نيون",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Neon Violet",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 58,
-   "wallpaper": "themes/pack-016/wallpaper.jpg",
-   "preview": "themes/pack-016/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B45CFF",
-    "homeText": "#F1C8FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6261044",
-     "mono": true,
-     "tint": "#F1C8FF"
-    }
-   }
-  },
-  {
-   "id": "pack-017",
-   "name": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "category": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "tags": {
-    "ar": [
-     "ليموني سايبر",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Cyber Lime",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 60,
-   "wallpaper": "themes/pack-017/wallpaper.jpg",
-   "preview": "themes/pack-017/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#A4E639",
-    "homeText": "#E5FFB2",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E61C3214",
-     "mono": false,
-     "tint": "#E5FFB2"
-    }
-   }
-  },
-  {
-   "id": "pack-018",
-   "name": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
-   },
-   "category": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
-   },
-   "tags": {
-    "ar": [
-     "كهرماني الغروب",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Sunset Amber",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 62,
-   "wallpaper": "themes/pack-018/wallpaper.jpg",
-   "preview": "themes/pack-018/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#FF9B42",
-    "homeText": "#FFE0A8",
-    "clock": "SMALL",
+    "accent": "#E67DAE",
+    "homeText": "#101010",
+    "clock": "BIG",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E6482313",
+     "plate": "#E6F7D9E8",
      "mono": false,
-     "tint": "#FFE0A8"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-019",
+   "id": "t-030",
    "name": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "موتشي النعناع",
+    "en": "Mint Mochi"
    },
    "category": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "لطيف",
+    "en": "Cute"
    },
    "tags": {
     "ar": [
-     "أزرق متجمد",
-     "مربع مدوّر",
-     "أحادي"
+     "لطيف",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Frozen Blue",
-     "Rounded",
-     "Mono"
+     "Cute",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-019/wallpaper.jpg",
-   "preview": "themes/pack-019/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#64B5F6",
-    "homeText": "#D6F0FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E618364E",
-     "mono": true,
-     "tint": "#D6F0FF"
-    }
-   }
-  },
-  {
-   "id": "pack-020",
-   "name": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
-   },
-   "category": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
-   },
-   "tags": {
-    "ar": [
-     "عنابي مخملي",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Velvet Burgundy",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-020/wallpaper.jpg",
-   "preview": "themes/pack-020/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B84B70",
-    "homeText": "#F3B4C8",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E642172B",
-     "mono": false,
-     "tint": "#F3B4C8"
-    }
-   }
-  },
-  {
-   "id": "pack-021",
-   "name": {
-    "ar": "ذهبي ملكي إصدار",
-    "en": "Royal Gold Edition"
-   },
-   "category": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Royal Gold",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-021/wallpaper.jpg",
-   "preview": "themes/pack-021/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#E6A743",
-    "homeText": "#F6E8AF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E615110A",
-     "mono": false,
-     "tint": "#F6E8AF"
-    }
-   }
-  },
-  {
-   "id": "pack-022",
-   "name": {
-    "ar": "ألماس أسود إصدار",
-    "en": "Black Diamond Edition"
-   },
-   "category": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
-   },
-   "tags": {
-    "ar": [
-     "ألماس أسود",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Black Diamond",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-022/wallpaper.jpg",
-   "preview": "themes/pack-022/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D1BFE1",
-    "homeText": "#FFFFFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E611161C",
-     "mono": true,
-     "tint": "#FFFFFF"
-    }
-   }
-  },
-  {
-   "id": "pack-023",
-   "name": {
-    "ar": "أزرق منتصف الليل إصدار",
-    "en": "Midnight Blue Edition"
-   },
-   "category": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
-   },
-   "tags": {
-    "ar": [
-     "أزرق منتصف الليل",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Midnight Blue",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 44,
-   "wallpaper": "themes/pack-023/wallpaper.jpg",
-   "preview": "themes/pack-023/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#4F83FF",
-    "homeText": "#B0D7FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E60A1F3C",
-     "mono": false,
-     "tint": "#B0D7FF"
-    }
-   }
-  },
-  {
-   "id": "pack-024",
-   "name": {
-    "ar": "بنفسجي ملكي إصدار",
-    "en": "Royal Purple Edition"
-   },
-   "category": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Royal Purple",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-024/wallpaper.jpg",
-   "preview": "themes/pack-024/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B863FF",
-    "homeText": "#E2CBFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E626103B",
-     "mono": false,
-     "tint": "#E2CBFF"
-    }
-   }
-  },
-  {
-   "id": "pack-025",
-   "name": {
-    "ar": "زمردي فاخر إصدار",
-    "en": "Emerald Luxe Edition"
-   },
-   "category": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
-   },
-   "tags": {
-    "ar": [
-     "زمردي فاخر",
-     "قطرة",
-     "أحادي"
-    ],
-    "en": [
-     "Emerald Luxe",
-     "Teardrop",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 43,
-   "wallpaper": "themes/pack-025/wallpaper.jpg",
-   "preview": "themes/pack-025/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#33B093",
-    "homeText": "#BEFFE4",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E60B2B21",
-     "mono": true,
-     "tint": "#BEFFE4"
-    }
-   }
-  },
-  {
-   "id": "pack-026",
-   "name": {
-    "ar": "ذهبي وردي إصدار",
-    "en": "Rose Gold Edition"
-   },
-   "category": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي وردي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Rose Gold",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-026/wallpaper.jpg",
-   "preview": "themes/pack-026/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#EB92A6",
-    "homeText": "#FFE2D9",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6331C23",
-     "mono": false,
-     "tint": "#FFE2D9"
-    }
-   }
-  },
-  {
-   "id": "pack-027",
-   "name": {
-    "ar": "تيتانيوم إصدار",
-    "en": "Titanium Edition"
-   },
-   "category": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "tags": {
-    "ar": [
-     "تيتانيوم",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Titanium",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-027/wallpaper.jpg",
-   "preview": "themes/pack-027/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#AEA1C3",
-    "homeText": "#EAEFF6",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6252C35",
-     "mono": false,
-     "tint": "#EAEFF6"
-    }
-   }
-  },
-  {
-   "id": "pack-028",
-   "name": {
-    "ar": "ذهب الصحراء إصدار",
-    "en": "Desert Gold Edition"
-   },
-   "category": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهب الصحراء",
-     "سكويركل",
-     "أحادي"
-    ],
-    "en": [
-     "Desert Gold",
-     "Squircle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-028/wallpaper.jpg",
-   "preview": "themes/pack-028/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D78351",
-    "homeText": "#F3D6A8",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6402B17",
-     "mono": true,
-     "tint": "#F3D6A8"
-    }
-   }
-  },
-  {
-   "id": "pack-029",
-   "name": {
-    "ar": "فضي قطبي إصدار",
-    "en": "Arctic Silver Edition"
-   },
-   "category": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "tags": {
-    "ar": [
-     "فضي قطبي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Arctic Silver",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 56,
-   "wallpaper": "themes/pack-029/wallpaper.jpg",
-   "preview": "themes/pack-029/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B0D4F7",
-    "homeText": "#E9FAFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E61C303E",
-     "mono": false,
-     "tint": "#E9FAFF"
-    }
-   }
-  },
-  {
-   "id": "pack-030",
-   "name": {
-    "ar": "ليل قرمزي إصدار",
-    "en": "Crimson Night Edition"
-   },
-   "category": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "tags": {
-    "ar": [
-     "ليل قرمزي",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Crimson Night",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-030/wallpaper.jpg",
-   "preview": "themes/pack-030/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#EA325E",
-    "homeText": "#FFC5CD",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E6330E17",
-     "mono": false,
-     "tint": "#FFC5CD"
-    }
-   }
-  },
-  {
-   "id": "pack-031",
-   "name": {
-    "ar": "تركواز المحيط إصدار",
-    "en": "Ocean Teal Edition"
-   },
-   "category": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "tags": {
-    "ar": [
-     "تركواز المحيط",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Ocean Teal",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-031/wallpaper.jpg",
-   "preview": "themes/pack-031/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#35AFBE",
-    "homeText": "#BAFFF5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6092F35",
-     "mono": true,
-     "tint": "#BAFFF5"
-    }
-   }
-  },
-  {
-   "id": "pack-032",
-   "name": {
-    "ar": "ياقوتي إصدار",
-    "en": "Sapphire Edition"
-   },
-   "category": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "tags": {
-    "ar": [
-     "ياقوتي",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Sapphire",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-032/wallpaper.jpg",
-   "preview": "themes/pack-032/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#5361ED",
-    "homeText": "#CAD7FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6112250",
-     "mono": false,
-     "tint": "#CAD7FF"
-    }
-   }
-  },
-  {
-   "id": "pack-033",
-   "name": {
-    "ar": "نحاسي داكن إصدار",
-    "en": "Copper Noir Edition"
-   },
-   "category": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "tags": {
-    "ar": [
-     "نحاسي داكن",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Copper Noir",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-033/wallpaper.jpg",
-   "preview": "themes/pack-033/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#DA714D",
-    "homeText": "#F4C6A5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6311D13",
-     "mono": false,
-     "tint": "#F4C6A5"
-    }
-   }
-  },
-  {
-   "id": "pack-034",
-   "name": {
-    "ar": "عاجي بسيط إصدار",
-    "en": "Ivory Minimal Edition"
-   },
-   "category": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "tags": {
-    "ar": [
-     "عاجي بسيط",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Ivory Minimal",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-034/wallpaper.jpg",
-   "preview": "themes/pack-034/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 73,
+   "wallpaper": "themes/t-030/wallpaper.jpg",
+   "preview": "themes/t-030/preview.jpg",
+   "icons": "themes/t-030/icons.zip",
    "style": {
     "mode": "LIGHT",
-    "accent": "#AE7861",
-    "homeText": "#544A3C",
+    "accent": "#55A88A",
+    "homeText": "#101010",
     "clock": "SMALL",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E6DCD4C4",
-     "mono": true,
-     "tint": "#544A3C"
-    }
-   }
-  },
-  {
-   "id": "pack-035",
-   "name": {
-    "ar": "جرافيت إصدار",
-    "en": "Graphite Edition"
-   },
-   "category": {
-    "ar": "جرافيت",
-    "en": "Graphite"
-   },
-   "tags": {
-    "ar": [
-     "جرافيت",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Graphite",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 44,
-   "wallpaper": "themes/pack-035/wallpaper.jpg",
-   "preview": "themes/pack-035/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#867694",
-    "homeText": "#DBE1E7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E621262B",
+     "plate": "#E6DDF4E9",
      "mono": false,
-     "tint": "#DBE1E7"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-036",
+   "id": "t-031",
    "name": {
-    "ar": "بنفسجي نيون إصدار",
-    "en": "Neon Violet Edition"
+    "ar": "كوكب بكسل",
+    "en": "Pixel Planet"
    },
    "category": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
+    "ar": "ريترو",
+    "en": "Retro"
    },
    "tags": {
     "ar": [
-     "بنفسجي نيون",
-     "مربع مدوّر",
-     "ملوّن"
+     "ريترو",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Neon Violet",
-     "Rounded",
-     "Colored"
+     "Retro",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 56,
-   "wallpaper": "themes/pack-036/wallpaper.jpg",
-   "preview": "themes/pack-036/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 88,
+   "wallpaper": "themes/t-031/wallpaper.jpg",
+   "preview": "themes/t-031/preview.jpg",
+   "icons": "themes/t-031/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#C654FF",
-    "homeText": "#F2CCFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6210E3C",
-     "mono": false,
-     "tint": "#F2CCFF"
-    }
-   }
-  },
-  {
-   "id": "pack-037",
-   "name": {
-    "ar": "ليموني سايبر إصدار",
-    "en": "Cyber Lime Edition"
-   },
-   "category": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "tags": {
-    "ar": [
-     "ليموني سايبر",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Cyber Lime",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-037/wallpaper.jpg",
-   "preview": "themes/pack-037/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B6DE45",
-    "homeText": "#E7FFB8",
-    "clock": "SMALL",
+    "accent": "#FF6D9B",
+    "homeText": "#5CE1E6",
+    "clock": "BIG",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E6182C12",
-     "mono": true,
-     "tint": "#E7FFB8"
+     "plate": "#E611162D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-038",
+   "id": "t-032",
    "name": {
-    "ar": "كهرماني الغروب إصدار",
-    "en": "Sunset Amber Edition"
+    "ar": "فيبرويف 88",
+    "en": "Vaporwave 88"
    },
    "category": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
+    "ar": "ريترو",
+    "en": "Retro"
    },
    "tags": {
     "ar": [
-     "كهرماني الغروب",
-     "سكويركل",
-     "ملوّن"
+     "ريترو",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Sunset Amber",
-     "Squircle",
-     "Colored"
+     "Retro",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-038/wallpaper.jpg",
-   "preview": "themes/pack-038/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 91,
+   "wallpaper": "themes/t-032/wallpaper.jpg",
+   "preview": "themes/t-032/preview.jpg",
+   "icons": "themes/t-032/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#FF934E",
-    "homeText": "#FFE2AF",
+    "accent": "#F16BCB",
+    "homeText": "#68E5FF",
     "clock": "SMALL",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E6401F11",
+     "plate": "#E624103C",
      "mono": false,
-     "tint": "#FFE2AF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-039",
+   "id": "t-033",
    "name": {
-    "ar": "أزرق متجمد إصدار",
-    "en": "Frozen Blue Edition"
+    "ar": "الساعة الذهبية",
+    "en": "Golden Hour"
    },
    "category": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "تصوير",
+    "en": "Photography"
    },
    "tags": {
     "ar": [
-     "أزرق متجمد",
-     "مربع مدوّر",
-     "ملوّن"
+     "تصوير",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Frozen Blue",
-     "Rounded",
-     "Colored"
+     "Photography",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-039/wallpaper.jpg",
-   "preview": "themes/pack-039/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#76ADFF",
-    "homeText": "#D9F1FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6152F45",
-     "mono": false,
-     "tint": "#D9F1FF"
-    }
-   }
-  },
-  {
-   "id": "pack-040",
-   "name": {
-    "ar": "عنابي مخملي إصدار",
-    "en": "Velvet Burgundy Edition"
-   },
-   "category": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
-   },
-   "tags": {
-    "ar": [
-     "عنابي مخملي",
-     "قطرة",
-     "أحادي"
-    ],
-    "en": [
-     "Velvet Burgundy",
-     "Teardrop",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-040/wallpaper.jpg",
-   "preview": "themes/pack-040/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#CA437C",
-    "homeText": "#F4BACC",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E63B1426",
-     "mono": true,
-     "tint": "#F4BACC"
-    }
-   }
-  },
-  {
-   "id": "pack-041",
-   "name": {
-    "ar": "ذهبي ملكي نوار",
-    "en": "Royal Gold Noir"
-   },
-   "category": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Royal Gold",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 56,
-   "wallpaper": "themes/pack-041/wallpaper.jpg",
-   "preview": "themes/pack-041/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C8B94D",
-    "homeText": "#F7EAB6",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E615110A",
-     "mono": false,
-     "tint": "#F7EAB6"
-    }
-   }
-  },
-  {
-   "id": "pack-042",
-   "name": {
-    "ar": "ألماس أسود نوار",
-    "en": "Black Diamond Noir"
-   },
-   "category": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
-   },
-   "tags": {
-    "ar": [
-     "ألماس أسود",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Black Diamond",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 62,
-   "wallpaper": "themes/pack-042/wallpaper.jpg",
-   "preview": "themes/pack-042/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B3D1EB",
-    "homeText": "#FFFFFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E611161C",
-     "mono": false,
-     "tint": "#FFFFFF"
-    }
-   }
-  },
-  {
-   "id": "pack-043",
-   "name": {
-    "ar": "أزرق منتصف الليل نوار",
-    "en": "Midnight Blue Noir"
-   },
-   "category": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
-   },
-   "tags": {
-    "ar": [
-     "أزرق منتصف الليل",
-     "سكويركل",
-     "أحادي"
-    ],
-    "en": [
-     "Midnight Blue",
-     "Squircle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-043/wallpaper.jpg",
-   "preview": "themes/pack-043/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#3195FF",
-    "homeText": "#B7DBFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E60A1F3C",
-     "mono": true,
-     "tint": "#B7DBFF"
-    }
-   }
-  },
-  {
-   "id": "pack-044",
-   "name": {
-    "ar": "بنفسجي ملكي نوار",
-    "en": "Royal Purple Noir"
-   },
-   "category": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Royal Purple",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-044/wallpaper.jpg",
-   "preview": "themes/pack-044/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#9A75FF",
-    "homeText": "#E5D0FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E626103B",
-     "mono": false,
-     "tint": "#E5D0FF"
-    }
-   }
-  },
-  {
-   "id": "pack-045",
-   "name": {
-    "ar": "زمردي فاخر نوار",
-    "en": "Emerald Luxe Noir"
-   },
-   "category": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
-   },
-   "tags": {
-    "ar": [
-     "زمردي فاخر",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Emerald Luxe",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-045/wallpaper.jpg",
-   "preview": "themes/pack-045/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#15C29D",
-    "homeText": "#C3FFE7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E60B2B21",
-     "mono": false,
-     "tint": "#C3FFE7"
-    }
-   }
-  },
-  {
-   "id": "pack-046",
-   "name": {
-    "ar": "ذهبي وردي نوار",
-    "en": "Rose Gold Noir"
-   },
-   "category": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي وردي",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Rose Gold",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-046/wallpaper.jpg",
-   "preview": "themes/pack-046/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#CDA4B0",
-    "homeText": "#FFE5DD",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6331C23",
-     "mono": true,
-     "tint": "#FFE5DD"
-    }
-   }
-  },
-  {
-   "id": "pack-047",
-   "name": {
-    "ar": "تيتانيوم نوار",
-    "en": "Titanium Noir"
-   },
-   "category": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "tags": {
-    "ar": [
-     "تيتانيوم",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Titanium",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-047/wallpaper.jpg",
-   "preview": "themes/pack-047/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#90B3CD",
-    "homeText": "#ECF1F7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6252C35",
-     "mono": false,
-     "tint": "#ECF1F7"
-    }
-   }
-  },
-  {
-   "id": "pack-048",
-   "name": {
-    "ar": "ذهب الصحراء نوار",
-    "en": "Desert Gold Noir"
-   },
-   "category": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهب الصحراء",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Desert Gold",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-048/wallpaper.jpg",
-   "preview": "themes/pack-048/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#B9955B",
-    "homeText": "#F4D9AF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6402B17",
-     "mono": false,
-     "tint": "#F4D9AF"
-    }
-   }
-  },
-  {
-   "id": "pack-049",
-   "name": {
-    "ar": "فضي قطبي نوار",
-    "en": "Arctic Silver Noir"
-   },
-   "category": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "tags": {
-    "ar": [
-     "فضي قطبي",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Arctic Silver",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-049/wallpaper.jpg",
-   "preview": "themes/pack-049/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#92E6FF",
-    "homeText": "#EBFBFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E61C303E",
-     "mono": true,
-     "tint": "#EBFBFF"
-    }
-   }
-  },
-  {
-   "id": "pack-050",
-   "name": {
-    "ar": "ليل قرمزي نوار",
-    "en": "Crimson Night Noir"
-   },
-   "category": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "tags": {
-    "ar": [
-     "ليل قرمزي",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Crimson Night",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-050/wallpaper.jpg",
-   "preview": "themes/pack-050/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#CC4468",
-    "homeText": "#FFCAD2",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E6330E17",
-     "mono": false,
-     "tint": "#FFCAD2"
-    }
-   }
-  },
-  {
-   "id": "pack-051",
-   "name": {
-    "ar": "تركواز المحيط نوار",
-    "en": "Ocean Teal Noir"
-   },
-   "category": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "tags": {
-    "ar": [
-     "تركواز المحيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ocean Teal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-051/wallpaper.jpg",
-   "preview": "themes/pack-051/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#17C1C8",
-    "homeText": "#C0FFF6",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6092F35",
-     "mono": false,
-     "tint": "#C0FFF6"
-    }
-   }
-  },
-  {
-   "id": "pack-052",
-   "name": {
-    "ar": "ياقوتي نوار",
-    "en": "Sapphire Noir"
-   },
-   "category": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "tags": {
-    "ar": [
-     "ياقوتي",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Sapphire",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-052/wallpaper.jpg",
-   "preview": "themes/pack-052/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#3573F7",
-    "homeText": "#CEDBFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6112250",
-     "mono": true,
-     "tint": "#CEDBFF"
-    }
-   }
-  },
-  {
-   "id": "pack-053",
-   "name": {
-    "ar": "نحاسي داكن نوار",
-    "en": "Copper Noir Noir"
-   },
-   "category": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "tags": {
-    "ar": [
-     "نحاسي داكن",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Copper Noir",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-053/wallpaper.jpg",
-   "preview": "themes/pack-053/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#BC8357",
-    "homeText": "#F5CBAD",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6311D13",
-     "mono": false,
-     "tint": "#F5CBAD"
-    }
-   }
-  },
-  {
-   "id": "pack-054",
-   "name": {
-    "ar": "عاجي بسيط نوار",
-    "en": "Ivory Minimal Noir"
-   },
-   "category": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "tags": {
-    "ar": [
-     "عاجي بسيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ivory Minimal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-054/wallpaper.jpg",
-   "preview": "themes/pack-054/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 86,
+   "wallpaper": "themes/t-033/wallpaper.jpg",
+   "preview": "themes/t-033/preview.jpg",
+   "icons": "themes/t-033/icons.zip",
    "style": {
     "mode": "LIGHT",
-    "accent": "#908A6B",
-    "homeText": "#635A4D",
-    "clock": "SMALL",
+    "accent": "#C47C42",
+    "homeText": "#101010",
+    "clock": "BIG",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E6DCD4C4",
+     "plate": "#E6F5C98D",
      "mono": false,
-     "tint": "#635A4D"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-055",
+   "id": "t-034",
    "name": {
-    "ar": "جرافيت نوار",
-    "en": "Graphite Noir"
+    "ar": "نافذة ممطرة",
+    "en": "Rainy Window"
    },
    "category": {
-    "ar": "جرافيت",
-    "en": "Graphite"
+    "ar": "دافئ",
+    "en": "Cozy"
    },
    "tags": {
     "ar": [
-     "جرافيت",
-     "قطرة",
-     "أحادي"
+     "دافئ",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Graphite",
-     "Teardrop",
-     "Mono"
+     "Cozy",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-055/wallpaper.jpg",
-   "preview": "themes/pack-055/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-034/wallpaper.jpg",
+   "preview": "themes/t-034/preview.jpg",
+   "icons": "themes/t-034/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#68889E",
-    "homeText": "#DEE3E9",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E621262B",
-     "mono": true,
-     "tint": "#DEE3E9"
-    }
-   }
-  },
-  {
-   "id": "pack-056",
-   "name": {
-    "ar": "بنفسجي نيون نوار",
-    "en": "Neon Violet Noir"
-   },
-   "category": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي نيون",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Neon Violet",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-056/wallpaper.jpg",
-   "preview": "themes/pack-056/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#A866FF",
-    "homeText": "#F3D1FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6210E3C",
-     "mono": false,
-     "tint": "#F3D1FF"
-    }
-   }
-  },
-  {
-   "id": "pack-057",
-   "name": {
-    "ar": "ليموني سايبر نوار",
-    "en": "Cyber Lime Noir"
-   },
-   "category": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "tags": {
-    "ar": [
-     "ليموني سايبر",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Cyber Lime",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-057/wallpaper.jpg",
-   "preview": "themes/pack-057/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#98F04F",
-    "homeText": "#E9FFBE",
+    "accent": "#789EB2",
+    "homeText": "#DDECF5",
     "clock": "SMALL",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E6182C12",
+     "plate": "#E6172532",
      "mono": false,
-     "tint": "#E9FFBE"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-058",
+   "id": "t-035",
    "name": {
-    "ar": "كهرماني الغروب نوار",
-    "en": "Sunset Amber Noir"
+    "ar": "مكتبة منتصف الليل",
+    "en": "Midnight Library"
    },
    "category": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
+    "ar": "دافئ",
+    "en": "Cozy"
    },
    "tags": {
     "ar": [
-     "كهرماني الغروب",
-     "سكويركل",
-     "أحادي"
+     "دافئ",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Sunset Amber",
-     "Squircle",
-     "Mono"
+     "Cozy",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 60,
-   "wallpaper": "themes/pack-058/wallpaper.jpg",
-   "preview": "themes/pack-058/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 80,
+   "wallpaper": "themes/t-035/wallpaper.jpg",
+   "preview": "themes/t-035/preview.jpg",
+   "icons": "themes/t-035/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#F3A558",
-    "homeText": "#FFE5B6",
+    "accent": "#B98A58",
+    "homeText": "#F0D8B7",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6201711",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-036",
+   "name": {
+    "ar": "ياقوت الليل",
+    "en": "Sapphire Night"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "فخامة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Luxury",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-036/wallpaper.jpg",
+   "preview": "themes/t-036/preview.jpg",
+   "icons": "themes/t-036/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4F83D1",
+    "homeText": "#C6E0FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E606162B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-037",
+   "name": {
+    "ar": "مخمل ياقوتي",
+    "en": "Ruby Velvet"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "فخامة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Luxury",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 79,
+   "wallpaper": "themes/t-037/wallpaper.jpg",
+   "preview": "themes/t-037/preview.jpg",
+   "icons": "themes/t-037/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#D53B64",
+    "homeText": "#FFD2DD",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E62B0713",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-038",
+   "name": {
+    "ar": "خطوط نحاسية",
+    "en": "Copper Lines"
+   },
+   "category": {
+    "ar": "بسيط",
+    "en": "Minimal"
+   },
+   "tags": {
+    "ar": [
+     "بسيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Minimal",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 79,
+   "wallpaper": "themes/t-038/wallpaper.jpg",
+   "preview": "themes/t-038/preview.jpg",
+   "icons": "themes/t-038/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#C47A4A",
+    "homeText": "#F5D5BD",
     "clock": "SMALL",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E6401F11",
-     "mono": true,
-     "tint": "#FFE5B6"
+     "plate": "#E6211711",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-059",
+   "id": "t-039",
    "name": {
-    "ar": "أزرق متجمد نوار",
-    "en": "Frozen Blue Noir"
+    "ar": "توهج شمسي",
+    "en": "Solar Flare"
    },
    "category": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "فضاء",
+    "en": "Space"
    },
    "tags": {
     "ar": [
-     "أزرق متجمد",
-     "مربع مدوّر",
-     "ملوّن"
+     "فضاء",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Frozen Blue",
-     "Rounded",
-     "Colored"
+     "Space",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-059/wallpaper.jpg",
-   "preview": "themes/pack-059/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 90,
+   "wallpaper": "themes/t-039/wallpaper.jpg",
+   "preview": "themes/t-039/preview.jpg",
+   "icons": "themes/t-039/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#58BFFF",
-    "homeText": "#DDF2FF",
-    "clock": "SMALL",
+    "accent": "#FF9D26",
+    "homeText": "#FFE3A1",
+    "clock": "BIG",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E6152F45",
+     "plate": "#E6281307",
      "mono": false,
-     "tint": "#DDF2FF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-060",
+   "id": "t-040",
    "name": {
-    "ar": "عنابي مخملي نوار",
-    "en": "Velvet Burgundy Noir"
+    "ar": "زهرة المجرة",
+    "en": "Galaxy Bloom"
    },
    "category": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
+    "ar": "فضاء",
+    "en": "Space"
    },
    "tags": {
     "ar": [
-     "عنابي مخملي",
-     "قطرة",
-     "ملوّن"
+     "فضاء",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Velvet Burgundy",
-     "Teardrop",
-     "Colored"
+     "Space",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-060/wallpaper.jpg",
-   "preview": "themes/pack-060/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-040/wallpaper.jpg",
+   "preview": "themes/t-040/preview.jpg",
+   "icons": "themes/t-040/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#AC5586",
-    "homeText": "#F5C0D1",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E63B1426",
-     "mono": false,
-     "tint": "#F5C0D1"
-    }
-   }
-  },
-  {
-   "id": "pack-061",
-   "name": {
-    "ar": "ذهبي ملكي برستيج",
-    "en": "Royal Gold Prestige"
-   },
-   "category": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي ملكي",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Royal Gold",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-061/wallpaper.jpg",
-   "preview": "themes/pack-061/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#DCBB29",
-    "homeText": "#F7ECBD",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E615110A",
-     "mono": true,
-     "tint": "#F7ECBD"
-    }
-   }
-  },
-  {
-   "id": "pack-062",
-   "name": {
-    "ar": "ألماس أسود برستيج",
-    "en": "Black Diamond Prestige"
-   },
-   "category": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
-   },
-   "tags": {
-    "ar": [
-     "ألماس أسود",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Black Diamond",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-062/wallpaper.jpg",
-   "preview": "themes/pack-062/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C7D3C7",
-    "homeText": "#FFFFFF",
+    "accent": "#9B72E8",
+    "homeText": "#F0C9FF",
     "clock": "SMALL",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E611161C",
+     "plate": "#E6100D2C",
      "mono": false,
-     "tint": "#FFFFFF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-063",
+   "id": "t-041",
    "name": {
-    "ar": "أزرق منتصف الليل برستيج",
-    "en": "Midnight Blue Prestige"
+    "ar": "حياة برية إصدار 01",
+    "en": "Wildlife Edition 01"
    },
    "category": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
+    "ar": "حياة برية",
+    "en": "Wildlife"
    },
    "tags": {
     "ar": [
-     "أزرق منتصف الليل",
-     "سكويركل",
-     "ملوّن"
+     "حياة برية",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Midnight Blue",
-     "Squircle",
-     "Colored"
+     "Wildlife",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 45,
-   "wallpaper": "themes/pack-063/wallpaper.jpg",
-   "preview": "themes/pack-063/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 76,
+   "wallpaper": "themes/t-041/wallpaper.jpg",
+   "preview": "themes/t-041/preview.jpg",
+   "icons": "themes/t-041/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#4597F1",
-    "homeText": "#BEDEFF",
-    "clock": "SMALL",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E60A1F3C",
+     "plate": "#E6101512",
      "mono": false,
-     "tint": "#BEDEFF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-064",
+   "id": "t-042",
    "name": {
-    "ar": "بنفسجي ملكي برستيج",
-    "en": "Royal Purple Prestige"
+    "ar": "عمارة إصدار 01",
+    "en": "Architecture Edition 01"
    },
    "category": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
+    "ar": "عمارة",
+    "en": "Architecture"
    },
    "tags": {
     "ar": [
-     "بنفسجي ملكي",
-     "مربع مدوّر",
-     "أحادي"
+     "عمارة",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Royal Purple",
-     "Rounded",
-     "Mono"
+     "Architecture",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-064/wallpaper.jpg",
-   "preview": "themes/pack-064/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-042/wallpaper.jpg",
+   "preview": "themes/t-042/preview.jpg",
+   "icons": "themes/t-042/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#AE77F1",
-    "homeText": "#E7D4FF",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
     "clock": "SMALL",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E626103B",
-     "mono": true,
-     "tint": "#E7D4FF"
-    }
-   }
-  },
-  {
-   "id": "pack-065",
-   "name": {
-    "ar": "زمردي فاخر برستيج",
-    "en": "Emerald Luxe Prestige"
-   },
-   "category": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
-   },
-   "tags": {
-    "ar": [
-     "زمردي فاخر",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Emerald Luxe",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 44,
-   "wallpaper": "themes/pack-065/wallpaper.jpg",
-   "preview": "themes/pack-065/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#29C479",
-    "homeText": "#C9FFE9",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E60B2B21",
+     "plate": "#E6151C2A",
      "mono": false,
-     "tint": "#C9FFE9"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-066",
+   "id": "t-043",
    "name": {
-    "ar": "ذهبي وردي برستيج",
-    "en": "Rose Gold Prestige"
+    "ar": "سفر إصدار 01",
+    "en": "Travel Edition 01"
    },
    "category": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
+    "ar": "سفر",
+    "en": "Travel"
    },
    "tags": {
     "ar": [
-     "ذهبي وردي",
-     "مربع مدوّر",
-     "ملوّن"
+     "سفر",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Rose Gold",
-     "Rounded",
-     "Colored"
+     "Travel",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 61,
-   "wallpaper": "themes/pack-066/wallpaper.jpg",
-   "preview": "themes/pack-066/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#E1A68C",
-    "homeText": "#FFE7E0",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6331C23",
-     "mono": false,
-     "tint": "#FFE7E0"
-    }
-   }
-  },
-  {
-   "id": "pack-067",
-   "name": {
-    "ar": "تيتانيوم برستيج",
-    "en": "Titanium Prestige"
-   },
-   "category": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "tags": {
-    "ar": [
-     "تيتانيوم",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Titanium",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-067/wallpaper.jpg",
-   "preview": "themes/pack-067/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#A4B5A9",
-    "homeText": "#EEF2F7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6252C35",
-     "mono": true,
-     "tint": "#EEF2F7"
-    }
-   }
-  },
-  {
-   "id": "pack-068",
-   "name": {
-    "ar": "ذهب الصحراء برستيج",
-    "en": "Desert Gold Prestige"
-   },
-   "category": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهب الصحراء",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Desert Gold",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-068/wallpaper.jpg",
-   "preview": "themes/pack-068/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#CD9737",
-    "homeText": "#F5DDB7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6402B17",
-     "mono": false,
-     "tint": "#F5DDB7"
-    }
-   }
-  },
-  {
-   "id": "pack-069",
-   "name": {
-    "ar": "فضي قطبي برستيج",
-    "en": "Arctic Silver Prestige"
-   },
-   "category": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "tags": {
-    "ar": [
-     "فضي قطبي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Arctic Silver",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-069/wallpaper.jpg",
-   "preview": "themes/pack-069/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#A6E8DD",
-    "homeText": "#EDFBFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E61C303E",
-     "mono": false,
-     "tint": "#EDFBFF"
-    }
-   }
-  },
-  {
-   "id": "pack-070",
-   "name": {
-    "ar": "ليل قرمزي برستيج",
-    "en": "Crimson Night Prestige"
-   },
-   "category": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "tags": {
-    "ar": [
-     "ليل قرمزي",
-     "قطرة",
-     "أحادي"
-    ],
-    "en": [
-     "Crimson Night",
-     "Teardrop",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-070/wallpaper.jpg",
-   "preview": "themes/pack-070/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#E04644",
-    "homeText": "#FFCFD6",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E6330E17",
-     "mono": true,
-     "tint": "#FFCFD6"
-    }
-   }
-  },
-  {
-   "id": "pack-071",
-   "name": {
-    "ar": "تركواز المحيط برستيج",
-    "en": "Ocean Teal Prestige"
-   },
-   "category": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "tags": {
-    "ar": [
-     "تركواز المحيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ocean Teal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 51,
-   "wallpaper": "themes/pack-071/wallpaper.jpg",
-   "preview": "themes/pack-071/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#2BC3A4",
-    "homeText": "#C6FFF7",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6092F35",
-     "mono": false,
-     "tint": "#C6FFF7"
-    }
-   }
-  },
-  {
-   "id": "pack-072",
-   "name": {
-    "ar": "ياقوتي برستيج",
-    "en": "Sapphire Prestige"
-   },
-   "category": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "tags": {
-    "ar": [
-     "ياقوتي",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Sapphire",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-072/wallpaper.jpg",
-   "preview": "themes/pack-072/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#4975D3",
-    "homeText": "#D3DEFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6112250",
-     "mono": false,
-     "tint": "#D3DEFF"
-    }
-   }
-  },
-  {
-   "id": "pack-073",
-   "name": {
-    "ar": "نحاسي داكن برستيج",
-    "en": "Copper Noir Prestige"
-   },
-   "category": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "tags": {
-    "ar": [
-     "نحاسي داكن",
-     "سكويركل",
-     "أحادي"
-    ],
-    "en": [
-     "Copper Noir",
-     "Squircle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-073/wallpaper.jpg",
-   "preview": "themes/pack-073/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D08533",
-    "homeText": "#F6D0B5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6311D13",
-     "mono": true,
-     "tint": "#F6D0B5"
-    }
-   }
-  },
-  {
-   "id": "pack-074",
-   "name": {
-    "ar": "عاجي بسيط برستيج",
-    "en": "Ivory Minimal Prestige"
-   },
-   "category": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "tags": {
-    "ar": [
-     "عاجي بسيط",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Ivory Minimal",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-074/wallpaper.jpg",
-   "preview": "themes/pack-074/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-043/wallpaper.jpg",
+   "preview": "themes/t-043/preview.jpg",
+   "icons": "themes/t-043/icons.zip",
    "style": {
     "mode": "LIGHT",
-    "accent": "#A48C47",
-    "homeText": "#72695E",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6DCD4C4",
-     "mono": false,
-     "tint": "#72695E"
-    }
-   }
-  },
-  {
-   "id": "pack-075",
-   "name": {
-    "ar": "جرافيت برستيج",
-    "en": "Graphite Prestige"
-   },
-   "category": {
-    "ar": "جرافيت",
-    "en": "Graphite"
-   },
-   "tags": {
-    "ar": [
-     "جرافيت",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Graphite",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 44,
-   "wallpaper": "themes/pack-075/wallpaper.jpg",
-   "preview": "themes/pack-075/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#7C8A7A",
-    "homeText": "#E1E6EB",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E621262B",
-     "mono": false,
-     "tint": "#E1E6EB"
-    }
-   }
-  },
-  {
-   "id": "pack-076",
-   "name": {
-    "ar": "بنفسجي نيون برستيج",
-    "en": "Neon Violet Prestige"
-   },
-   "category": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي نيون",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Neon Violet",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 55,
-   "wallpaper": "themes/pack-076/wallpaper.jpg",
-   "preview": "themes/pack-076/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#BC68F1",
-    "homeText": "#F4D5FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6210E3C",
-     "mono": true,
-     "tint": "#F4D5FF"
-    }
-   }
-  },
-  {
-   "id": "pack-077",
-   "name": {
-    "ar": "ليموني سايبر برستيج",
-    "en": "Cyber Lime Prestige"
-   },
-   "category": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "tags": {
-    "ar": [
-     "ليموني سايبر",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Cyber Lime",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 56,
-   "wallpaper": "themes/pack-077/wallpaper.jpg",
-   "preview": "themes/pack-077/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#ACF22B",
-    "homeText": "#EBFFC4",
-    "clock": "SMALL",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E6182C12",
+     "plate": "#E6E9D5B8",
      "mono": false,
-     "tint": "#EBFFC4"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-078",
+   "id": "t-044",
    "name": {
-    "ar": "كهرماني الغروب برستيج",
-    "en": "Sunset Amber Prestige"
+    "ar": "نباتات إصدار 01",
+    "en": "Botanical Edition 01"
    },
    "category": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
+    "ar": "نباتات",
+    "en": "Botanical"
    },
    "tags": {
     "ar": [
-     "كهرماني الغروب",
-     "سكويركل",
-     "ملوّن"
+     "نباتات",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Sunset Amber",
-     "Squircle",
-     "Colored"
+     "Botanical",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-078/wallpaper.jpg",
-   "preview": "themes/pack-078/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 127,
+   "wallpaper": "themes/t-044/wallpaper.jpg",
+   "preview": "themes/t-044/preview.jpg",
+   "icons": "themes/t-044/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#FFA734",
-    "homeText": "#FFE7BD",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
     "clock": "SMALL",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E6401F11",
+     "plate": "#E610251D",
      "mono": false,
-     "tint": "#FFE7BD"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-079",
+   "id": "t-045",
    "name": {
-    "ar": "أزرق متجمد برستيج",
-    "en": "Frozen Blue Prestige"
+    "ar": "تجريدي إصدار 01",
+    "en": "Abstract Edition 01"
    },
    "category": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "تجريدي",
+    "en": "Abstract"
    },
    "tags": {
     "ar": [
-     "أزرق متجمد",
-     "مربع مدوّر",
-     "أحادي"
+     "تجريدي",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Frozen Blue",
-     "Rounded",
-     "Mono"
+     "Abstract",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-079/wallpaper.jpg",
-   "preview": "themes/pack-079/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 81,
+   "wallpaper": "themes/t-045/wallpaper.jpg",
+   "preview": "themes/t-045/preview.jpg",
+   "icons": "themes/t-045/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#6CC1E8",
-    "homeText": "#E0F4FF",
-    "clock": "SMALL",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E6152F45",
-     "mono": true,
-     "tint": "#E0F4FF"
-    }
-   }
-  },
-  {
-   "id": "pack-080",
-   "name": {
-    "ar": "عنابي مخملي برستيج",
-    "en": "Velvet Burgundy Prestige"
-   },
-   "category": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
-   },
-   "tags": {
-    "ar": [
-     "عنابي مخملي",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Velvet Burgundy",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-080/wallpaper.jpg",
-   "preview": "themes/pack-080/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C05762",
-    "homeText": "#F6C6D5",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E63B1426",
+     "plate": "#E617172B",
      "mono": false,
-     "tint": "#F6C6D5"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-081",
+   "id": "t-046",
    "name": {
-    "ar": "ذهبي ملكي سيجنتشر",
-    "en": "Royal Gold Signature"
+    "ar": "موسيقى إصدار 01",
+    "en": "Music Edition 01"
    },
    "category": {
-    "ar": "ذهبي ملكي",
-    "en": "Royal Gold"
+    "ar": "موسيقى",
+    "en": "Music"
    },
    "tags": {
     "ar": [
-     "ذهبي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
+     "موسيقى",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Royal Gold",
-     "Rounded",
-     "Colored"
+     "Music",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-081/wallpaper.jpg",
-   "preview": "themes/pack-081/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-046/wallpaper.jpg",
+   "preview": "themes/t-046/preview.jpg",
+   "icons": "themes/t-046/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#CFA741",
-    "homeText": "#F8EEC4",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E615110A",
-     "mono": false,
-     "tint": "#F8EEC4"
-    }
-   }
-  },
-  {
-   "id": "pack-082",
-   "name": {
-    "ar": "ألماس أسود سيجنتشر",
-    "en": "Black Diamond Signature"
-   },
-   "category": {
-    "ar": "ألماس أسود",
-    "en": "Black Diamond"
-   },
-   "tags": {
-    "ar": [
-     "ألماس أسود",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Black Diamond",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-082/wallpaper.jpg",
-   "preview": "themes/pack-082/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#BABFDF",
-    "homeText": "#FFFFFF",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
     "clock": "SMALL",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E611161C",
-     "mono": true,
-     "tint": "#FFFFFF"
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-083",
+   "id": "t-047",
    "name": {
-    "ar": "أزرق منتصف الليل سيجنتشر",
-    "en": "Midnight Blue Signature"
+    "ar": "محيط إصدار 01",
+    "en": "Ocean Edition 01"
    },
    "category": {
-    "ar": "أزرق منتصف الليل",
-    "en": "Midnight Blue"
+    "ar": "محيط",
+    "en": "Ocean"
    },
    "tags": {
     "ar": [
-     "أزرق منتصف الليل",
-     "سكويركل",
-     "ملوّن"
+     "محيط",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Midnight Blue",
-     "Squircle",
-     "Colored"
+     "Ocean",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 48,
-   "wallpaper": "themes/pack-083/wallpaper.jpg",
-   "preview": "themes/pack-083/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-047/wallpaper.jpg",
+   "preview": "themes/t-047/preview.jpg",
+   "icons": "themes/t-047/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#3883FF",
-    "homeText": "#C5E2FF",
-    "clock": "SMALL",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E60A1F3C",
+     "plate": "#E6062333",
      "mono": false,
-     "tint": "#C5E2FF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-084",
+   "id": "t-048",
    "name": {
-    "ar": "بنفسجي ملكي سيجنتشر",
-    "en": "Royal Purple Signature"
+    "ar": "رياضة إصدار 01",
+    "en": "Sports Edition 01"
    },
    "category": {
-    "ar": "بنفسجي ملكي",
-    "en": "Royal Purple"
+    "ar": "رياضة",
+    "en": "Sports"
    },
    "tags": {
     "ar": [
-     "بنفسجي ملكي",
-     "مربع مدوّر",
-     "ملوّن"
+     "رياضة",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Royal Purple",
-     "Rounded",
-     "Colored"
+     "Sports",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-084/wallpaper.jpg",
-   "preview": "themes/pack-084/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 85,
+   "wallpaper": "themes/t-048/wallpaper.jpg",
+   "preview": "themes/t-048/preview.jpg",
+   "icons": "themes/t-048/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#A163FF",
-    "homeText": "#EAD9FF",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
     "clock": "SMALL",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E626103B",
+     "plate": "#E6101A2B",
      "mono": false,
-     "tint": "#EAD9FF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-085",
+   "id": "t-049",
    "name": {
-    "ar": "زمردي فاخر سيجنتشر",
-    "en": "Emerald Luxe Signature"
+    "ar": "طعام إصدار 01",
+    "en": "Food Edition 01"
    },
    "category": {
-    "ar": "زمردي فاخر",
-    "en": "Emerald Luxe"
+    "ar": "طعام",
+    "en": "Food"
    },
    "tags": {
     "ar": [
-     "زمردي فاخر",
-     "قطرة",
-     "أحادي"
+     "طعام",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Emerald Luxe",
-     "Teardrop",
-     "Mono"
+     "Food",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 45,
-   "wallpaper": "themes/pack-085/wallpaper.jpg",
-   "preview": "themes/pack-085/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#1CB091",
-    "homeText": "#CFFFEB",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E60B2B21",
-     "mono": true,
-     "tint": "#CFFFEB"
-    }
-   }
-  },
-  {
-   "id": "pack-086",
-   "name": {
-    "ar": "ذهبي وردي سيجنتشر",
-    "en": "Rose Gold Signature"
-   },
-   "category": {
-    "ar": "ذهبي وردي",
-    "en": "Rose Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهبي وردي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Rose Gold",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 54,
-   "wallpaper": "themes/pack-086/wallpaper.jpg",
-   "preview": "themes/pack-086/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D492A4",
-    "homeText": "#FFEAE3",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6331C23",
-     "mono": false,
-     "tint": "#FFEAE3"
-    }
-   }
-  },
-  {
-   "id": "pack-087",
-   "name": {
-    "ar": "تيتانيوم سيجنتشر",
-    "en": "Titanium Signature"
-   },
-   "category": {
-    "ar": "تيتانيوم",
-    "en": "Titanium"
-   },
-   "tags": {
-    "ar": [
-     "تيتانيوم",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Titanium",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 46,
-   "wallpaper": "themes/pack-087/wallpaper.jpg",
-   "preview": "themes/pack-087/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#97A1C1",
-    "homeText": "#EFF3F8",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6252C35",
-     "mono": false,
-     "tint": "#EFF3F8"
-    }
-   }
-  },
-  {
-   "id": "pack-088",
-   "name": {
-    "ar": "ذهب الصحراء سيجنتشر",
-    "en": "Desert Gold Signature"
-   },
-   "category": {
-    "ar": "ذهب الصحراء",
-    "en": "Desert Gold"
-   },
-   "tags": {
-    "ar": [
-     "ذهب الصحراء",
-     "سكويركل",
-     "أحادي"
-    ],
-    "en": [
-     "Desert Gold",
-     "Squircle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-088/wallpaper.jpg",
-   "preview": "themes/pack-088/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C0834F",
-    "homeText": "#F6E0BE",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6402B17",
-     "mono": true,
-     "tint": "#F6E0BE"
-    }
-   }
-  },
-  {
-   "id": "pack-089",
-   "name": {
-    "ar": "فضي قطبي سيجنتشر",
-    "en": "Arctic Silver Signature"
-   },
-   "category": {
-    "ar": "فضي قطبي",
-    "en": "Arctic Silver"
-   },
-   "tags": {
-    "ar": [
-     "فضي قطبي",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Arctic Silver",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-089/wallpaper.jpg",
-   "preview": "themes/pack-089/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#99D4F5",
-    "homeText": "#EFFCFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E61C303E",
-     "mono": false,
-     "tint": "#EFFCFF"
-    }
-   }
-  },
-  {
-   "id": "pack-090",
-   "name": {
-    "ar": "ليل قرمزي سيجنتشر",
-    "en": "Crimson Night Signature"
-   },
-   "category": {
-    "ar": "ليل قرمزي",
-    "en": "Crimson Night"
-   },
-   "tags": {
-    "ar": [
-     "ليل قرمزي",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Crimson Night",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-090/wallpaper.jpg",
-   "preview": "themes/pack-090/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#D3325C",
-    "homeText": "#FFD4DA",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E6330E17",
-     "mono": false,
-     "tint": "#FFD4DA"
-    }
-   }
-  },
-  {
-   "id": "pack-091",
-   "name": {
-    "ar": "تركواز المحيط سيجنتشر",
-    "en": "Ocean Teal Signature"
-   },
-   "category": {
-    "ar": "تركواز المحيط",
-    "en": "Ocean Teal"
-   },
-   "tags": {
-    "ar": [
-     "تركواز المحيط",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Ocean Teal",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-091/wallpaper.jpg",
-   "preview": "themes/pack-091/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#1EAFBC",
-    "homeText": "#CCFFF8",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6092F35",
-     "mono": true,
-     "tint": "#CCFFF8"
-    }
-   }
-  },
-  {
-   "id": "pack-092",
-   "name": {
-    "ar": "ياقوتي سيجنتشر",
-    "en": "Sapphire Signature"
-   },
-   "category": {
-    "ar": "ياقوتي",
-    "en": "Sapphire"
-   },
-   "tags": {
-    "ar": [
-     "ياقوتي",
-     "دائري",
-     "ملوّن"
-    ],
-    "en": [
-     "Sapphire",
-     "Circle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 49,
-   "wallpaper": "themes/pack-092/wallpaper.jpg",
-   "preview": "themes/pack-092/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#3C61EB",
-    "homeText": "#D8E2FF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "CIRCLE",
-     "plate": "#E6112250",
-     "mono": false,
-     "tint": "#D8E2FF"
-    }
-   }
-  },
-  {
-   "id": "pack-093",
-   "name": {
-    "ar": "نحاسي داكن سيجنتشر",
-    "en": "Copper Noir Signature"
-   },
-   "category": {
-    "ar": "نحاسي داكن",
-    "en": "Copper Noir"
-   },
-   "tags": {
-    "ar": [
-     "نحاسي داكن",
-     "سكويركل",
-     "ملوّن"
-    ],
-    "en": [
-     "Copper Noir",
-     "Squircle",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 52,
-   "wallpaper": "themes/pack-093/wallpaper.jpg",
-   "preview": "themes/pack-093/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#C3714B",
-    "homeText": "#F7D5BC",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "SQUIRCLE",
-     "plate": "#E6311D13",
-     "mono": false,
-     "tint": "#F7D5BC"
-    }
-   }
-  },
-  {
-   "id": "pack-094",
-   "name": {
-    "ar": "عاجي بسيط سيجنتشر",
-    "en": "Ivory Minimal Signature"
-   },
-   "category": {
-    "ar": "عاجي بسيط",
-    "en": "Ivory Minimal"
-   },
-   "tags": {
-    "ar": [
-     "عاجي بسيط",
-     "مربع مدوّر",
-     "أحادي"
-    ],
-    "en": [
-     "Ivory Minimal",
-     "Rounded",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 50,
-   "wallpaper": "themes/pack-094/wallpaper.jpg",
-   "preview": "themes/pack-094/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-049/wallpaper.jpg",
+   "preview": "themes/t-049/preview.jpg",
+   "icons": "themes/t-049/icons.zip",
    "style": {
     "mode": "LIGHT",
-    "accent": "#97785F",
-    "homeText": "#81796F",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6DCD4C4",
-     "mono": true,
-     "tint": "#81796F"
-    }
-   }
-  },
-  {
-   "id": "pack-095",
-   "name": {
-    "ar": "جرافيت سيجنتشر",
-    "en": "Graphite Signature"
-   },
-   "category": {
-    "ar": "جرافيت",
-    "en": "Graphite"
-   },
-   "tags": {
-    "ar": [
-     "جرافيت",
-     "قطرة",
-     "ملوّن"
-    ],
-    "en": [
-     "Graphite",
-     "Teardrop",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-095/wallpaper.jpg",
-   "preview": "themes/pack-095/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#6F7692",
-    "homeText": "#E4E9ED",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E621262B",
-     "mono": false,
-     "tint": "#E4E9ED"
-    }
-   }
-  },
-  {
-   "id": "pack-096",
-   "name": {
-    "ar": "بنفسجي نيون سيجنتشر",
-    "en": "Neon Violet Signature"
-   },
-   "category": {
-    "ar": "بنفسجي نيون",
-    "en": "Neon Violet"
-   },
-   "tags": {
-    "ar": [
-     "بنفسجي نيون",
-     "مربع مدوّر",
-     "ملوّن"
-    ],
-    "en": [
-     "Neon Violet",
-     "Rounded",
-     "Colored"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 56,
-   "wallpaper": "themes/pack-096/wallpaper.jpg",
-   "preview": "themes/pack-096/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#AF54FF",
-    "homeText": "#F5DAFF",
-    "clock": "SMALL",
-    "icon": {
-     "shape": "ROUNDED",
-     "plate": "#E6210E3C",
-     "mono": false,
-     "tint": "#F5DAFF"
-    }
-   }
-  },
-  {
-   "id": "pack-097",
-   "name": {
-    "ar": "ليموني سايبر سيجنتشر",
-    "en": "Cyber Lime Signature"
-   },
-   "category": {
-    "ar": "ليموني سايبر",
-    "en": "Cyber Lime"
-   },
-   "tags": {
-    "ar": [
-     "ليموني سايبر",
-     "دائري",
-     "أحادي"
-    ],
-    "en": [
-     "Cyber Lime",
-     "Circle",
-     "Mono"
-    ]
-   },
-   "author": "Aura Pack",
-   "sizeKb": 57,
-   "wallpaper": "themes/pack-097/wallpaper.jpg",
-   "preview": "themes/pack-097/preview.jpg",
-   "style": {
-    "mode": "DARK",
-    "accent": "#9FDE43",
-    "homeText": "#EDFFCB",
-    "clock": "SMALL",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
     "icon": {
      "shape": "CIRCLE",
-     "plate": "#E6182C12",
-     "mono": true,
-     "tint": "#EDFFCB"
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-098",
+   "id": "t-050",
    "name": {
-    "ar": "كهرماني الغروب سيجنتشر",
-    "en": "Sunset Amber Signature"
+    "ar": "فضاء إصدار 01",
+    "en": "Space Edition 01"
    },
    "category": {
-    "ar": "كهرماني الغروب",
-    "en": "Sunset Amber"
+    "ar": "فضاء",
+    "en": "Space"
    },
    "tags": {
     "ar": [
-     "كهرماني الغروب",
-     "سكويركل",
-     "ملوّن"
+     "فضاء",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Sunset Amber",
-     "Squircle",
-     "Colored"
+     "Space",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 59,
-   "wallpaper": "themes/pack-098/wallpaper.jpg",
-   "preview": "themes/pack-098/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-050/wallpaper.jpg",
+   "preview": "themes/t-050/preview.jpg",
+   "icons": "themes/t-050/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#FA934C",
-    "homeText": "#FFEAC4",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
     "clock": "SMALL",
     "icon": {
      "shape": "SQUIRCLE",
-     "plate": "#E6401F11",
+     "plate": "#E6080D24",
      "mono": false,
-     "tint": "#FFEAC4"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-099",
+   "id": "t-051",
    "name": {
-    "ar": "أزرق متجمد سيجنتشر",
-    "en": "Frozen Blue Signature"
+    "ar": "حياة برية إصدار 02",
+    "en": "Wildlife Edition 02"
    },
    "category": {
-    "ar": "أزرق متجمد",
-    "en": "Frozen Blue"
+    "ar": "حياة برية",
+    "en": "Wildlife"
    },
    "tags": {
     "ar": [
-     "أزرق متجمد",
-     "مربع مدوّر",
-     "ملوّن"
+     "حياة برية",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Frozen Blue",
-     "Rounded",
-     "Colored"
+     "Wildlife",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 53,
-   "wallpaper": "themes/pack-099/wallpaper.jpg",
-   "preview": "themes/pack-099/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 78,
+   "wallpaper": "themes/t-051/wallpaper.jpg",
+   "preview": "themes/t-051/preview.jpg",
+   "icons": "themes/t-051/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#5FADFF",
-    "homeText": "#E3F5FF",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6101512",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-052",
+   "name": {
+    "ar": "عمارة إصدار 02",
+    "en": "Architecture Edition 02"
+   },
+   "category": {
+    "ar": "عمارة",
+    "en": "Architecture"
+   },
+   "tags": {
+    "ar": [
+     "عمارة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Architecture",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-052/wallpaper.jpg",
+   "preview": "themes/t-052/preview.jpg",
+   "icons": "themes/t-052/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6151C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-053",
+   "name": {
+    "ar": "سفر إصدار 02",
+    "en": "Travel Edition 02"
+   },
+   "category": {
+    "ar": "سفر",
+    "en": "Travel"
+   },
+   "tags": {
+    "ar": [
+     "سفر",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Travel",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 74,
+   "wallpaper": "themes/t-053/wallpaper.jpg",
+   "preview": "themes/t-053/preview.jpg",
+   "icons": "themes/t-053/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6E9D5B8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-054",
+   "name": {
+    "ar": "نباتات إصدار 02",
+    "en": "Botanical Edition 02"
+   },
+   "category": {
+    "ar": "نباتات",
+    "en": "Botanical"
+   },
+   "tags": {
+    "ar": [
+     "نباتات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Botanical",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-054/wallpaper.jpg",
+   "preview": "themes/t-054/preview.jpg",
+   "icons": "themes/t-054/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
     "clock": "SMALL",
     "icon": {
      "shape": "ROUNDED",
-     "plate": "#E6152F45",
+     "plate": "#E610251D",
      "mono": false,
-     "tint": "#E3F5FF"
+     "tint": "#FFFFFFFF"
     }
    }
   },
   {
-   "id": "pack-100",
+   "id": "t-055",
    "name": {
-    "ar": "عنابي مخملي سيجنتشر",
-    "en": "Velvet Burgundy Signature"
+    "ar": "تجريدي إصدار 02",
+    "en": "Abstract Edition 02"
    },
    "category": {
-    "ar": "عنابي مخملي",
-    "en": "Velvet Burgundy"
+    "ar": "تجريدي",
+    "en": "Abstract"
    },
    "tags": {
     "ar": [
-     "عنابي مخملي",
-     "قطرة",
-     "أحادي"
+     "تجريدي",
+     "أيقونات خاصة"
     ],
     "en": [
-     "Velvet Burgundy",
-     "Teardrop",
-     "Mono"
+     "Abstract",
+     "Custom icons"
     ]
    },
-   "author": "Aura Pack",
-   "sizeKb": 47,
-   "wallpaper": "themes/pack-100/wallpaper.jpg",
-   "preview": "themes/pack-100/preview.jpg",
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-055/wallpaper.jpg",
+   "preview": "themes/t-055/preview.jpg",
+   "icons": "themes/t-055/icons.zip",
    "style": {
     "mode": "DARK",
-    "accent": "#B3437A",
-    "homeText": "#F7CCDA",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E617172B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-056",
+   "name": {
+    "ar": "موسيقى إصدار 02",
+    "en": "Music Edition 02"
+   },
+   "category": {
+    "ar": "موسيقى",
+    "en": "Music"
+   },
+   "tags": {
+    "ar": [
+     "موسيقى",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Music",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-056/wallpaper.jpg",
+   "preview": "themes/t-056/preview.jpg",
+   "icons": "themes/t-056/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
     "clock": "SMALL",
     "icon": {
-     "shape": "TEARDROP",
-     "plate": "#E63B1426",
-     "mono": true,
-     "tint": "#F7CCDA"
+     "shape": "SQUIRCLE",
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-057",
+   "name": {
+    "ar": "محيط إصدار 02",
+    "en": "Ocean Edition 02"
+   },
+   "category": {
+    "ar": "محيط",
+    "en": "Ocean"
+   },
+   "tags": {
+    "ar": [
+     "محيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Ocean",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 85,
+   "wallpaper": "themes/t-057/wallpaper.jpg",
+   "preview": "themes/t-057/preview.jpg",
+   "icons": "themes/t-057/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6062333",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-058",
+   "name": {
+    "ar": "رياضة إصدار 02",
+    "en": "Sports Edition 02"
+   },
+   "category": {
+    "ar": "رياضة",
+    "en": "Sports"
+   },
+   "tags": {
+    "ar": [
+     "رياضة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Sports",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-058/wallpaper.jpg",
+   "preview": "themes/t-058/preview.jpg",
+   "icons": "themes/t-058/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6101A2B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-059",
+   "name": {
+    "ar": "طعام إصدار 02",
+    "en": "Food Edition 02"
+   },
+   "category": {
+    "ar": "طعام",
+    "en": "Food"
+   },
+   "tags": {
+    "ar": [
+     "طعام",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Food",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-059/wallpaper.jpg",
+   "preview": "themes/t-059/preview.jpg",
+   "icons": "themes/t-059/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-060",
+   "name": {
+    "ar": "فضاء إصدار 02",
+    "en": "Space Edition 02"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 91,
+   "wallpaper": "themes/t-060/wallpaper.jpg",
+   "preview": "themes/t-060/preview.jpg",
+   "icons": "themes/t-060/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6080D24",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-061",
+   "name": {
+    "ar": "حياة برية إصدار 03",
+    "en": "Wildlife Edition 03"
+   },
+   "category": {
+    "ar": "حياة برية",
+    "en": "Wildlife"
+   },
+   "tags": {
+    "ar": [
+     "حياة برية",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Wildlife",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 79,
+   "wallpaper": "themes/t-061/wallpaper.jpg",
+   "preview": "themes/t-061/preview.jpg",
+   "icons": "themes/t-061/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6101512",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-062",
+   "name": {
+    "ar": "عمارة إصدار 03",
+    "en": "Architecture Edition 03"
+   },
+   "category": {
+    "ar": "عمارة",
+    "en": "Architecture"
+   },
+   "tags": {
+    "ar": [
+     "عمارة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Architecture",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-062/wallpaper.jpg",
+   "preview": "themes/t-062/preview.jpg",
+   "icons": "themes/t-062/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6151C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-063",
+   "name": {
+    "ar": "سفر إصدار 03",
+    "en": "Travel Edition 03"
+   },
+   "category": {
+    "ar": "سفر",
+    "en": "Travel"
+   },
+   "tags": {
+    "ar": [
+     "سفر",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Travel",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 72,
+   "wallpaper": "themes/t-063/wallpaper.jpg",
+   "preview": "themes/t-063/preview.jpg",
+   "icons": "themes/t-063/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6E9D5B8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-064",
+   "name": {
+    "ar": "نباتات إصدار 03",
+    "en": "Botanical Edition 03"
+   },
+   "category": {
+    "ar": "نباتات",
+    "en": "Botanical"
+   },
+   "tags": {
+    "ar": [
+     "نباتات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Botanical",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-064/wallpaper.jpg",
+   "preview": "themes/t-064/preview.jpg",
+   "icons": "themes/t-064/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E610251D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-065",
+   "name": {
+    "ar": "تجريدي إصدار 03",
+    "en": "Abstract Edition 03"
+   },
+   "category": {
+    "ar": "تجريدي",
+    "en": "Abstract"
+   },
+   "tags": {
+    "ar": [
+     "تجريدي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Abstract",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-065/wallpaper.jpg",
+   "preview": "themes/t-065/preview.jpg",
+   "icons": "themes/t-065/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E617172B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-066",
+   "name": {
+    "ar": "موسيقى إصدار 03",
+    "en": "Music Edition 03"
+   },
+   "category": {
+    "ar": "موسيقى",
+    "en": "Music"
+   },
+   "tags": {
+    "ar": [
+     "موسيقى",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Music",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-066/wallpaper.jpg",
+   "preview": "themes/t-066/preview.jpg",
+   "icons": "themes/t-066/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-067",
+   "name": {
+    "ar": "محيط إصدار 03",
+    "en": "Ocean Edition 03"
+   },
+   "category": {
+    "ar": "محيط",
+    "en": "Ocean"
+   },
+   "tags": {
+    "ar": [
+     "محيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Ocean",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-067/wallpaper.jpg",
+   "preview": "themes/t-067/preview.jpg",
+   "icons": "themes/t-067/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6062333",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-068",
+   "name": {
+    "ar": "رياضة إصدار 03",
+    "en": "Sports Edition 03"
+   },
+   "category": {
+    "ar": "رياضة",
+    "en": "Sports"
+   },
+   "tags": {
+    "ar": [
+     "رياضة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Sports",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-068/wallpaper.jpg",
+   "preview": "themes/t-068/preview.jpg",
+   "icons": "themes/t-068/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6101A2B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-069",
+   "name": {
+    "ar": "طعام إصدار 03",
+    "en": "Food Edition 03"
+   },
+   "category": {
+    "ar": "طعام",
+    "en": "Food"
+   },
+   "tags": {
+    "ar": [
+     "طعام",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Food",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-069/wallpaper.jpg",
+   "preview": "themes/t-069/preview.jpg",
+   "icons": "themes/t-069/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-070",
+   "name": {
+    "ar": "فضاء إصدار 03",
+    "en": "Space Edition 03"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-070/wallpaper.jpg",
+   "preview": "themes/t-070/preview.jpg",
+   "icons": "themes/t-070/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6080D24",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-071",
+   "name": {
+    "ar": "حياة برية إصدار 04",
+    "en": "Wildlife Edition 04"
+   },
+   "category": {
+    "ar": "حياة برية",
+    "en": "Wildlife"
+   },
+   "tags": {
+    "ar": [
+     "حياة برية",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Wildlife",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 78,
+   "wallpaper": "themes/t-071/wallpaper.jpg",
+   "preview": "themes/t-071/preview.jpg",
+   "icons": "themes/t-071/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6101512",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-072",
+   "name": {
+    "ar": "عمارة إصدار 04",
+    "en": "Architecture Edition 04"
+   },
+   "category": {
+    "ar": "عمارة",
+    "en": "Architecture"
+   },
+   "tags": {
+    "ar": [
+     "عمارة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Architecture",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-072/wallpaper.jpg",
+   "preview": "themes/t-072/preview.jpg",
+   "icons": "themes/t-072/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6151C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-073",
+   "name": {
+    "ar": "سفر إصدار 04",
+    "en": "Travel Edition 04"
+   },
+   "category": {
+    "ar": "سفر",
+    "en": "Travel"
+   },
+   "tags": {
+    "ar": [
+     "سفر",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Travel",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 74,
+   "wallpaper": "themes/t-073/wallpaper.jpg",
+   "preview": "themes/t-073/preview.jpg",
+   "icons": "themes/t-073/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6E9D5B8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-074",
+   "name": {
+    "ar": "نباتات إصدار 04",
+    "en": "Botanical Edition 04"
+   },
+   "category": {
+    "ar": "نباتات",
+    "en": "Botanical"
+   },
+   "tags": {
+    "ar": [
+     "نباتات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Botanical",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-074/wallpaper.jpg",
+   "preview": "themes/t-074/preview.jpg",
+   "icons": "themes/t-074/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E610251D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-075",
+   "name": {
+    "ar": "تجريدي إصدار 04",
+    "en": "Abstract Edition 04"
+   },
+   "category": {
+    "ar": "تجريدي",
+    "en": "Abstract"
+   },
+   "tags": {
+    "ar": [
+     "تجريدي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Abstract",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 80,
+   "wallpaper": "themes/t-075/wallpaper.jpg",
+   "preview": "themes/t-075/preview.jpg",
+   "icons": "themes/t-075/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E617172B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-076",
+   "name": {
+    "ar": "موسيقى إصدار 04",
+    "en": "Music Edition 04"
+   },
+   "category": {
+    "ar": "موسيقى",
+    "en": "Music"
+   },
+   "tags": {
+    "ar": [
+     "موسيقى",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Music",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-076/wallpaper.jpg",
+   "preview": "themes/t-076/preview.jpg",
+   "icons": "themes/t-076/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-077",
+   "name": {
+    "ar": "محيط إصدار 04",
+    "en": "Ocean Edition 04"
+   },
+   "category": {
+    "ar": "محيط",
+    "en": "Ocean"
+   },
+   "tags": {
+    "ar": [
+     "محيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Ocean",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-077/wallpaper.jpg",
+   "preview": "themes/t-077/preview.jpg",
+   "icons": "themes/t-077/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6062333",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-078",
+   "name": {
+    "ar": "رياضة إصدار 04",
+    "en": "Sports Edition 04"
+   },
+   "category": {
+    "ar": "رياضة",
+    "en": "Sports"
+   },
+   "tags": {
+    "ar": [
+     "رياضة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Sports",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 84,
+   "wallpaper": "themes/t-078/wallpaper.jpg",
+   "preview": "themes/t-078/preview.jpg",
+   "icons": "themes/t-078/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6101A2B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-079",
+   "name": {
+    "ar": "طعام إصدار 04",
+    "en": "Food Edition 04"
+   },
+   "category": {
+    "ar": "طعام",
+    "en": "Food"
+   },
+   "tags": {
+    "ar": [
+     "طعام",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Food",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 74,
+   "wallpaper": "themes/t-079/wallpaper.jpg",
+   "preview": "themes/t-079/preview.jpg",
+   "icons": "themes/t-079/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-080",
+   "name": {
+    "ar": "فضاء إصدار 04",
+    "en": "Space Edition 04"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-080/wallpaper.jpg",
+   "preview": "themes/t-080/preview.jpg",
+   "icons": "themes/t-080/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6080D24",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-081",
+   "name": {
+    "ar": "حياة برية إصدار 05",
+    "en": "Wildlife Edition 05"
+   },
+   "category": {
+    "ar": "حياة برية",
+    "en": "Wildlife"
+   },
+   "tags": {
+    "ar": [
+     "حياة برية",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Wildlife",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 77,
+   "wallpaper": "themes/t-081/wallpaper.jpg",
+   "preview": "themes/t-081/preview.jpg",
+   "icons": "themes/t-081/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6101512",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-082",
+   "name": {
+    "ar": "عمارة إصدار 05",
+    "en": "Architecture Edition 05"
+   },
+   "category": {
+    "ar": "عمارة",
+    "en": "Architecture"
+   },
+   "tags": {
+    "ar": [
+     "عمارة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Architecture",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-082/wallpaper.jpg",
+   "preview": "themes/t-082/preview.jpg",
+   "icons": "themes/t-082/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6151C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-083",
+   "name": {
+    "ar": "سفر إصدار 05",
+    "en": "Travel Edition 05"
+   },
+   "category": {
+    "ar": "سفر",
+    "en": "Travel"
+   },
+   "tags": {
+    "ar": [
+     "سفر",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Travel",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 73,
+   "wallpaper": "themes/t-083/wallpaper.jpg",
+   "preview": "themes/t-083/preview.jpg",
+   "icons": "themes/t-083/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6E9D5B8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-084",
+   "name": {
+    "ar": "نباتات إصدار 05",
+    "en": "Botanical Edition 05"
+   },
+   "category": {
+    "ar": "نباتات",
+    "en": "Botanical"
+   },
+   "tags": {
+    "ar": [
+     "نباتات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Botanical",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 120,
+   "wallpaper": "themes/t-084/wallpaper.jpg",
+   "preview": "themes/t-084/preview.jpg",
+   "icons": "themes/t-084/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E610251D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-085",
+   "name": {
+    "ar": "تجريدي إصدار 05",
+    "en": "Abstract Edition 05"
+   },
+   "category": {
+    "ar": "تجريدي",
+    "en": "Abstract"
+   },
+   "tags": {
+    "ar": [
+     "تجريدي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Abstract",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-085/wallpaper.jpg",
+   "preview": "themes/t-085/preview.jpg",
+   "icons": "themes/t-085/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E617172B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-086",
+   "name": {
+    "ar": "موسيقى إصدار 05",
+    "en": "Music Edition 05"
+   },
+   "category": {
+    "ar": "موسيقى",
+    "en": "Music"
+   },
+   "tags": {
+    "ar": [
+     "موسيقى",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Music",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-086/wallpaper.jpg",
+   "preview": "themes/t-086/preview.jpg",
+   "icons": "themes/t-086/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-087",
+   "name": {
+    "ar": "محيط إصدار 05",
+    "en": "Ocean Edition 05"
+   },
+   "category": {
+    "ar": "محيط",
+    "en": "Ocean"
+   },
+   "tags": {
+    "ar": [
+     "محيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Ocean",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-087/wallpaper.jpg",
+   "preview": "themes/t-087/preview.jpg",
+   "icons": "themes/t-087/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6062333",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-088",
+   "name": {
+    "ar": "رياضة إصدار 05",
+    "en": "Sports Edition 05"
+   },
+   "category": {
+    "ar": "رياضة",
+    "en": "Sports"
+   },
+   "tags": {
+    "ar": [
+     "رياضة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Sports",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 85,
+   "wallpaper": "themes/t-088/wallpaper.jpg",
+   "preview": "themes/t-088/preview.jpg",
+   "icons": "themes/t-088/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6101A2B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-089",
+   "name": {
+    "ar": "طعام إصدار 05",
+    "en": "Food Edition 05"
+   },
+   "category": {
+    "ar": "طعام",
+    "en": "Food"
+   },
+   "tags": {
+    "ar": [
+     "طعام",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Food",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 75,
+   "wallpaper": "themes/t-089/wallpaper.jpg",
+   "preview": "themes/t-089/preview.jpg",
+   "icons": "themes/t-089/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-090",
+   "name": {
+    "ar": "فضاء إصدار 05",
+    "en": "Space Edition 05"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 89,
+   "wallpaper": "themes/t-090/wallpaper.jpg",
+   "preview": "themes/t-090/preview.jpg",
+   "icons": "themes/t-090/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6080D24",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-091",
+   "name": {
+    "ar": "حياة برية إصدار 06",
+    "en": "Wildlife Edition 06"
+   },
+   "category": {
+    "ar": "حياة برية",
+    "en": "Wildlife"
+   },
+   "tags": {
+    "ar": [
+     "حياة برية",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Wildlife",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 78,
+   "wallpaper": "themes/t-091/wallpaper.jpg",
+   "preview": "themes/t-091/preview.jpg",
+   "icons": "themes/t-091/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#A9B5A8",
+    "homeText": "#E9EEE8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6101512",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-092",
+   "name": {
+    "ar": "عمارة إصدار 06",
+    "en": "Architecture Edition 06"
+   },
+   "category": {
+    "ar": "عمارة",
+    "en": "Architecture"
+   },
+   "tags": {
+    "ar": [
+     "عمارة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Architecture",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-092/wallpaper.jpg",
+   "preview": "themes/t-092/preview.jpg",
+   "icons": "themes/t-092/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#6E9AB7",
+    "homeText": "#E6F2F8",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6151C2A",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-093",
+   "name": {
+    "ar": "سفر إصدار 06",
+    "en": "Travel Edition 06"
+   },
+   "category": {
+    "ar": "سفر",
+    "en": "Travel"
+   },
+   "tags": {
+    "ar": [
+     "سفر",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Travel",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 73,
+   "wallpaper": "themes/t-093/wallpaper.jpg",
+   "preview": "themes/t-093/preview.jpg",
+   "icons": "themes/t-093/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B66E4C",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6E9D5B8",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-094",
+   "name": {
+    "ar": "نباتات إصدار 06",
+    "en": "Botanical Edition 06"
+   },
+   "category": {
+    "ar": "نباتات",
+    "en": "Botanical"
+   },
+   "tags": {
+    "ar": [
+     "نباتات",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Botanical",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 115,
+   "wallpaper": "themes/t-094/wallpaper.jpg",
+   "preview": "themes/t-094/preview.jpg",
+   "icons": "themes/t-094/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#77B78B",
+    "homeText": "#E3F2E5",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E610251D",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-095",
+   "name": {
+    "ar": "تجريدي إصدار 06",
+    "en": "Abstract Edition 06"
+   },
+   "category": {
+    "ar": "تجريدي",
+    "en": "Abstract"
+   },
+   "tags": {
+    "ar": [
+     "تجريدي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Abstract",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 82,
+   "wallpaper": "themes/t-095/wallpaper.jpg",
+   "preview": "themes/t-095/preview.jpg",
+   "icons": "themes/t-095/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#8878D8",
+    "homeText": "#E7DFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E617172B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-096",
+   "name": {
+    "ar": "موسيقى إصدار 06",
+    "en": "Music Edition 06"
+   },
+   "category": {
+    "ar": "موسيقى",
+    "en": "Music"
+   },
+   "tags": {
+    "ar": [
+     "موسيقى",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Music",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-096/wallpaper.jpg",
+   "preview": "themes/t-096/preview.jpg",
+   "icons": "themes/t-096/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B18AE0",
+    "homeText": "#F5E9FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E618151E",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-097",
+   "name": {
+    "ar": "محيط إصدار 06",
+    "en": "Ocean Edition 06"
+   },
+   "category": {
+    "ar": "محيط",
+    "en": "Ocean"
+   },
+   "tags": {
+    "ar": [
+     "محيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Ocean",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 83,
+   "wallpaper": "themes/t-097/wallpaper.jpg",
+   "preview": "themes/t-097/preview.jpg",
+   "icons": "themes/t-097/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#28A9B8",
+    "homeText": "#D5F8F8",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6062333",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-098",
+   "name": {
+    "ar": "رياضة إصدار 06",
+    "en": "Sports Edition 06"
+   },
+   "category": {
+    "ar": "رياضة",
+    "en": "Sports"
+   },
+   "tags": {
+    "ar": [
+     "رياضة",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Sports",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 86,
+   "wallpaper": "themes/t-098/wallpaper.jpg",
+   "preview": "themes/t-098/preview.jpg",
+   "icons": "themes/t-098/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#4B9BFF",
+    "homeText": "#E1F1FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6101A2B",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-099",
+   "name": {
+    "ar": "طعام إصدار 06",
+    "en": "Food Edition 06"
+   },
+   "category": {
+    "ar": "طعام",
+    "en": "Food"
+   },
+   "tags": {
+    "ar": [
+     "طعام",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Food",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 74,
+   "wallpaper": "themes/t-099/wallpaper.jpg",
+   "preview": "themes/t-099/preview.jpg",
+   "icons": "themes/t-099/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#C87964",
+    "homeText": "#101010",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6F5E0D3",
+     "mono": false,
+     "tint": "#FFFFFFFF"
+    }
+   }
+  },
+  {
+   "id": "t-100",
+   "name": {
+    "ar": "فضاء إصدار 06",
+    "en": "Space Edition 06"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "فضاء",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Space",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 91,
+   "wallpaper": "themes/t-100/wallpaper.jpg",
+   "preview": "themes/t-100/preview.jpg",
+   "icons": "themes/t-100/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#788CFF",
+    "homeText": "#E1E8FF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6080D24",
+     "mono": false,
+     "tint": "#FFFFFFFF"
     }
    }
   }

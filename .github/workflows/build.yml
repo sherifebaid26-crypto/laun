@@ -28,8 +28,18 @@ jobs:
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace
 
-      - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk AuraLauncher-debug.apk
+      - name: Build release APK (R8 - أسرع وأخف)
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Rename APKs
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk AuraLauncher-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk AuraLauncher-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AuraLauncher-release
+          path: AuraLauncher-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
@@ -40,4 +50,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: AuraLauncher-debug.apk
+          files: |
+            AuraLauncher-release.apk
+            AuraLauncher-debug.apk

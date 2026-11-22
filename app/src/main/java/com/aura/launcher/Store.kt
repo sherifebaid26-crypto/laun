@@ -65,7 +65,26 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun loadAppsNow() {
-        _apps.value = AppRepository.loadApps(app, _state.value.iconPack, _state.value.iconStyle)
+        val s = _state.value
+        val icons = if (s.themeIcons) s.themeId?.let { id ->
+            withContext(Dispatchers.IO) { ThemeIcons.load(ThemeStore.iconsDir(app, id)) }.ifEmpty { null }
+        } else null
+        val prev = _apps.value
+        val list = AppRepository.loadApps(app, s.iconPack, s.iconStyle, icons)
+        _apps.value = list
+        if (prev.isNotEmpty()) trackRemoved(prev, list)
+    }
+
+    /** بنفتكر التطبيقات اللي اتحذفت علشان ترجّعها من Play بسرعة. */
+    private fun trackRemoved(prev: List<AppEntry>, now: List<AppEntry>) {
+        val nowPk = now.map { it.packageName }.toSet()
+        val gone = prev.filter { it.packageName !in nowPk }.distinctBy { it.packageName }
+        val cur = _state.value.removed
+        val back = cur.filter { it.substringBefore('|') in nowPk }
+        if (gone.isEmpty() && back.isEmpty()) return
+        val added = gone.map { it.packageName + "|" + it.label }
+        val list2 = (added + cur.filter { it !in back }).distinctBy { it.substringBefore('|') }.take(20)
+        if (list2 != cur) update { it.copy(removed = list2) }
     }
 
     // ───────────── متجر الثيمات ─────────────
@@ -216,6 +235,22 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
             }.isSuccess
             _message.value = if (ok) tr("اتحفظ الثيم في «المحمّلة» بالمتجر", "Theme saved under Downloaded in the store")
             else tr("تعذّر حفظ الثيم", "Couldn't save the theme")
+        }
+    }
+
+    /** صورة ودجت الصورة: بنصغّرها ونحفظها جوه التطبيق. */
+    fun setPhoto(uid: String, uri: Uri) {
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val bmp = decodeUri(uri, 1600) ?: return@runCatching false
+                    val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
+                    java.io.File(dir, "$uid.jpg").outputStream().use { bmp.compress(Bitmap.CompressFormat.JPEG, 88, it) }
+                    true
+                }.getOrDefault(false)
+            }
+            if (ok) update { it.updateBuiltin(uid) { b -> b.copy(data = System.currentTimeMillis().toString()) } }
+            else _message.value = tr("تعذّر فتح الصورة", "Couldn't open the image")
         }
     }
 

@@ -8,7 +8,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.DisposableEffect
@@ -101,16 +112,24 @@ fun AppCell(
 ) {
     var rect by remember { mutableStateOf(Rect.Zero) }
     val haptic = LocalHapticFeedback.current
+    val src = remember { MutableInteractionSource() }
+    val pressed by src.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        if (pressed) 0.9f else 1f, spring(dampingRatio = 0.6f, stiffness = 500f), label = "press",
+    )
+    val night = state.nightIcons && state.isNight(ui.hour)
     val counts by Badges.counts.collectAsState()
     val badge = if (state.badges) counts[app.packageName] ?: 0 else 0
 
     val click = when {
-        where == Where.DRAWER -> Modifier.clickable { ui.launch(app, rect) }
+        where == Where.DRAWER -> Modifier.clickable(interactionSource = src, indication = null) { ui.launch(app, rect) }
         interactive -> Modifier.combinedClickable(
+            interactionSource = src,
+            indication = null,
             onClick = { ui.launch(app, rect) },
             onLongClick = { ui.showMenu(rect, ui.menuFor(app, where, folder)) },
         )
-        else -> Modifier.clickable { ui.launch(app, rect) }
+        else -> Modifier.clickable(interactionSource = src, indication = null) { ui.launch(app, rect) }
     }
 
     // من الدرج: ضغطة مطوّلة ثم سحب = نقل التطبيق للشاشة الرئيسية، وبدون سحب = القائمة
@@ -159,6 +178,7 @@ fun AppCell(
             .fillMaxWidth()
             .onGloballyPositioned { rect = it.boundsInWindow() }
             .clip(RoundedCornerShape(16.dp))
+            .graphicsLayer { scaleX = pressScale; scaleY = pressScale }
             .then(dragOut)
             .then(click)
             .padding(vertical = 6.dp),
@@ -168,6 +188,7 @@ fun AppCell(
                 bitmap = app.icon,
                 contentDescription = app.label,
                 modifier = Modifier.size((56 * state.iconScale).dp),
+                colorFilter = if (night) ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(0.82f, 0.78f, 0.7f, 1f) }) else null,
             )
             if (badge > 0) {
                 Box(
@@ -212,6 +233,16 @@ private fun FolderCell(
     onClick: () -> Unit,
 ) {
     val size = (56 * state.iconScale).dp
+    val st = state.iconStyle
+    // شكل المجلد وخلفيته بيتبعوا شكل أيقونات الثيم
+    val shape = when (st.shape) {
+        IconShape.CIRCLE -> CircleShape
+        IconShape.SQUIRCLE -> RoundedCornerShape(32)
+        IconShape.TEARDROP -> RoundedCornerShape(topStartPercent = 50, topEndPercent = 50, bottomEndPercent = 50, bottomStartPercent = 12)
+        IconShape.ROUNDED -> RoundedCornerShape(22)
+        else -> RoundedCornerShape(16.dp)
+    }
+    val plate = if (st.plate != 0L) Color(st.plate.toInt()).copy(alpha = 0.55f) else pal.panel
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -225,9 +256,9 @@ private fun FolderCell(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .size(size)
-                .clip(RoundedCornerShape(16.dp))
-                .background(pal.panel)
-                .border(1.dp, pal.border, RoundedCornerShape(16.dp)),
+                .clip(shape)
+                .background(plate)
+                .border(1.dp, pal.border, shape),
         ) {
             folder.keys.mapNotNull { apps[it] }.take(4).chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -259,6 +290,50 @@ private fun WidgetCell(ui: Ui, widgetId: Int) {
     }
 }
 
+/** مسكة تغيير حجم الودجت بالسحب: كل ما تعدّي خلية بيكبر/يصغر خطوة. اضغط عليها عشان تخلّص. */
+@Composable
+private fun BoxScope.ResizeHandle(uid: String, ui: Ui, cellW: Dp, cellH: Dp) {
+    val density = LocalDensity.current
+    val cw = with(density) { cellW.toPx() }
+    val ch = with(density) { cellH.toPx() }
+    var dx by remember { mutableFloatStateOf(0f) }
+    var dy by remember { mutableFloatStateOf(0f) }
+    Box(
+        Modifier
+            .align(AbsoluteAlignment.BottomRight)
+            .padding(2.dp)
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(Color(0xFF00E5FF))
+            .pointerInput(uid) { detectTapGestures(onTap = { ui.resizeUid = null }) }
+            .pointerInput(uid, cw, ch) {
+                detectDragGestures(
+                    onDragStart = { dx = 0f; dy = 0f },
+                    onDrag = { change, amount ->
+                        change.consume()
+                        dx += amount.x
+                        dy += amount.y
+                        var dc = 0
+                        var dr = 0
+                        while (dx >= cw) { dc++; dx -= cw }
+                        while (dx <= -cw) { dc--; dx += cw }
+                        while (dy >= ch) { dr++; dy -= ch }
+                        while (dy <= -ch) { dr--; dy += ch }
+                        if (dc != 0 || dr != 0) {
+                            ui.vm.update { s ->
+                                val cur = s.builtinByUid(uid) ?: return@update s
+                                val nc = (s.colsOf(cur) + dc).coerceIn(1, s.columns)
+                                val nr = (s.rowsOf(cur) + dr).coerceIn(1, minOf(4, s.rows))
+                                s.updateBuiltin(uid) { it.copy(cols = if (nc >= s.columns) 0 else nc, rows = nr) }
+                            }
+                        }
+                    },
+                )
+            },
+        contentAlignment = Alignment.Center,
+    ) { Text("⤡", color = Color.Black, fontSize = 20.sp) }
+}
+
 @Composable
 private fun PageGrid(
     page: List<HomeItem>,
@@ -270,10 +345,11 @@ private fun PageGrid(
     cellH: Dp,
     draggingRef: String?,
 ) {
+    val focusHidden = state.focusHiddenKeys(ui.hour)
     Box(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
         for (item in page) {
             key(item.ref) {
-                if (item.cell >= 0) {
+                if (item.cell >= 0 && !(item is HomeItem.App && item.key in focusHidden)) {
                     val col = item.cell % state.columns
                     val row = item.cell / state.columns
                     Box(
@@ -289,8 +365,10 @@ private fun PageGrid(
                             }
                             is HomeItem.Folder -> FolderCell(item, apps, state, pal) { ui.folderId = item.id }
                             is HomeItem.Widget -> WidgetCell(ui, item.widgetId)
-                            is HomeItem.Builtin ->
+                            is HomeItem.Builtin -> {
                                 BuiltinWidget(item, state, apps, pal, ui, Modifier.fillMaxSize().padding(4.dp))
+                                if (ui.resizeUid == item.uid) ResizeHandle(item.uid, ui, cellW, cellH)
+                            }
                         }
                     }
                 }

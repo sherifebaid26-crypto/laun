@@ -86,6 +86,17 @@ data class AuraState(
     val homeText: Long? = null,
     val menuStyle: MenuStyle = MenuStyle.IOS,
     val drawerColumns: Int = 4,
+    val themeIcons: Boolean = true,
+    val badgePrompted: Boolean = false,
+    val focusOn: Boolean = false,
+    val focusApps: Set<String> = emptySet(),
+    val focusAuto: Boolean = false,
+    val focusFrom: Int = 9,
+    val focusTo: Int = 17,
+    val limits: Map<String, Int> = emptyMap(),
+    val drawerSort: Int = 0,
+    val nightIcons: Boolean = false,
+    val removed: List<String> = emptyList(),
     val swipeDown: GestureAction = GestureAction.SEARCH,
     val doubleTap: GestureAction = GestureAction.NONE,
     val badges: Boolean = false,
@@ -117,6 +128,7 @@ fun defaultBuiltinRows(kind: String): Int = when (kind) {
     "calendar" -> 3
     "notes" -> 2
     "apps" -> 1
+    "photo", "prayer" -> 3
     else -> 2
 }
 
@@ -357,6 +369,16 @@ fun AuraState.updateBuiltin(uid: String, f: (HomeItem.Builtin) -> HomeItem.Built
     return res.trim()
 }
 
+/** التطبيقات المخفية بسبب وضع التركيز في الساعة دي. */
+fun AuraState.focusHiddenKeys(hour: Int): Set<String> {
+    if (focusApps.isEmpty()) return emptySet()
+    val inWin = if (focusFrom <= focusTo) hour in focusFrom until focusTo else hour >= focusFrom || hour < focusTo
+    return if (focusOn || (focusAuto && inWin)) focusApps else emptySet()
+}
+
+fun AuraState.isNight(hour: Int): Boolean =
+    if (nightHour > dayHour) hour >= nightHour || hour < dayHour else hour in nightHour until dayHour
+
 fun AuraState.builtinByUid(uid: String): HomeItem.Builtin? =
     pages.flatten().filterIsInstance<HomeItem.Builtin>().firstOrNull { it.uid == uid }
 
@@ -432,6 +454,17 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("clock", clock.name)
     o.put("menuStyle", menuStyle.name)
     o.put("drawerCols", drawerColumns)
+    o.put("themeIcons", themeIcons)
+    o.put("badgePrompted", badgePrompted)
+    o.put("focusOn", focusOn)
+    o.put("focusApps", JSONArray(focusApps.toList()))
+    o.put("focusAuto", focusAuto)
+    o.put("focusFrom", focusFrom)
+    o.put("focusTo", focusTo)
+    o.put("limits", JSONObject().also { j -> limits.forEach { (k, v) -> j.put(k, v) } })
+    o.put("drawerSort", drawerSort)
+    o.put("nightIcons", nightIcons)
+    o.put("removed", JSONArray(removed))
     o.put("swipeDown", swipeDown.name)
     o.put("doubleTap", doubleTap.name)
     o.put("badges", badges)
@@ -495,6 +528,17 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         homeText = if (o.has("homeText")) o.getLong("homeText") else null,
         menuStyle = runCatching { MenuStyle.valueOf(o.optString("menuStyle", "IOS")) }.getOrDefault(MenuStyle.IOS),
         drawerColumns = o.optInt("drawerCols", d.drawerColumns).coerceIn(3, 6),
+        themeIcons = o.optBoolean("themeIcons", true),
+        badgePrompted = o.optBoolean("badgePrompted", false),
+        focusOn = o.optBoolean("focusOn", false),
+        focusApps = o.optJSONArray("focusApps").toStringList().toSet(),
+        focusAuto = o.optBoolean("focusAuto", false),
+        focusFrom = o.optInt("focusFrom", 9).coerceIn(0, 23),
+        focusTo = o.optInt("focusTo", 17).coerceIn(0, 23),
+        limits = o.optJSONObject("limits")?.let { j -> j.keys().asSequence().associateWith { j.optInt(it, 60) } } ?: emptyMap(),
+        drawerSort = o.optInt("drawerSort", 0).coerceIn(0, 2),
+        nightIcons = o.optBoolean("nightIcons", false),
+        removed = o.optJSONArray("removed").toStringList(),
         swipeDown = runCatching { GestureAction.valueOf(o.optString("swipeDown", "SEARCH")) }
             .getOrDefault(GestureAction.SEARCH),
         doubleTap = runCatching { GestureAction.valueOf(o.optString("doubleTap", "NONE")) }

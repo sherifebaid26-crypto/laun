@@ -257,8 +257,89 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                         }
                     }
                 }
+                SwitchRow(tr("استخدام أيقونات الثيم الخاصة", "Use the theme's own icons"), state.themeIcons, pal) { b ->
+                    vm.update { it.copy(themeIcons = b) }
+                    vm.reloadApps()
+                }
                 ActionRow(tr("حزم أيقونات من Google Play", "Icon packs on Google Play"), pal) {
                     ui.actions.openUrl("https://play.google.com/store/search?q=icon%20pack&c=apps")
+                }
+            }
+
+            item {
+                Section(tr("وضع التركيز", "Focus mode"), pal)
+                SwitchRow(tr("تشغيل التركيز الآن (يخفي تطبيقات التشتيت)", "Focus on now (hides distracting apps)"), state.focusOn, pal) { b ->
+                    vm.update { it.copy(focusOn = b) }
+                }
+                ActionRow(
+                    tr("تطبيقات التشتيت: ", "Distracting apps: ") + state.focusApps.size,
+                    pal,
+                ) {
+                    ui.picker = PickerRequest(tr("تطبيقات التشتيت", "Distracting apps"), state.focusApps) { sel ->
+                        vm.update { it.copy(focusApps = sel) }
+                    }
+                }
+                SwitchRow(tr("تشغيل تلقائي بالساعة", "Auto by hour"), state.focusAuto, pal) { b ->
+                    vm.update { it.copy(focusAuto = b) }
+                }
+                if (state.focusAuto) {
+                    Text(tr("من", "From"), color = pal.onPanel, modifier = Modifier.padding(top = 6.dp, bottom = 6.dp))
+                    ScrollRow { (0..23).forEach { h -> Chip("$h:00", state.focusFrom == h, pal) { vm.update { it.copy(focusFrom = h) } } } }
+                    Text(tr("إلى", "To"), color = pal.onPanel, modifier = Modifier.padding(top = 10.dp, bottom = 6.dp))
+                    ScrollRow { (0..23).forEach { h -> Chip("$h:00", state.focusTo == h, pal) { vm.update { it.copy(focusTo = h) } } } }
+                }
+            }
+
+            item {
+                Section(tr("حد استخدام التطبيقات", "App usage limits"), pal)
+                if (!ui.actions.hasUsageAccess()) {
+                    ActionRow(tr("لازم تفعّل «الوصول لبيانات الاستخدام» علشان الحدود تشتغل", "Enable Usage access so limits work"), pal) {
+                        ui.actions.openUsageAccess()
+                    }
+                }
+                ActionRow(tr("إضافة حد لتطبيقات…", "Add a limit for apps…"), pal) {
+                    ui.picker = PickerRequest(tr("اختار التطبيقات", "Pick apps"), state.limits.keys) { sel ->
+                        vm.update { st ->
+                            st.copy(limits = sel.associateWith { st.limits[it] ?: 60 })
+                        }
+                    }
+                }
+                val byKey = apps.associateBy { it.key }
+                state.limits.forEach { (k, mins) ->
+                    val label = byKey[k]?.label ?: return@forEach
+                    ActionRow("$label — $mins " + tr("دقيقة/يوم (اضغط للتغيير)", "min/day (tap to change)"), pal) {
+                        val steps = listOf(15, 30, 60, 90, 120, 180)
+                        val next = steps.firstOrNull { it > mins }
+                        vm.update { st ->
+                            st.copy(limits = if (next == null) st.limits - k else st.limits + (k to next))
+                        }
+                    }
+                }
+            }
+
+            item {
+                Section(tr("مظهر ذكي", "Smart look"), pal)
+                SwitchRow(tr("أيقونات أدفأ بالليل", "Warmer icons at night"), state.nightIcons, pal) { b ->
+                    vm.update { it.copy(nightIcons = b) }
+                }
+                val wctx = LocalContext.current
+                var motion by remember { androidx.compose.runtime.mutableStateOf(AuraWallpaperService.motion(wctx)) }
+                SwitchRow(tr("حركة هادية للخلفية الحيّة", "Gentle motion for live wallpaper"), motion, pal) { b ->
+                    motion = b
+                    AuraWallpaperService.setMotion(wctx, b)
+                }
+            }
+
+            if (state.removed.isNotEmpty()) {
+                item {
+                    Section(tr("اتحذفت مؤخراً (اضغط لإعادة التثبيت)", "Recently uninstalled (tap to reinstall)"), pal)
+                    state.removed.forEach { e ->
+                        val pkg = e.substringBefore('|')
+                        val name = e.substringAfter('|', pkg)
+                        ActionRow(name, pal) {
+                            ui.actions.openUrl("https://play.google.com/store/apps/details?id=$pkg")
+                        }
+                    }
                 }
             }
 

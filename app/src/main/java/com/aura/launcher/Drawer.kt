@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -189,7 +190,17 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
         }
     }
 
-    val visible = remember(apps, state.hidden) { apps.filter { it.key !in state.hidden } }
+    val focusHidden = state.focusHiddenKeys(ui.hour)
+    val visible = remember(apps, state.hidden, focusHidden, state.drawerSort, state.usage) {
+        val base = apps.filter { it.key !in state.hidden && it.key !in focusHidden }
+        when (state.drawerSort) {
+            1 -> base.sortedWith(
+                compareByDescending<AppEntry> { state.usage[it.key]?.count ?: 0 }.thenBy { it.normLabel },
+            )
+            2 -> base.sortedByDescending { it.installed }
+            else -> base
+        }
+    }
     val cats = remember(visible) {
         listOf(Cat.ALL) + Cat.values().filter { c -> c != Cat.ALL && visible.any { catOf(it.category) == c } }
     }
@@ -279,26 +290,42 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                 .focusRequester(focus),
         )
 
-        if (cats.size > 2) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        ) {
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 4.dp),
+                modifier = Modifier.weight(1f),
             ) {
-                items(cats) { c ->
-                    val on = c == cat
-                    Text(
-                        tr(c.ar, c.en),
-                        color = if (on) Color.Black else pal.onPanel,
-                        fontSize = 13.sp,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(if (on) pal.accent else pal.field)
-                            .clickable { cat = c }
-                            .padding(horizontal = 14.dp, vertical = 7.dp),
-                    )
+                if (cats.size > 2) {
+                    items(cats) { c ->
+                        val on = c == cat
+                        Text(
+                            tr(c.ar, c.en),
+                            color = if (on) Color.Black else pal.onPanel,
+                            fontSize = 13.sp,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(if (on) pal.accent else pal.field)
+                                .clickable { cat = c }
+                                .padding(horizontal = 14.dp, vertical = 7.dp),
+                        )
+                    }
                 }
             }
+            Text(
+                "⇅ " + when (state.drawerSort) {
+                    1 -> tr("الأكثر استخداماً", "Most used")
+                    2 -> tr("الأحدث", "Newest")
+                    else -> tr("أ–ي", "A–Z")
+                },
+                color = pal.accent, fontSize = 13.sp,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(18.dp))
+                    .clickable { ui.vm.update { it.copy(drawerSort = (it.drawerSort + 1) % 3) } }
+                    .padding(horizontal = 10.dp, vertical = 7.dp),
+            )
         }
 
         Box(Modifier.weight(1f)) {

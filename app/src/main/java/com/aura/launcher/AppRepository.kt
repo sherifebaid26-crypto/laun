@@ -16,6 +16,7 @@ data class AppEntry(
     val component: ComponentName,
     val icon: ImageBitmap,
     val category: Int,
+    val installed: Long = 0L,
 ) {
     val key: String = component.flattenToString()
     val normLabel: String = normalizeForSearch(label)
@@ -27,7 +28,12 @@ object AppRepository {
 
     /** يقرأ كل التطبيقات القابلة للتشغيل ويرتبها أبجدياً (خارج الـ Main thread). */
     @Suppress("DEPRECATION")
-    suspend fun loadApps(context: Context, iconPack: String?, style: IconStyle): List<AppEntry> =
+    suspend fun loadApps(
+        context: Context,
+        iconPack: String?,
+        style: IconStyle,
+        themeIcons: Map<String, ImageBitmap>? = null,
+    ): List<AppEntry> =
         withContext(Dispatchers.Default) {
             val pm = context.packageManager
             val pack = iconPack?.let { IconPacks.load(context, it) }
@@ -38,13 +44,16 @@ object AppRepository {
                 .filter { it.activityInfo.packageName != context.packageName }
                 .map { info ->
                     val component = ComponentName(info.activityInfo.packageName, info.activityInfo.name)
+                    val themed = themeIcons?.get(ThemeIcons.slotFor(info.activityInfo.packageName))
                     val drawable = pack?.iconFor(component) ?: info.loadIcon(pm)
                     AppEntry(
                         label = info.loadLabel(pm).toString(),
                         packageName = info.activityInfo.packageName,
                         component = component,
-                        icon = IconRenderer.render(drawable, style, ICON_SIZE_PX).asImageBitmap(),
+                        icon = themed ?: IconRenderer.render(drawable, style, ICON_SIZE_PX).asImageBitmap(),
                         category = info.activityInfo.applicationInfo.category,
+                        installed = runCatching { pm.getPackageInfo(info.activityInfo.packageName, 0).firstInstallTime }
+                            .getOrDefault(0L),
                     )
                 }
                 .sortedBy { it.normLabel }

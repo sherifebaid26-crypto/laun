@@ -2,6 +2,9 @@ package com.aura.launcher
 
 import android.Manifest
 import android.app.ActivityOptions
+import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
+import androidx.core.app.NotificationManagerCompat
 import android.app.role.RoleManager
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
@@ -227,6 +230,33 @@ class MainActivity : FragmentActivity(), LauncherActions {
 
     override fun hasContactsPermission(): Boolean =
         ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+
+    override fun notificationAccessEnabled(): Boolean =
+        NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+
+    override fun hasUsageAccess(): Boolean = runCatching {
+        val ao = getSystemService(AppOpsManager::class.java)
+        ao.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), packageName) ==
+            AppOpsManager.MODE_ALLOWED
+    }.getOrDefault(false)
+
+    override fun usageMinutes(pkg: String): Int {
+        if (!hasUsageAccess()) return -1
+        return runCatching {
+            val usm = getSystemService(UsageStatsManager::class.java)
+            val cal = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+            }
+            val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, cal.timeInMillis, System.currentTimeMillis())
+            val ms = stats.filter { it.packageName == pkg }.maxOfOrNull { it.totalTimeInForeground } ?: 0L
+            (ms / 60_000L).toInt()
+        }.getOrDefault(-1)
+    }
+
+    override fun openUsageAccess() {
+        runCatching { startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }
+    }
 
     override fun requestContacts(onDone: () -> Unit) {
         contactsCallback = onDone

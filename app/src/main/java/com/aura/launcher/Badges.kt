@@ -27,7 +27,7 @@ class AuraNotificationService : NotificationListenerService() {
         for (sbn in list) {
             if (sbn.isOngoing) continue
             if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) continue
-            out[sbn.packageName] = (out[sbn.packageName] ?: 0) + 1
+            out[sbn.packageName] = (out[sbn.packageName] ?: 0) + sbn.notification.number.coerceAtLeast(1)
         }
         Badges.counts.value = out
     }

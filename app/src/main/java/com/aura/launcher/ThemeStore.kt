@@ -28,6 +28,7 @@ data class ThemeDef(
     val sizeKb: Int,
     val wallpaperUrl: String,
     val previewUrl: String,
+    val iconsUrl: String? = null,
     val mode: ThemeMode,
     val accent: Long,
     val homeText: Long?,
@@ -77,6 +78,7 @@ fun themeFromJson(o: JSONObject, base: String): ThemeDef {
         sizeKb = o.optInt("sizeKb", 0),
         wallpaperUrl = resolveUrl(base, o.getString("wallpaper")),
         previewUrl = resolveUrl(base, o.getString("preview")),
+        iconsUrl = if (o.has("icons")) resolveUrl(base, o.getString("icons")) else null,
         mode = runCatching { ThemeMode.valueOf(st.optString("mode", "DARK")) }.getOrDefault(ThemeMode.DARK),
         accent = colorOf(st.optString("accent", "#00E5FF")),
         homeText = if (st.has("homeText")) colorOf(st.getString("homeText")) else null,
@@ -167,6 +169,7 @@ object ThemeStore {
 
     private fun dir(ctx: Context, id: String) = File(ctx.filesDir, "themes/$id")
     fun wallpaperFile(ctx: Context, id: String) = File(dir(ctx, id), "wallpaper.jpg")
+    fun iconsDir(ctx: Context, id: String) = File(dir(ctx, id), "icons")
 
     suspend fun download(ctx: Context, def: ThemeDef) {
         val bytes = httpGet(def.wallpaperUrl)
@@ -178,6 +181,28 @@ object ThemeStore {
             d.mkdirs()
             File(d, "wallpaper.jpg").writeBytes(bytes)
             File(d, "theme.json").writeText(def.rawJson)
+        }
+        // أيقونات الثيم الخاصة (اختيارية): zip صغير فيه PNG لكل خانة
+        val iu = def.iconsUrl
+        if (iu != null) {
+            val zip = runCatching { httpGet(iu) }.getOrNull()
+            if (zip != null) withContext(Dispatchers.IO) {
+                runCatching {
+                    val out = iconsDir(ctx, def.id)
+                    out.deleteRecursively()
+                    out.mkdirs()
+                    java.util.zip.ZipInputStream(zip.inputStream()).use { zin ->
+                        var e = zin.nextEntry
+                        while (e != null) {
+                            if (Regex("[a-z]{3,12}\\.png").matches(e.name)) {
+                                val data = zin.readBytes()
+                                if (data.size < 300_000) File(out, e.name).writeBytes(data)
+                            }
+                            e = zin.nextEntry
+                        }
+                    }
+                }
+            }
         }
     }
 

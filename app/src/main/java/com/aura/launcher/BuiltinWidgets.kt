@@ -69,6 +69,11 @@ val BuiltinKinds = listOf(
     "battery" to ("البطارية" to "Battery"),
     "storage" to ("التخزين والذاكرة" to "Storage & memory"),
     "notes" to ("ملاحظات سريعة" to "Quick notes"),
+    "photo" to ("صورة" to "Photo"),
+    "weather" to ("الطقس" to "Weather"),
+    "prayer" to ("مواعيد الصلاة" to "Prayer times"),
+    "dhikr" to ("أذكار ومسبحة" to "Adhkar & tasbih"),
+    "music" to ("مشغّل الموسيقى" to "Music player"),
     "apps" to ("الأكثر استخداماً" to "Most used apps"),
     "search" to ("شريط البحث" to "Search bar"),
 )
@@ -88,7 +93,7 @@ val WidgetRadiusChoices = listOf(
 )
 
 @Composable
-private fun rememberNow(periodMs: Long): LocalDateTime {
+internal fun rememberNow(periodMs: Long): LocalDateTime {
     var now by remember { mutableStateOf(LocalDateTime.now()) }
     LaunchedEffect(periodMs) {
         while (true) {
@@ -156,6 +161,11 @@ fun BuiltinWidget(
                 )
             }
             "apps" -> FrequentApps(item, state, apps, ui, fg)
+            "photo" -> PhotoWidget(item, ui, fg)
+            "weather" -> WeatherWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
+            "prayer" -> PrayerWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
+            "dhikr" -> DhikrWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
+            "music" -> MusicWidget(ui, fg, if (item.bg == 3) fg else pal.accent)
             else -> Box(
                 Modifier.fillMaxSize().clickable { ui.openDrawer(false) }.padding(horizontal = 16.dp),
                 contentAlignment = Alignment.CenterStart,

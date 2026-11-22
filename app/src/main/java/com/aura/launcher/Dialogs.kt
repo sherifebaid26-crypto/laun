@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -267,6 +268,10 @@ fun SimpleChoiceDialog(
 
 @Composable
 fun FolderDialog(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPalette, folder: HomeItem.Folder) {
+    val pop = remember { androidx.compose.animation.core.Animatable(0.86f) }
+    LaunchedEffect(Unit) {
+        pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.72f, stiffness = 420f))
+    }
     Box(
         Modifier
             .fillMaxSize()
@@ -281,6 +286,11 @@ fun FolderDialog(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: Aur
             color = pal.dialog,
             modifier = Modifier
                 .padding(28.dp)
+                .graphicsLayer {
+                    scaleX = pop.value
+                    scaleY = pop.value
+                    alpha = ((pop.value - 0.86f) / 0.14f).coerceIn(0f, 1f)
+                }
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { },
         ) {
             Column(Modifier.padding(18.dp)) {
@@ -299,45 +309,39 @@ fun FolderDialog(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: Aur
                         .padding(bottom = 12.dp),
                 )
                 val members = folder.keys.mapNotNull { apps[it] }
-                if (members.isEmpty()) {
-                    Text(
-                        tr("المجلد فاضي", "Empty folder"),
-                        color = pal.onPanel.copy(alpha = 0.6f),
-                        modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                    )
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        modifier = Modifier.heightIn(max = 340.dp),
-                    ) {
-                        items(members, key = { it.key }) { app ->
-                            AppCell(
-                                ui = ui, app = app, where = Where.FOLDER, state = state,
-                                textColor = pal.onPanel, shadow = Color.Transparent, folder = folder.id,
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.heightIn(max = 360.dp),
+                ) {
+                    items(members, key = { it.key }) { app ->
+                        AppCell(
+                            ui = ui, app = app, where = Where.FOLDER, state = state,
+                            textColor = pal.onPanel, shadow = Color.Transparent, folder = folder.id,
+                        )
+                    }
+                    // خانة "+" في آخر المجلد بدل زراير الحفظ والتعديل
+                    item(key = "__add") {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable { ui.editFolderApps(folder) }
+                                .padding(vertical = 6.dp),
+                        ) {
+                            Box(
+                                Modifier
+                                    .size((56 * state.iconScale).dp)
+                                    .clip(CircleShape)
+                                    .background(pal.onPanel.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center,
+                            ) { Text("+", color = pal.onPanel, fontSize = 30.sp) }
+                            Text(
+                                tr("إضافة", "Add"), color = pal.onPanel.copy(alpha = 0.7f), fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 5.dp),
                             )
                         }
                     }
-                }
-                Row(
-                    Modifier.fillMaxWidth().padding(top = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    TextButton(onClick = {
-                        ui.folderId = null
-                        ui.vm.update { it.deleteFolder(folder.id) }
-                    }) { Text(tr("حذف المجلد", "Delete folder"), color = Color(0xFFFF5252)) }
-                    Button(onClick = {
-                        ui.picker = PickerRequest(
-                            title = tr("تطبيقات المجلد", "Folder apps"),
-                            selected = folder.keys.toSet(),
-                        ) { sel ->
-                            ui.vm.update { st ->
-                                val old = st.folderKeys(folder.id)
-                                st.setFolderApps(folder.id, old.filter { it in sel } + sel.filter { it !in old })
-                            }
-                        }
-                    }) { Text(tr("تعديل التطبيقات", "Edit apps")) }
                 }
             }
         }

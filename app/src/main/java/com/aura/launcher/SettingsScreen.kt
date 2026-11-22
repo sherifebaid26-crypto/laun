@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -113,6 +117,24 @@ private fun Chip(label: String, selected: Boolean, pal: AuraPalette, onClick: ()
     )
 }
 
+@Composable
+private fun ScrollRow(content: @Composable RowScope.() -> Unit) {
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = content,
+    )
+}
+
+private fun gestureLabel(a: GestureAction): String = when (a) {
+    GestureAction.NONE -> tr("بدون", "None")
+    GestureAction.NOTIFICATIONS -> tr("الإشعارات", "Notifications")
+    GestureAction.SEARCH -> tr("البحث", "Search")
+    GestureAction.DRAWER -> tr("التطبيقات", "Apps")
+    GestureAction.SETTINGS -> tr("الإعدادات", "Settings")
+    GestureAction.LOCK -> tr("قفل الشاشة", "Lock screen")
+}
+
 private enum class PinStage { NONE, NEW, CONFIRM }
 
 @Composable
@@ -126,6 +148,8 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
     var pinError by remember { mutableIntStateOf(0) }
     var iconPackDialog by remember { mutableStateOf(false) }
     var resetDialog by remember { mutableStateOf(false) }
+    var schedDialog by remember { mutableIntStateOf(0) }
+    val installedThemes by vm.installed.collectAsState()
     val iconPacks = remember { IconPacks.list(context) }
     val byKey = remember(apps) { apps.associateBy { it.key } }
 
@@ -221,6 +245,70 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
             }
 
             item {
+                Text(
+                    tr("أشكال أيقونات جاهزة", "Icon style presets"),
+                    color = pal.onPanel, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp),
+                )
+                ScrollRow {
+                    IconPresets.forEach { p ->
+                        Chip(tr(p.ar, p.en), state.iconStyle == p.style, pal) {
+                            vm.update { it.copy(iconStyle = p.style) }
+                            vm.reloadApps()
+                        }
+                    }
+                }
+                ActionRow(tr("حزم أيقونات من Google Play", "Icon packs on Google Play"), pal) {
+                    ui.actions.openUrl("https://play.google.com/store/search?q=icon%20pack&c=apps")
+                }
+            }
+
+            item {
+                Section(tr("ثيم مخصص وخلفية", "Custom theme & wallpaper"), pal)
+                ActionRow(tr("حفظ الشكل الحالي كثيم جديد…", "Save current look as a new theme…"), pal) {
+                    ui.textInput = TextRequest(tr("اسم الثيم", "Theme name"), "") { name ->
+                        // بعد الاسم نختار خلفية من المعرض (لو لغيت بنستخدم الخلفية الحالية للثيم)
+                        ui.actions.pickImage { uri -> vm.saveCurrentAsTheme(name, uri) }
+                    }
+                }
+                ActionRow(tr("خلفية حيّة للقفل والرئيسية (فيفو)", "Live wallpaper for lock + home"), pal) {
+                    vm.openLiveWallpaper(null)
+                }
+                SwitchRow(tr("جدول الثيم: نهاري / ليلي", "Theme schedule: day / night"), state.scheduleOn, pal) { b ->
+                    vm.update { it.copy(scheduleOn = b) }
+                }
+                if (state.scheduleOn) {
+                    val dayName = installedThemes[state.dayTheme]?.name ?: tr("غير محدد", "Not set")
+                    val nightName = installedThemes[state.nightTheme]?.name ?: tr("غير محدد", "Not set")
+                    ActionRow(tr("ثيم النهار: ", "Day theme: ") + dayName, pal) { schedDialog = 1 }
+                    ActionRow(tr("ثيم الليل: ", "Night theme: ") + nightName, pal) { schedDialog = 2 }
+                    Text(
+                        tr("يبدأ النهار الساعة", "Day starts at"),
+                        color = pal.onPanel, modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+                    )
+                    ScrollRow {
+                        (5..11).forEach { h ->
+                            Chip("$h:00", state.dayHour == h, pal) { vm.update { it.copy(dayHour = h) } }
+                        }
+                    }
+                    Text(
+                        tr("يبدأ الليل الساعة", "Night starts at"),
+                        color = pal.onPanel, modifier = Modifier.padding(top = 10.dp, bottom = 6.dp),
+                    )
+                    ScrollRow {
+                        (16..23).forEach { h ->
+                            Chip("$h:00", state.nightHour == h, pal) { vm.update { it.copy(nightHour = h) } }
+                        }
+                    }
+                    Text(
+                        tr("الثيمات لازم تكون محمّلة من المتجر. التبديل بيحصل والتطبيق شغال.",
+                            "Themes must be downloaded from the store. Switching happens while the app is running."),
+                        color = pal.onPanel.copy(alpha = 0.5f), fontSize = 11.sp,
+                        modifier = Modifier.padding(top = 6.dp),
+                    )
+                }
+            }
+
+            item {
                 Section(tr("الشبكة والأيقونات", "Grid & icons"), pal)
                 SliderRow(
                     tr("عدد الأعمدة", "Columns"), state.columns.toFloat(), 3f..6f, 2, pal,
@@ -230,6 +318,10 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                     tr("عدد الصفوف", "Rows"), state.rows.toFloat(), 4f..7f, 2, pal,
                     { it.toInt().toString() },
                 ) { n -> vm.update { it.copy(rows = n.toInt()).reflow() } }
+                SliderRow(
+                    tr("أعمدة الدرج", "Drawer columns"), state.drawerColumns.toFloat(), 3f..6f, 2, pal,
+                    { it.toInt().toString() },
+                ) { n -> vm.update { it.copy(drawerColumns = n.toInt()) } }
                 SliderRow(
                     tr("حجم الأيقونات", "Icon size"), state.iconScale, 0.7f..1.4f, 0, pal,
                     { "${(it * 100).toInt()}%" },
@@ -248,9 +340,41 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
             item {
                 Section(tr("الإيماءات والتنظيم", "Gestures & organizing"), pal)
                 SwitchRow(
-                    tr("السحب لأعلى/لأسفل (دروار/بحث)", "Swipe up/down (drawer/search)"),
+                    tr("السحب لأعلى/لأسفل", "Swipe up/down"),
                     state.gestures, pal,
                 ) { b -> vm.update { it.copy(gestures = b) } }
+                Text(
+                    tr("السحب لتحت على الشاشة الرئيسية", "Swipe down on home"),
+                    color = pal.onPanel, modifier = Modifier.padding(top = 8.dp, bottom = 6.dp),
+                )
+                ScrollRow {
+                    listOf(GestureAction.NOTIFICATIONS, GestureAction.SEARCH, GestureAction.SETTINGS, GestureAction.NONE)
+                        .forEach { a -> Chip(gestureLabel(a), state.swipeDown == a, pal) { vm.update { it.copy(swipeDown = a) } } }
+                }
+                Text(
+                    tr("النقر المزدوج على مكان فاضي", "Double-tap on empty space"),
+                    color = pal.onPanel, modifier = Modifier.padding(top = 12.dp, bottom = 6.dp),
+                )
+                ScrollRow {
+                    listOf(
+                        GestureAction.NONE, GestureAction.LOCK, GestureAction.SEARCH,
+                        GestureAction.DRAWER, GestureAction.SETTINGS, GestureAction.NOTIFICATIONS,
+                    ).forEach { a -> Chip(gestureLabel(a), state.doubleTap == a, pal) { vm.update { it.copy(doubleTap = a) } } }
+                }
+                if (state.doubleTap == GestureAction.LOCK) {
+                    ActionRow(tr("تفعيل خدمة قفل الشاشة (إمكانية الوصول)", "Enable lock-screen service (Accessibility)"), pal) {
+                        ui.actions.openAccessibilitySettings()
+                    }
+                }
+                SwitchRow(tr("شارات الإشعارات على الأيقونات", "Notification badges on icons"), state.badges, pal) { b ->
+                    vm.update { it.copy(badges = b) }
+                    if (b) ui.actions.openNotificationAccess()
+                }
+                if (state.badges) {
+                    ActionRow(tr("إذن الوصول للإشعارات", "Notification access permission"), pal) {
+                        ui.actions.openNotificationAccess()
+                    }
+                }
                 ActionRow(tr("إضافة ودجت", "Add widget"), pal) {
                     ui.settingsOpen = false
                     ui.widgetPicker = true
@@ -336,7 +460,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
 
             item {
                 Text(
-                    "Aura Launcher 1.2",
+                    "Aura Launcher 1.3",
                     color = pal.onPanel.copy(alpha = 0.4f), fontSize = 12.sp,
                     modifier = Modifier.padding(top = 28.dp),
                 )
@@ -376,6 +500,17 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                 iconPacks.map { it.packageName to it.label },
             onPick = { vm.setIconPack(it) },
             onDismiss = { iconPackDialog = false },
+        )
+    }
+
+    if (schedDialog != 0) {
+        val isDay = schedDialog == 1
+        SimpleChoiceDialog(
+            title = if (isDay) tr("ثيم النهار", "Day theme") else tr("ثيم الليل", "Night theme"),
+            options = listOf<Pair<String?, String>>(null to tr("بدون تغيير", "No change")) +
+                installedThemes.values.sortedBy { it.id }.map { it.id to it.name },
+            onPick = { id -> vm.update { if (isDay) it.copy(dayTheme = id) else it.copy(nightTheme = id) } },
+            onDismiss = { schedDialog = 0 },
         )
     }
 

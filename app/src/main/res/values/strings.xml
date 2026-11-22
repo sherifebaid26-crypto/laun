@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Aura Launcher</string>
     <string name="empty_apps">No apps found</string>
+    <string name="a11y_desc">Lets Aura Launcher lock the screen when you double-tap the home screen. It does not read any content.</string>
 </resources>

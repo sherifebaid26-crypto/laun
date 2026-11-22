@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">أورا لانشر</string>
     <string name="empty_apps">لا توجد تطبيقات</string>
+    <string name="a11y_desc">تسمح لأورا لانشر بقفل الشاشة عند النقر المزدوج على الشاشة الرئيسية. لا تقرأ أي محتوى.</string>
 </resources>

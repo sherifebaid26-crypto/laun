@@ -1,12 +1,15 @@
 package com.aura.launcher
 
 import android.app.WallpaperManager
+import android.content.ContentValues
 import android.content.Context
+import android.provider.MediaStore
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
@@ -210,3 +213,65 @@ object ThemeStore {
 }
 
 data class WallpaperResult(val system: Boolean, val lock: Boolean)
+
+private const val LIVE_PREFS = "aura_live"
+
+/** الثيم اللي بترسمه الخلفية الحيّة. */
+fun ThemeStore.setLiveTheme(ctx: Context, id: String?) {
+    ctx.getSharedPreferences(LIVE_PREFS, Context.MODE_PRIVATE).edit().putString("theme", id).apply()
+}
+
+fun ThemeStore.liveTheme(ctx: Context): String? =
+    ctx.getSharedPreferences(LIVE_PREFS, Context.MODE_PRIVATE).getString("theme", null)
+
+/** يحفظ خلفية الثيم في معرض الصور (Pictures/Aura) علشان تحطها يدوي من إعدادات الجهاز. */
+suspend fun ThemeStore.saveToGallery(ctx: Context, id: String): Boolean = withContext(Dispatchers.IO) {
+    runCatching {
+        val f = wallpaperFile(ctx, id)
+        if (!f.exists()) return@runCatching false
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "aura-$id.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Aura")
+        }
+        val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@runCatching false
+        ctx.contentResolver.openOutputStream(uri)?.use { out -> f.inputStream().use { it.copyTo(out) } }
+        true
+    }.getOrDefault(false)
+}
+
+/** ثيم مخصص من الشكل الحالي: بنفس صيغة الكتالوج علشان يظهر في "المحمّلة". */
+fun customThemeJson(id: String, name: String, s: AuraState): String {
+    fun hex(v: Long) = String.format("#%08X", v and 0xFFFFFFFFL)
+    val st = JSONObject()
+        .put("mode", s.theme.name)
+        .put("accent", hex(s.accent))
+        .put("clock", s.clock.name)
+    s.homeText?.let { st.put("homeText", hex(it)) }
+    st.put(
+        "icon",
+        JSONObject().put("shape", s.iconStyle.shape.name).put("plate", hex(s.iconStyle.plate))
+            .put("mono", s.iconStyle.mono).put("tint", hex(s.iconStyle.tint)),
+    )
+    return JSONObject()
+        .put("id", id)
+        .put("name", JSONObject().put("ar", name).put("en", name))
+        .put("category", JSONObject().put("ar", "مخصص").put("en", "Custom"))
+        .put("tags", JSONObject().put("ar", JSONArray(listOf("مخصص"))).put("en", JSONArray(listOf("custom"))))
+        .put("author", "Me")
+        .put("sizeKb", 0)
+        .put("wallpaper", "themes/$id/wallpaper.jpg")
+        .put("preview", "themes/$id/wallpaper.jpg")
+        .put("style", st)
+        .toString()
+}
+
+suspend fun ThemeStore.saveCustom(ctx: Context, id: String, json: String, jpg: ByteArray) {
+    withContext(Dispatchers.IO) {
+        val d = File(ctx.filesDir, "themes/$id")
+        d.mkdirs()
+        File(d, "wallpaper.jpg").writeBytes(jpg)
+        File(d, "theme.json").writeText(json)
+    }
+}

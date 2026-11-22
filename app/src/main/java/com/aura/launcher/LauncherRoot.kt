@@ -11,6 +11,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.draw.alpha
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -41,6 +47,14 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
         }
     }
 
+    val installed by vm.installed.collectAsState()
+    LaunchedEffect(state.scheduleOn, state.dayTheme, state.nightTheme, state.dayHour, state.nightHour, installed.size) {
+        while (vm.state.value.scheduleOn) {
+            vm.applyScheduled()
+            delay(60_000L)
+        }
+    }
+
     val message by vm.message.collectAsState()
     val toastContext = LocalContext.current
     LaunchedEffect(message) {
@@ -58,10 +72,13 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
 
             AnimatedVisibility(
                 visible = ui.drawerOpen,
-                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+                enter = slideInVertically(tween(300)) { it / 3 } + fadeIn(tween(240)) + scaleIn(tween(300), initialScale = 0.94f),
+                exit = slideOutVertically(tween(240)) { it / 3 } + fadeOut(tween(200)) + scaleOut(tween(240), targetScale = 0.94f),
             ) {
-                Drawer(ui, state, appList, pal)
+                // أثناء سحب تطبيق من الدرج للرئيسية بنخفي الدرج (من غير ما نشيله علشان الإيماءة تكمّل)
+                Box(Modifier.fillMaxSize().alpha(if (ui.extDrag != null) 0f else 1f)) {
+                    Drawer(ui, state, appList, pal)
+                }
             }
 
             AnimatedVisibility(visible = ui.settingsOpen, enter = fadeIn(), exit = fadeOut()) {
@@ -88,6 +105,12 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                     onPickBuiltin = { kind -> vm.update { it.addItem(HomeItem.Builtin(kind, newId())) } },
                     onDismiss = { ui.widgetPicker = false },
                 )
+            }
+
+            ui.editWidget?.let { uid ->
+                val item = state.builtinByUid(uid)
+                if (item == null) ui.editWidget = null
+                else WidgetEditDialog(ui, state, item) { ui.editWidget = null }
             }
 
             ContextMenuHost(ui, pal, state.menuStyle)

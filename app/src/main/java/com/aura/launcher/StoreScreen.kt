@@ -303,11 +303,35 @@ private fun ThemeDetail(
                 }
             }
             Text(
-                tr("شاشة القفل: لو جهازك ما غيّرهاش، غيّرها من إعدادات الخلفية في الجهاز.",
-                    "Lock screen: if your device doesn't change it, set it from the system wallpaper settings."),
-                color = pal.onPanel.copy(alpha = 0.45f), fontSize = 11.sp,
+                tr(
+                    "شاشة القفل: لو جهازك ما غيّرهاش، استخدم «خلفية حيّة» (بتشتغل على القفل والرئيسية) أو احفظ الصورة وغيّرها من إعدادات الجهاز.",
+                    "Lock screen: if your device didn't change it, use the live wallpaper (works on lock & home) or save the image and set it from device settings.",
+                ),
+                color = pal.onPanel.copy(alpha = 0.55f), fontSize = 11.sp,
                 modifier = Modifier.padding(top = 8.dp),
             )
+            if (installed) {
+                Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        tr("خلفية حيّة للقفل والرئيسية", "Live wallpaper (lock + home)"),
+                        color = Color.Black, fontSize = 13.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(pal.accent)
+                            .clickable { vm.openLiveWallpaper(def) }
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                    )
+                    Text(
+                        tr("حفظ الصورة في المعرض", "Save image to gallery"),
+                        color = pal.onPanel, fontSize = 13.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(pal.field)
+                            .clickable { vm.saveWallpaperToGallery(def) }
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                    )
+                }
+            }
             if (installed && !applied) {
                 TextButton(onClick = { vm.deleteTheme(def.id) }, modifier = Modifier.padding(top = 4.dp)) {
                     Text(tr("حذف الثيم من الجهاز", "Delete from device"), color = Color(0xFFFF5252))

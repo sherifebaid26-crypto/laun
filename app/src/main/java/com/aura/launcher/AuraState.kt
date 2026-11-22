@@ -12,6 +12,9 @@ enum class ClockStyle { NONE, BIG, BIG_SERIF, SMALL }
 /** شكل قائمة الضغط المطوّل. */
 enum class MenuStyle { IOS, SAMSUNG, VIVO }
 
+/** إيماءات الشاشة الرئيسية. */
+enum class GestureAction { NONE, NOTIFICATIONS, SEARCH, DRAWER, SETTINGS, LOCK }
+
 /** ستايل الأيقونات اللي بيجي مع الثيم: شكل + صحيفة خلفية + (اختياري) أيقونة أحادية اللون. */
 data class IconStyle(
     val shape: IconShape = IconShape.ORIGINAL,
@@ -42,7 +45,16 @@ sealed class HomeItem {
     }
 
     /** ودجت داخلية من Aura: clock / battery / search. */
-    data class Builtin(val kind: String, val uid: String, override val cell: Int = -1) : HomeItem() {
+    data class Builtin(
+        val kind: String,
+        val uid: String,
+        override val cell: Int = -1,
+        val cols: Int = 0,        // 0 = عرض كامل
+        val rows: Int = 0,        // 0 = الافتراضي حسب النوع
+        val bg: Int = 0,          // 0 لوحة، 1 شفاف، 2 زجاجي، 3 لون Aura
+        val radius: Int = 24,     // نصف قطر الحواف بالـ dp
+        val data: String = "",    // نص إضافي (الملاحظات)
+    ) : HomeItem() {
         override val ref: String get() = "b:$uid"
         override fun at(cell: Int): HomeItem = copy(cell = cell)
     }
@@ -73,6 +85,15 @@ data class AuraState(
     val clock: ClockStyle = ClockStyle.NONE,
     val homeText: Long? = null,
     val menuStyle: MenuStyle = MenuStyle.IOS,
+    val drawerColumns: Int = 4,
+    val swipeDown: GestureAction = GestureAction.SEARCH,
+    val doubleTap: GestureAction = GestureAction.NONE,
+    val badges: Boolean = false,
+    val scheduleOn: Boolean = false,
+    val dayTheme: String? = null,
+    val nightTheme: String? = null,
+    val dayHour: Int = 7,
+    val nightHour: Int = 19,
 )
 
 const val MAX_DOCK = 5
@@ -81,13 +102,22 @@ const val MAX_DOCK = 5
 
 fun AuraState.colsOf(i: HomeItem): Int = when (i) {
     is HomeItem.App, is HomeItem.Folder -> 1
-    is HomeItem.Widget, is HomeItem.Builtin -> columns
+    is HomeItem.Widget -> columns
+    is HomeItem.Builtin -> if (i.cols <= 0) columns else i.cols.coerceAtMost(columns)
 }
 
 fun AuraState.rowsOf(i: HomeItem): Int = when (i) {
     is HomeItem.App, is HomeItem.Folder -> 1
     is HomeItem.Widget -> 2
-    is HomeItem.Builtin -> if (i.kind == "search") 1 else 2
+    is HomeItem.Builtin -> (if (i.rows > 0) i.rows else defaultBuiltinRows(i.kind)).coerceAtMost(rows)
+}
+
+fun defaultBuiltinRows(kind: String): Int = when (kind) {
+    "search" -> 1
+    "calendar" -> 3
+    "notes" -> 2
+    "apps" -> 1
+    else -> 2
 }
 
 fun AuraState.footprint(i: HomeItem, cell: Int): Set<Int> {
@@ -238,12 +268,12 @@ fun AuraState.reflow(): AuraState {
 private fun AuraState.placeAt(item: HomeItem, page: Int, rawCell: Int, center: Boolean): AuraState {
     val pgs = pages.toMutableList()
     while (pgs.size <= page) pgs.add(emptyList())
-    val wide = item is HomeItem.Widget || item is HomeItem.Builtin
+    val wide = colsOf(item) >= columns
     var c = if (wide) (rawCell / columns) * columns else rawCell
     // لو العنصر مش داخل الصفحة من تحت، نطلّعه لآخر صف مناسب
     val maxRow = rows - rowsOf(item)
     if (c / columns > maxRow) c = maxRow * columns + (c % columns)
-    if (!wide && c % columns + colsOf(item) > columns) c = (c / columns) * columns
+    if (!wide && c % columns + colsOf(item) > columns) c = (c / columns) * columns + (columns - colsOf(item))
     val base = copy(pages = pgs)
     val pageItems = pgs[page]
     val occ = base.occupied(pageItems)
@@ -302,6 +332,38 @@ fun AuraState.dropOnDock(ref: String, fromDock: Boolean, index: Int): AuraState 
     return copy(dock = list).removeApp(key)
 }
 
+/** يعدّل ودجت Aura (حجم/شكل/نص) ويعيد تثبيتها قريب من مكانها لو الحجم الجديد مش داخل. */
+fun AuraState.updateBuiltin(uid: String, f: (HomeItem.Builtin) -> HomeItem.Builtin): AuraState {
+    var found: HomeItem.Builtin? = null
+    var pageIdx = -1
+    pages.forEachIndexed { pi, p ->
+        p.forEach { if (it is HomeItem.Builtin && it.uid == uid) { found = it; pageIdx = pi } }
+    }
+    val old = found ?: return this
+    val updated = f(old)
+    val without = copy(pages = pages.map { p -> p.filterNot { it.ref == old.ref } })
+    val page = without.pages[pageIdx]
+    val ok = without.fits(updated, old.cell) &&
+        without.footprint(updated, old.cell).none { it in without.occupied(page) }
+    if (ok) {
+        return without.copy(pages = without.pages.mapIndexed { i, p -> if (i == pageIdx) p + updated.at(old.cell) else p })
+    }
+    val spot = without.firstFree(page, updated, nearTo = old.cell)
+    val res = if (spot != null) {
+        without.copy(pages = without.pages.mapIndexed { i, p -> if (i == pageIdx) p + updated.at(spot) else p })
+    } else {
+        without.addItem(updated.at(-1))
+    }
+    return res.trim()
+}
+
+fun AuraState.builtinByUid(uid: String): HomeItem.Builtin? =
+    pages.flatten().filterIsInstance<HomeItem.Builtin>().firstOrNull { it.uid == uid }
+
+/** يسقط تطبيق جاي من الدرج على خلية في الصفحة. */
+fun AuraState.dropNewApp(key: String, page: Int, cell: Int, center: Boolean): AuraState =
+    removeApp(key).placeAt(HomeItem.App(key), page, cell, center).trim()
+
 // ───────────────────────── JSON ─────────────────────────
 
 private fun itemToJson(item: HomeItem): JSONObject = when (item) {
@@ -310,6 +372,8 @@ private fun itemToJson(item: HomeItem): JSONObject = when (item) {
         .put("n", item.name).put("ks", JSONArray(item.keys))
     is HomeItem.Widget -> JSONObject().put("t", "w").put("id", item.widgetId)
     is HomeItem.Builtin -> JSONObject().put("t", "b").put("kind", item.kind).put("uid", item.uid)
+        .put("cols", item.cols).put("rows", item.rows).put("bg", item.bg)
+        .put("rad", item.radius).put("data", item.data)
 }.put("c", item.cell)
 
 internal fun JSONArray?.toStringList(): List<String> =
@@ -321,7 +385,11 @@ private fun itemFromJson(o: JSONObject): HomeItem? {
         "a" -> HomeItem.App(o.getString("k"), cell)
         "f" -> HomeItem.Folder(o.getString("id"), o.optString("n"), o.optJSONArray("ks").toStringList(), cell)
         "w" -> HomeItem.Widget(o.getInt("id"), cell)
-        "b" -> HomeItem.Builtin(o.optString("kind", "clock"), o.getString("uid"), cell)
+        "b" -> HomeItem.Builtin(
+            o.optString("kind", "clock"), o.getString("uid"), cell,
+            cols = o.optInt("cols", 0), rows = o.optInt("rows", 0), bg = o.optInt("bg", 0),
+            radius = o.optInt("rad", 24), data = o.optString("data", ""),
+        )
         else -> null
     }
 }
@@ -363,6 +431,15 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     homeText?.let { o.put("homeText", it) }
     o.put("clock", clock.name)
     o.put("menuStyle", menuStyle.name)
+    o.put("drawerCols", drawerColumns)
+    o.put("swipeDown", swipeDown.name)
+    o.put("doubleTap", doubleTap.name)
+    o.put("badges", badges)
+    o.put("schedOn", scheduleOn)
+    dayTheme?.let { o.put("dayTheme", it) }
+    nightTheme?.let { o.put("nightTheme", it) }
+    o.put("dayHour", dayHour)
+    o.put("nightHour", nightHour)
     o.put(
         "icon",
         JSONObject().put("shape", iconStyle.shape.name).put("plate", iconStyle.plate)
@@ -417,5 +494,16 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         clock = runCatching { ClockStyle.valueOf(o.optString("clock", "NONE")) }.getOrDefault(ClockStyle.NONE),
         homeText = if (o.has("homeText")) o.getLong("homeText") else null,
         menuStyle = runCatching { MenuStyle.valueOf(o.optString("menuStyle", "IOS")) }.getOrDefault(MenuStyle.IOS),
+        drawerColumns = o.optInt("drawerCols", d.drawerColumns).coerceIn(3, 6),
+        swipeDown = runCatching { GestureAction.valueOf(o.optString("swipeDown", "SEARCH")) }
+            .getOrDefault(GestureAction.SEARCH),
+        doubleTap = runCatching { GestureAction.valueOf(o.optString("doubleTap", "NONE")) }
+            .getOrDefault(GestureAction.NONE),
+        badges = o.optBoolean("badges", false),
+        scheduleOn = o.optBoolean("schedOn", false),
+        dayTheme = if (o.has("dayTheme")) o.getString("dayTheme") else null,
+        nightTheme = if (o.has("nightTheme")) o.getString("nightTheme") else null,
+        dayHour = o.optInt("dayHour", d.dayHour).coerceIn(0, 23),
+        nightHour = o.optInt("nightHour", d.nightHour).coerceIn(0, 23),
     ).normalizeCells()
 }

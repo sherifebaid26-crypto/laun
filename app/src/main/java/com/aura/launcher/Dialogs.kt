@@ -121,7 +121,14 @@ fun TextInputDialog(req: TextRequest, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(req.title) },
-        text = { OutlinedTextField(value = text, onValueChange = { text = it }, singleLine = true) },
+        text = {
+            OutlinedTextField(
+                value = text, onValueChange = { text = it },
+                singleLine = !req.multiline,
+                minLines = if (req.multiline) 4 else 1,
+                maxLines = if (req.multiline) 8 else 1,
+            )
+        },
         confirmButton = {
             TextButton(onClick = { req.onOk(text.trim()); onDismiss() }) { Text(tr("حفظ", "Save")) }
         },
@@ -175,7 +182,8 @@ fun WidgetPickerDialog(
         text = {
             LazyColumn(Modifier.heightIn(max = 420.dp)) {
                 item {
-                    Text(tr("ودجتس Aura", "Aura widgets"), color = Color(0xFF00BFA5), fontSize = 13.sp,
+                    Text(tr("ودجتس Aura (قابلة للتعديل: حجم وشكل وخلفية)", "Aura widgets (resizable & styleable)"),
+                        color = Color(0xFF00BFA5), fontSize = 13.sp,
                         modifier = Modifier.padding(bottom = 4.dp))
                 }
                 items(BuiltinKinds) { (kind, names) ->
@@ -189,7 +197,14 @@ fun WidgetPickerDialog(
                 }
                 item {
                     Text(tr("ودجتس التطبيقات", "App widgets"), color = Color(0xFF00BFA5), fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+                        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
+                    Text(
+                        tr(
+                            "بعض الأجهزة (زي فيفو) بتمنع ودجتس النظام من لانشر تاني. لو ظهرت رسالة منع استخدم ودجتس Aura فوق.",
+                            "Some devices (e.g. Vivo) block system widgets for third-party launchers. If you see a block message, use the Aura widgets above.",
+                        ),
+                        color = Color.Gray, fontSize = 11.sp, modifier = Modifier.padding(bottom = 6.dp),
+                    )
                 }
                 if (providers.isEmpty()) {
                     item {

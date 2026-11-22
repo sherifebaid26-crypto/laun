@@ -8,7 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -96,28 +100,92 @@ fun AppCell(
     interactive: Boolean = true,
 ) {
     var rect by remember { mutableStateOf(Rect.Zero) }
-    val click = if (interactive) {
-        Modifier.combinedClickable(
-            onClick = { ui.launch(app) },
+    val haptic = LocalHapticFeedback.current
+    val counts by Badges.counts.collectAsState()
+    val badge = if (state.badges) counts[app.packageName] ?: 0 else 0
+
+    val click = when {
+        where == Where.DRAWER -> Modifier.clickable { ui.launch(app, rect) }
+        interactive -> Modifier.combinedClickable(
+            onClick = { ui.launch(app, rect) },
             onLongClick = { ui.showMenu(rect, ui.menuFor(app, where, folder)) },
         )
-    } else {
-        Modifier.clickable { ui.launch(app) }
+        else -> Modifier.clickable { ui.launch(app, rect) }
     }
+
+    // من الدرج: ضغطة مطوّلة ثم سحب = نقل التطبيق للشاشة الرئيسية، وبدون سحب = القائمة
+    val dragOut = if (where == Where.DRAWER) {
+        Modifier.pointerInput(app.key) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                val slop = viewConfiguration.touchSlop
+                val notLong = withTimeoutOrNull(400L) {
+                    var abort = false
+                    while (!abort) {
+                        val ev = awaitPointerEvent(PointerEventPass.Initial)
+                        val ch = ev.changes.firstOrNull { it.id == down.id }
+                        if (ch == null || ch.changedToUp() || ch.isConsumed ||
+                            (ch.position - down.position).getDistance() > slop
+                        ) abort = true
+                    }
+                    true
+                }
+                if (notLong != null) return@awaitEachGesture
+
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                var moved = false
+                while (true) {
+                    val ev = awaitPointerEvent(PointerEventPass.Initial)
+                    val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                    ch.consume()
+                    if (ch.changedToUp() || !ch.pressed) break
+                    if (!moved && (ch.position - down.position).getDistance() > slop) moved = true
+                    if (moved) ui.extDrag = ExtDrag(app, ch.position + rect.topLeft)
+                }
+                val d = ui.extDrag
+                if (moved && d != null) {
+                    ui.finishExtDrag(d)
+                } else {
+                    ui.extDrag = null
+                    ui.showMenu(rect, ui.menuFor(app, where, folder))
+                }
+            }
+        }
+    } else Modifier
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
             .onGloballyPositioned { rect = it.boundsInWindow() }
             .clip(RoundedCornerShape(16.dp))
+            .then(dragOut)
             .then(click)
             .padding(vertical = 6.dp),
     ) {
-        Image(
-            bitmap = app.icon,
-            contentDescription = app.label,
-            modifier = Modifier.size((56 * state.iconScale).dp),
-        )
+        Box {
+            Image(
+                bitmap = app.icon,
+                contentDescription = app.label,
+                modifier = Modifier.size((56 * state.iconScale).dp),
+            )
+            if (badge > 0) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 4.dp, y = (-2).dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFF3B30))
+                        .padding(horizontal = 5.dp, vertical = 1.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        if (badge > 99) "99+" else badge.toString(),
+                        color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
         if (showLabel) {
             Text(
                 text = if (app.key in state.locked) app.label + " 🔒" else app.label,
@@ -222,7 +290,7 @@ private fun PageGrid(
                             is HomeItem.Folder -> FolderCell(item, apps, state, pal) { ui.folderId = item.id }
                             is HomeItem.Widget -> WidgetCell(ui, item.widgetId)
                             is HomeItem.Builtin ->
-                                BuiltinWidget(item.kind, pal, ui, Modifier.fillMaxSize().padding(4.dp))
+                                BuiltinWidget(item, state, apps, pal, ui, Modifier.fillMaxSize().padding(4.dp))
                         }
                     }
                 }
@@ -249,8 +317,13 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
     var gridWin by remember { mutableStateOf(Rect.Zero) }
     var dockWin by remember { mutableStateOf(Rect.Zero) }
 
-    val dragging = drag?.moved == true
+    val ext = ui.extDrag
+    val dragging = drag?.moved == true || ext != null
     val pagerState = rememberPagerState(pageCount = { state.pages.size + if (dragging) 1 else 0 })
+
+    val padPx = with(density) { 8.dp.toPx() }
+    val dockPadPx = with(density) { 6.dp.toPx() }
+    val edgePx = with(density) { 36.dp.toPx() }
 
     LaunchedEffect(homeTick) {
         if (homeTick > 0) {
@@ -260,20 +333,22 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
     }
 
     // لما الإصبع يقعد عند حافة الشاشة أثناء السحب: نقلّب الصفحة
-    LaunchedEffect(dragEdge) {
-        if (dragEdge != 0) {
+    val extEdge = if (ext == null) 0 else when {
+        ext.pos.x < edgePx -> -1
+        ext.pos.x > gridWin.right - edgePx -> 1
+        else -> 0
+    }
+    val edgeNow = if (ext != null) extEdge else dragEdge
+    LaunchedEffect(edgeNow) {
+        if (edgeNow != 0) {
             while (true) {
                 delay(650)
-                val step = if (dragEdge > 0) (if (rtl) -1 else 1) else (if (rtl) 1 else -1)
+                val step = if (edgeNow > 0) (if (rtl) -1 else 1) else (if (rtl) 1 else -1)
                 val target = pagerState.currentPage + step
                 if (target in 0 until pagerState.pageCount) pagerState.animateScrollToPage(target)
             }
         }
     }
-
-    val padPx = with(density) { 8.dp.toPx() }
-    val dockPadPx = with(density) { 6.dp.toPx() }
-    val edgePx = with(density) { 36.dp.toPx() }
 
     // ───── هندسة الشبكة (إحداثيات النافذة) ─────
     fun cellW(): Float = (gridWin.width - 2 * padPx) / st.value.columns
@@ -349,6 +424,33 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
         val g = gridHit(w) ?: return
         val page = pagerState.currentPage
         ui.vm.update { it.dropOnHome(d.ref, d.fromDock, page, g.cell, g.center) }
+    }
+
+    fun performExtDrop(d: ExtDrag): Boolean {
+        val w = d.pos
+        val key = d.app.key
+        if (dockWin.contains(w)) {
+            val s = st.value
+            if (key in s.dock || s.dock.size >= MAX_DOCK) {
+                ui.vm.postMessage(
+                    if (key in s.dock) tr("التطبيق موجود في الدوك", "Already in the dock")
+                    else tr("الدوك ممتلئ", "The dock is full"),
+                )
+                return false
+            }
+            val idx = dockIndexAt(w)
+            ui.vm.update { it.dropOnDock("a:$key", false, idx) }
+            return true
+        }
+        val g = gridHit(w) ?: return false
+        val page = pagerState.currentPage
+        ui.vm.update { it.dropNewApp(key, page, g.cell, g.center) }
+        return true
+    }
+
+    DisposableEffect(Unit) {
+        ui.dropHandler = { d -> performExtDrop(d) }
+        onDispose { ui.dropHandler = null }
     }
 
     Box(
@@ -464,11 +566,16 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                                 onDragStart = { total = 0f },
                                 onDragEnd = {
                                     if (total < -140f) ui.openDrawer(false)
-                                    else if (total > 140f) ui.openDrawer(true)
+                                    else if (total > 140f) ui.perform(st.value.swipeDown)
                                 },
                                 onDragCancel = {},
                                 onVerticalDrag = { _, dy -> total += dy },
                             )
+                        }
+                    }
+                    .pointerInput(state.doubleTap) {
+                        if (state.doubleTap != GestureAction.NONE) {
+                            detectTapGestures(onDoubleTap = { ui.perform(st.value.doubleTap) })
                         }
                     },
             ) {
@@ -564,17 +671,22 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
         }
 
         // ───── مكان الإفلات + العنصر المسحوب ─────
-        val d = drag
+        val d = drag ?: ext?.let {
+            DragState("a:${it.app.key}", false, it.pos - rootPos, true, it.app.icon, 1, 1)
+        }
         if (d != null && d.moved) {
             val w = d.pos + rootPos
             val target: Rect? = when {
                 dockWin.contains(w) -> dockWin
                 else -> gridHit(w)?.let { g ->
                     val s = state
-                    val wide = d.wCells > 1 || d.hCells > 1
+                    val wide = d.wCells >= s.columns
                     var cell = if (wide) (g.cell / s.columns) * s.columns else g.cell
                     val maxRow = s.rows - d.hCells
                     if (cell / s.columns > maxRow) cell = maxRow * s.columns + cell % s.columns
+                    if (!wide && cell % s.columns + d.wCells > s.columns) {
+                        cell = (cell / s.columns) * s.columns + (s.columns - d.wCells)
+                    }
                     cellRectWin(cell, d.wCells, d.hCells)
                 }
             }

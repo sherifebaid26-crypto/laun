@@ -1,6 +1,19 @@
 package com.aura.launcher
 
 import android.app.Application
+import android.app.WallpaperManager
+import android.content.ComponentName
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Shader
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -104,9 +117,10 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun applyTheme(def: ThemeDef) {
+    fun applyTheme(def: ThemeDef, quiet: Boolean = false) {
         viewModelScope.launch {
             val r = ThemeStore.applyWallpaper(app, def.id)
+            ThemeStore.setLiveTheme(app, def.id)
             update {
                 it.copy(
                     themeId = def.id, theme = def.mode, accent = def.accent,
@@ -114,17 +128,108 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
                 )
             }
             reloadApps()
+            if (quiet) return@launch
             val vivo = android.os.Build.MANUFACTURER.lowercase().let { m -> "vivo" in m || "iqoo" in m }
             _message.value = when {
                 !r.system -> tr("اتطبّق الستايل بس، والخلفية ماتغيرتش", "Style applied, but the wallpaper wasn't changed")
                 !r.lock -> tr("اتطبّق الثيم، لكن الجهاز رفض تغيير شاشة القفل", "Theme applied, but the device refused to change the lock screen")
                 vivo -> tr(
-                    "اتطبّق الثيم. لو شاشة القفل ماتغيّرتش، غيّرها من إعدادات فيفو ← الخلفية",
-                    "Theme applied. If the lock screen didn't change, set it from Vivo's wallpaper settings",
+                    "اتطبّق الثيم. لو شاشة القفل ماتغيّرتش جرّب «خلفية حيّة» من تفاصيل الثيم",
+                    "Theme applied. If the lock screen didn't change, try the live wallpaper from the theme details",
                 )
                 else -> tr("اتطبّق الثيم", "Theme applied")
             }
         }
+    }
+
+    /** خلفية حيّة بصورة الثيم: فيفو بيحترمها على القفل والرئيسية. */
+    fun openLiveWallpaper(def: ThemeDef?) {
+        val id = def?.id ?: _state.value.themeId
+        if (id != null) ThemeStore.setLiveTheme(app, id)
+        val comp = ComponentName(app, AuraWallpaperService::class.java)
+        val direct = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+            .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, comp)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val ok = runCatching { app.startActivity(direct) }.isSuccess
+        if (!ok) {
+            runCatching {
+                app.startActivity(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+        _message.value = tr(
+            "اختار «تطبيق» وبعدين الشاشة الرئيسية والقفل معاً",
+            "Tap Apply, then choose Home and Lock screens",
+        )
+    }
+
+    fun saveWallpaperToGallery(def: ThemeDef) {
+        viewModelScope.launch {
+            val ok = ThemeStore.saveToGallery(app, def.id)
+            _message.value = if (ok) tr("اتحفظت في المعرض (Pictures/Aura)", "Saved to gallery (Pictures/Aura)")
+            else tr("تعذّر الحفظ، حمّل الثيم الأول", "Couldn't save. Download the theme first")
+        }
+    }
+
+    private fun decodeUri(uri: Uri, maxEdge: Int): Bitmap? = runCatching {
+        val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        app.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, o) }
+        var sample = 1
+        while (maxOf(o.outWidth, o.outHeight) / (sample * 2) >= maxEdge) sample *= 2
+        app.contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
+        }
+    }.getOrNull()
+
+    private fun gradientBitmap(accent: Int): Bitmap {
+        val w = 1080
+        val h = 2340
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val top = androidx.core.graphics.ColorUtils.blendARGB(accent, 0xFF000000.toInt(), 0.55f)
+        val paint = Paint().apply {
+            shader = LinearGradient(0f, 0f, 0f, h.toFloat(), top, 0xFF08080C.toInt(), Shader.TileMode.CLAMP)
+        }
+        Canvas(bmp).drawRect(0f, 0f, w.toFloat(), h.toFloat(), paint)
+        return bmp
+    }
+
+    /** يحفظ الشكل الحالي (ألوان/أيقونات/ساعة) كثيم جديد، بخلفية من المعرض لو اخترت واحدة. */
+    fun saveCurrentAsTheme(name: String, image: Uri?) {
+        viewModelScope.launch {
+            val s = _state.value
+            val id = "my-" + newId()
+            val ok = runCatching {
+                val jpg = withContext(Dispatchers.IO) {
+                    val bmp = (image?.let { decodeUri(it, 2400) })
+                        ?: s.themeId?.let { tid ->
+                            ThemeStore.wallpaperFile(app, tid).takeIf { it.exists() }
+                                ?.let { f -> BitmapFactory.decodeFile(f.path) }
+                        }
+                        ?: gradientBitmap(s.accent.toInt())
+                    val out = ByteArrayOutputStream()
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                    out.toByteArray()
+                }
+                ThemeStore.saveCustom(app, id, customThemeJson(id, name.ifBlank { tr("ثيمي", "My theme") }, s), jpg)
+                _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+                ThemeStore.setLiveTheme(app, id)
+                update { it.copy(themeId = id) }
+            }.isSuccess
+            _message.value = if (ok) tr("اتحفظ الثيم في «المحمّلة» بالمتجر", "Theme saved under Downloaded in the store")
+            else tr("تعذّر حفظ الثيم", "Couldn't save the theme")
+        }
+    }
+
+    /** جدول الثيم: نهاري/ليلي حسب الساعة. */
+    fun applyScheduled() {
+        val s = _state.value
+        if (!s.scheduleOn) return
+        val hour = java.time.LocalTime.now().hour
+        val night = if (s.nightHour > s.dayHour) hour >= s.nightHour || hour < s.dayHour
+        else hour in s.nightHour until s.dayHour
+        val want = (if (night) s.nightTheme else s.dayTheme) ?: return
+        if (want == s.themeId) return
+        val def = _installed.value[want] ?: return
+        applyTheme(def, quiet = true)
     }
 
     fun postMessage(text: String) { _message.value = text }

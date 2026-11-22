@@ -2,9 +2,11 @@ package com.aura.launcher
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.pm.ApplicationInfo
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
 enum class Where { HOME, DOCK, DRAWER, FOLDER }
@@ -19,7 +21,18 @@ data class MenuEntry(
 /** قائمة عائمة قريبة من العنصر (anchor بإحداثيات الشاشة). */
 data class MenuRequest(val anchor: Rect, val entries: List<MenuEntry>)
 
-data class TextRequest(val title: String, val initial: String, val onOk: (String) -> Unit)
+data class TextRequest(
+    val title: String,
+    val initial: String,
+    val multiline: Boolean = false,
+    val onOk: (String) -> Unit,
+)
+
+/** اختصار تطبيق (من LauncherApps). */
+data class AppShortcut(val pkg: String, val id: String, val label: String)
+
+/** تطبيق بيتسحب من الدرج للشاشة الرئيسية (الموضع بإحداثيات النافذة). */
+data class ExtDrag(val app: AppEntry, val pos: Offset)
 data class PickerRequest(
     val title: String,
     val selected: Set<String>,
@@ -30,7 +43,17 @@ data class PickerRequest(
 /** عمليات النظام اللي بتتنفذ من الـ Activity. */
 interface LauncherActions {
     val widgetHost: WidgetHost
-    fun launchApp(app: AppEntry)
+    fun launchApp(app: AppEntry, bounds: Rect?)
+    fun shortcutsFor(app: AppEntry): List<AppShortcut>
+    fun startShortcut(s: AppShortcut)
+    fun expandNotifications()
+    fun lockScreen()
+    fun openAccessibilitySettings()
+    fun openNotificationAccess()
+    fun openUrl(url: String)
+    fun pickImage(onResult: (Uri?) -> Unit)
+    fun hasContactsPermission(): Boolean
+    fun requestContacts(onDone: () -> Unit)
     fun openAppInfo(app: AppEntry)
     fun uninstall(app: AppEntry)
     fun addWidget(provider: AppWidgetProviderInfo)
@@ -57,11 +80,40 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var storeOpen by mutableStateOf(false)
     var storeDetail by mutableStateOf<String?>(null)
     var menu by mutableStateOf<MenuRequest?>(null)
+    var editWidget by mutableStateOf<String?>(null)
+    var extDrag by mutableStateOf<ExtDrag?>(null)
+
+    /** بيسجّله HomeLayer: ينفّذ الإفلات على الشاشة الرئيسية ويرجّع true لو اتنفذ. */
+    var dropHandler: ((ExtDrag) -> Boolean)? = null
+
+    fun finishExtDrag(d: ExtDrag) {
+        val ok = dropHandler?.invoke(d) ?: false
+        extDrag = null
+        if (ok) drawerOpen = false
+    }
+
+    fun perform(a: GestureAction) {
+        when (a) {
+            GestureAction.NONE -> Unit
+            GestureAction.NOTIFICATIONS -> actions.expandNotifications()
+            GestureAction.SEARCH -> openDrawer(true)
+            GestureAction.DRAWER -> openDrawer(false)
+            GestureAction.SETTINGS -> settingsOpen = true
+            GestureAction.LOCK -> actions.lockScreen()
+        }
+    }
+
+    fun editNote(b: HomeItem.Builtin) {
+        textInput = TextRequest(tr("ملاحظة", "Note"), b.data, multiline = true) { t ->
+            vm.update { it.updateBuiltin(b.uid) { old -> old.copy(data = t) } }
+        }
+    }
 
     /** لو أي طبقة فوق الشاشة الرئيسية مفتوحة، إيماءات الشاشة الرئيسية تتعطل. */
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
-            widgetPicker || menu != null || auth != null || textInput != null || picker != null
+            widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
+            editWidget != null
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -81,6 +133,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         storeOpen = false
         storeDetail = null
         menu = null
+        editWidget = null
     }
 
     /** لو في PIN نطلبه، لو مفيش ننفذ على طول. */
@@ -88,12 +141,12 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         if (vm.state.value.pinHash == null) onOk() else auth = onOk
     }
 
-    fun launch(app: AppEntry) {
+    fun launch(app: AppEntry, bounds: Rect? = null) {
         val go = {
             vm.recordLaunch(app.key)
             drawerOpen = false
             folderId = null
-            actions.launchApp(app)
+            actions.launchApp(app, bounds)
         }
         if (app.key in vm.state.value.locked) requireAuth(go) else go()
     }
@@ -123,17 +176,27 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         MenuEntry(tr("حذف المجلد", "Delete folder"), "⌫", danger = true) { vm.update { it.deleteFolder(f.id) } },
     )
 
-    fun widgetEntries(item: HomeItem): List<MenuEntry> = listOf(
-        MenuEntry(tr("إزالة الودجت", "Remove widget"), "⌫", danger = true) {
+    fun widgetEntries(item: HomeItem): List<MenuEntry> {
+        val out = mutableListOf<MenuEntry>()
+        if (item is HomeItem.Builtin) {
+            out += MenuEntry(tr("تعديل الحجم والشكل", "Edit size & style"), "◧") { editWidget = item.uid }
+            if (item.kind == "notes") out += MenuEntry(tr("تعديل النص", "Edit text"), "✎") { editNote(item) }
+        }
+        out += MenuEntry(tr("إزالة الودجت", "Remove widget"), "⌫", danger = true) {
             if (item is HomeItem.Widget) actions.removeWidget(item.widgetId)
             vm.update { it.removeByRef(item.ref) }
-        },
-    )
+        }
+        return out
+    }
 
     fun menuFor(app: AppEntry, where: Where, folder: String? = null): List<MenuEntry> {
         val s = vm.state.value
         val k = app.key
         val out = mutableListOf<MenuEntry>()
+
+        actions.shortcutsFor(app).forEach { sc ->
+            out += MenuEntry(sc.label, "↗") { actions.startShortcut(sc) }
+        }
 
         when (where) {
             Where.HOME -> out += MenuEntry(tr("إزالة من الشاشة", "Remove from home"), "⊖") {

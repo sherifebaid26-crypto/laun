@@ -101,6 +101,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var hour by androidx.compose.runtime.mutableIntStateOf(java.time.LocalTime.now().hour)
     var limitDialog by mutableStateOf<LimitRequest?>(null)
     var headphones by mutableStateOf(false)
+    var searchText by mutableStateOf("")
+    var tourOpen by mutableStateOf(false)
     var page by androidx.compose.runtime.mutableIntStateOf(0)
     val unlockedPages = androidx.compose.runtime.mutableStateListOf<Int>()
     var ruleDialog by mutableStateOf(false)
@@ -160,7 +162,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
             widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
-            editWidget != null || permsOpen || diagOpen || ruleDialog
+            editWidget != null || permsOpen || diagOpen || ruleDialog || tourOpen
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -193,6 +195,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         val go = {
             vm.recordLaunch(app.key)
             Badges.clear(app.packageName)
+            if (searchText.trim().length >= 2) vm.addHistory(searchText)
             drawerOpen = false
             folderId = null
             actions.launchApp(app, bounds)
@@ -338,6 +341,15 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             }
         }
 
+        out += MenuEntry(tr("تغيير الاسم", "Rename"), "✎") {
+            textInput = TextRequest(tr("اسم التطبيق", "App name"), app.label) { n -> vm.renameApp(k, n) }
+        }
+        out += MenuEntry(tr("تغيير الأيقونة من المعرض", "Change icon from gallery"), "▣") {
+            actions.pickImage { uri -> if (uri != null) vm.setAppIcon(k, uri) }
+        }
+        if (k in s.customIcons || k in s.appNames) {
+            out += MenuEntry(tr("استرجاع الاسم والأيقونة الأصلية", "Restore original name & icon"), "↺") { vm.resetAppCustom(k) }
+        }
         out += MenuEntry(tr("إخفاء", "Hide"), "◌") { vm.update { it.hideApp(k) } }
 
         if (k in s.locked) {

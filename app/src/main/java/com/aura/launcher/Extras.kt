@@ -320,9 +320,21 @@ object CrashLog {
         val prev = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             runCatching { f.writeText(java.util.Date().toString() + "\n" + android.util.Log.getStackTraceString(e)) }
+            runCatching {
+                val p = ctx.getSharedPreferences("aura_crash", Context.MODE_PRIVATE)
+                val recent = (p.getString("t", "") ?: "").split(",").mapNotNull { it.toLongOrNull() }
+                p.edit().putString("t", (recent + System.currentTimeMillis()).takeLast(5).joinToString(",")).commit()
+            }
             prev?.uncaughtException(t, e)
         }
     }
+    /** كراشين أو أكتر في آخر دقيقتين = الوضع الآمن. */
+    fun safeModeNeeded(ctx: Context): Boolean {
+        val p = ctx.getSharedPreferences("aura_crash", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        return (p.getString("t", "") ?: "").split(",").mapNotNull { it.toLongOrNull() }.count { now - it < 120_000L } >= 2
+    }
+    fun clearRecent(ctx: Context) { ctx.getSharedPreferences("aura_crash", Context.MODE_PRIVATE).edit().clear().apply() }
     fun read(ctx: Context): String? = java.io.File(ctx.filesDir, "crash.txt").takeIf { it.exists() }?.readText()
 }
 

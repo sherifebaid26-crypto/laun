@@ -215,6 +215,22 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
     }
     val sysMatches = remember(q) { matchSettings(q) }
     val calcResult = remember(query) { calc(query) }
+    androidx.compose.runtime.LaunchedEffect(query) { ui.searchText = query }
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { ui.searchText = "" } }
+    val webSugs by produceState(emptyList<String>(), query, state.webSuggest) {
+        val t = query.trim()
+        value = if (!state.webSuggest || t.length < 2) emptyList() else {
+            delay(350)
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    val arr = org.json.JSONArray(
+                        httpText("https://suggestqueries.google.com/complete/search?client=firefox&hl=" + (if (Lang.isAr) "ar" else "en") + "&q=" + Uri.encode(t)),
+                    ).getJSONArray(1)
+                    List(minOf(4, arr.length())) { arr.getString(it) }
+                }.getOrDefault(emptyList())
+            }
+        }
+    }
     val contacts by produceState(emptyList<Pair<String, String>>(), query, hasContacts) {
         val t = query.trim()
         value = if (t.length >= 2 && hasContacts) {
@@ -352,6 +368,27 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                         )
                     }
                 }
+                if (q.isEmpty() && state.searchHistory.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        androidx.compose.foundation.layout.Column {
+                            Text(tr("آخر ما بحثت عنه", "Recent searches"), color = pal.accent, fontSize = 13.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 4.dp))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(state.searchHistory) { h ->
+                                    Text(h, color = pal.onPanel, fontSize = 13.sp,
+                                        modifier = Modifier.clip(RoundedCornerShape(18.dp)).background(pal.field)
+                                            .clickable { query = h }.padding(horizontal = 14.dp, vertical = 7.dp))
+                                }
+                                item {
+                                    Text("✕ " + tr("مسح", "Clear"), color = pal.accent, fontSize = 13.sp,
+                                        modifier = Modifier.clip(RoundedCornerShape(18.dp))
+                                            .clickable { ui.vm.update { it.copy(searchHistory = emptyList()) } }
+                                            .padding(horizontal = 12.dp, vertical = 7.dp))
+                                }
+                            }
+                        }
+                    }
+                }
                 if (q.isEmpty() && cat == Cat.ALL && suggestions.isNotEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Text(
@@ -418,6 +455,21 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                                 .padding(16.dp),
                         )
                     }
+                    items(webSugs, key = { "ws:" + it }, span = { GridItemSpan(maxLineSpan) }) { sg ->
+                        Text(
+                            "🔎 $sg", color = pal.onPanel,
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable {
+                                    ui.vm.addHistory(sg)
+                                    runCatching {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + Uri.encode(sg)))
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                        )
+                                    }
+                                }.padding(16.dp),
+                        )
+                    }
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Text(
                             tr("بحث في الويب عن «$query»", "Search the web for “$query”"),
@@ -425,6 +477,7 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+                                    ui.vm.addHistory(query)
                                     runCatching {
                                         context.startActivity(
                                             Intent(

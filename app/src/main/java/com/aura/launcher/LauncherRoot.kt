@@ -111,10 +111,9 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
 
     // تلميح مرة واحدة: فعّل الوصول للإشعارات علشان الأرقام تظهر على الأيقونات
     LaunchedEffect(ready) {
-        if (ready && !vm.state.value.badgePrompted) {
-            delay(2_500L)
-            if (!vm.state.value.badgePrompted) ui.permsOpen = true
-            vm.update { it.copy(badgePrompted = true) }
+        if (ready && !vm.state.value.onboarded) {
+            delay(1_500L)
+            ui.tourOpen = true
         }
     }
 
@@ -226,6 +225,12 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 )
             }
 
+            if (ui.tourOpen) TourDialog {
+                ui.tourOpen = false
+                val askPerms = !vm.state.value.badgePrompted
+                vm.update { it.copy(onboarded = true, badgePrompted = true) }
+                if (askPerms) ui.permsOpen = true
+            }
             if (ui.ruleDialog) RuleDialog(ui) { ui.ruleDialog = false }
             if (ui.permsOpen) PermissionsDialog(ui) { ui.permsOpen = false }
             if (ui.diagOpen) DiagnosticsDialog(ui) { ui.diagOpen = false }

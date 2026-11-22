@@ -2,6 +2,7 @@ package com.aura.launcher
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.ContextCompat
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ object Badges {
         if (prefs != null) return
         val p = ctx.applicationContext.getSharedPreferences("aura_badges", Context.MODE_PRIVATE)
         prefs = p
+        registerLegacy(ctx)
         counts.value = p.all.mapNotNull { (k, v) -> (v as? Int)?.takeIf { it > 0 }?.let { k to it } }.toMap()
     }
 
@@ -31,7 +33,47 @@ object Badges {
         prefs?.edit()?.apply { if (v <= 0) remove(pkg) else putInt(pkg, v) }?.apply()
     }
 
-    fun add(pkg: String, n: Int) = set(pkg, (counts.value[pkg] ?: 0) + n)
+    /** تطبيقات بعتت لنا العدد الحقيقي (بث الشارات القديم): هي المرجع ونتجاهل حسابنا لها. */
+    private val exact = HashSet<String>()
+
+    fun setExact(pkg: String, n: Int) { exact += pkg; set(pkg, n) }
+
+    private var receiversOn = false
+
+    /** بث الشارات اللي التطبيقات بتبعتها للّانشرات (سامسونج/فيفو/سوني/نوفا). */
+    @Synchronized
+    fun registerLegacy(ctx: Context) {
+        if (receiversOn) return
+        receiversOn = true
+        val app = ctx.applicationContext
+        val filter = android.content.IntentFilter().apply {
+            addAction("android.intent.action.BADGE_COUNT_UPDATE")
+            addAction("launcher.action.CHANGE_APPLICATION_NOTIFICATION_NUM")
+            addAction("com.sonyericsson.home.action.UPDATE_BADGE")
+            addAction("com.anddoes.launcher.COUNTER_CHANGED")
+        }
+        val r = object : android.content.BroadcastReceiver() {
+            override fun onReceive(c: Context?, i: android.content.Intent?) {
+                i ?: return
+                val (pkg, n) = when (i.action) {
+                    "android.intent.action.BADGE_COUNT_UPDATE" ->
+                        i.getStringExtra("badge_count_package_name") to i.getIntExtra("badge_count", 0)
+                    "launcher.action.CHANGE_APPLICATION_NOTIFICATION_NUM" ->
+                        i.getStringExtra("packageName") to i.getIntExtra("notificationNum", 0)
+                    "com.sonyericsson.home.action.UPDATE_BADGE" ->
+                        i.getStringExtra("com.sonyericsson.home.intent.extra.badge.PACKAGE_NAME") to
+                            (i.getStringExtra("com.sonyericsson.home.intent.extra.badge.MESSAGE")?.toIntOrNull() ?: 0)
+                    else -> i.getStringExtra("package")?.substringBefore('/') to i.getIntExtra("count", 0)
+                }
+                if (pkg.isNullOrBlank() || pkg == app.packageName) return
+                setExact(pkg, n)
+            }
+        }
+        runCatching { ContextCompat.registerReceiver(app, r, filter, ContextCompat.RECEIVER_EXPORTED) }
+    }
+
+    fun add(pkg: String, n: Int) { if (pkg !in exact) set(pkg, (counts.value[pkg] ?: 0) + n) }
+    fun sub(pkg: String, n: Int) { if (pkg !in exact) set(pkg, (counts.value[pkg] ?: 0) - n) }
     fun clear(pkg: String) { if (counts.value.containsKey(pkg)) set(pkg, 0) }
     fun setIfEmpty(pkg: String, n: Int) { if ((counts.value[pkg] ?: 0) == 0) set(pkg, n) }
 }
@@ -39,6 +81,7 @@ object Badges {
 /** بيقرأ الإشعارات علشان نعمل شارات على الأيقونات. بيحتاج إذن "الوصول للإشعارات". */
 class AuraNotificationService : NotificationListenerService() {
     private val seen = HashMap<String, Long>()
+    private val contrib = HashMap<String, Pair<String, Int>>()
 
     private fun relevant(sbn: StatusBarNotification): Boolean =
         !sbn.isOngoing &&
@@ -51,8 +94,10 @@ class AuraNotificationService : NotificationListenerService() {
         val per = HashMap<String, Int>()
         for (sbn in active) {
             if (!relevant(sbn)) continue
+            val n = sbn.notification.number.coerceAtLeast(1)
             seen[sbn.key] = sbn.postTime
-            per[sbn.packageName] = (per[sbn.packageName] ?: 0) + sbn.notification.number.coerceAtLeast(1)
+            contrib[sbn.key] = sbn.packageName to n
+            per[sbn.packageName] = (per[sbn.packageName] ?: 0) + n
         }
         per.forEach { (pkg, n) -> Badges.setIfEmpty(pkg, n) }
     }
@@ -61,13 +106,24 @@ class AuraNotificationService : NotificationListenerService() {
         sbn ?: return
         Badges.init(this)
         if (!relevant(sbn)) return
+        val n = sbn.notification.number.coerceAtLeast(1)
         val prev = seen[sbn.key]
         seen[sbn.key] = sbn.postTime
-        if (prev == null || sbn.postTime > prev) Badges.add(sbn.packageName, sbn.notification.number.coerceAtLeast(1))
+        if (prev == null || sbn.postTime > prev) {
+            Badges.add(sbn.packageName, n)
+            val old = contrib[sbn.key]?.second ?: 0
+            contrib[sbn.key] = sbn.packageName to (old + n)
+        }
     }
 
-    // مقصود: مسح الإشعار مش بيصفّر الرقم، علشان تفتكر إنك ما فتحتش التطبيق.
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        sbn?.let { seen.remove(it.key) }
+    // السحب من الشريط (REASON_CANCEL) مش بيصفّر الرقم لأنك لسه ما شفتش الرسالة.
+    // لكن لو التطبيق نفسه شال الإشعار (قريت جواه) أو دست على الإشعار، بنخصم نصيبه.
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+        sbn ?: return
+        seen.remove(sbn.key)
+        val c = contrib.remove(sbn.key) ?: return
+        if (reason == REASON_CLICK || reason == REASON_APP_CANCEL || reason == REASON_APP_CANCEL_ALL) {
+            Badges.sub(c.first, c.second)
+        }
     }
 }

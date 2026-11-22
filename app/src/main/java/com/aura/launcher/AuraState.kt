@@ -100,6 +100,17 @@ data class AuraState(
     val swipeDown: GestureAction = GestureAction.SEARCH,
     val lang: String = "ar",
     val liveIcons: Boolean = true,
+    val onboarded: Boolean = false,
+    val searchHistory: List<String> = emptyList(),
+    val appNames: Map<String, String> = emptyMap(),
+    val customIcons: Set<String> = emptySet(),
+    val webSuggest: Boolean = false,
+    val dynamicColor: Boolean = false,
+    val drawerAlpha: Int = 92,
+    val dockAlpha: Int = 100,
+    val blurOn: Boolean = false,
+    val edgeOn: Boolean = true,
+    val edgeApps: List<String> = emptyList(),
     val rules: List<String> = emptyList(),
     val lockedPages: Set<Int> = emptySet(),
     val iconShape: Int = 0,
@@ -475,6 +486,17 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("swipeDown", swipeDown.name)
     o.put("lang", lang)
     o.put("liveIcons", liveIcons)
+    o.put("onboarded", onboarded)
+    o.put("searchHistory", JSONArray(searchHistory))
+    o.put("appNames", JSONObject(appNames))
+    o.put("customIcons", JSONArray(customIcons.toList()))
+    o.put("webSuggest", webSuggest)
+    o.put("dynamicColor", dynamicColor)
+    o.put("drawerAlpha", drawerAlpha)
+    o.put("dockAlpha", dockAlpha)
+    o.put("blurOn", blurOn)
+    o.put("edgeOn", edgeOn)
+    o.put("edgeApps", JSONArray(edgeApps))
     o.put("rules", JSONArray(rules))
     o.put("lockedPages", JSONArray(lockedPages.toList()))
     o.put("iconShape", iconShape)
@@ -554,6 +576,17 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         nightIcons = o.optBoolean("nightIcons", false),
         removed = o.optJSONArray("removed").toStringList(),
         liveIcons = o.optBoolean("liveIcons", true),
+        onboarded = o.optBoolean("onboarded", false),
+        searchHistory = o.optJSONArray("searchHistory").toStringList(),
+        appNames = o.optJSONObject("appNames")?.let { n -> n.keys().asSequence().associateWith { k -> n.optString(k) } } ?: emptyMap(),
+        customIcons = o.optJSONArray("customIcons").toStringList().toSet(),
+        webSuggest = o.optBoolean("webSuggest", false),
+        dynamicColor = o.optBoolean("dynamicColor", false),
+        drawerAlpha = o.optInt("drawerAlpha", 92).coerceIn(40, 100),
+        dockAlpha = o.optInt("dockAlpha", 100).coerceIn(0, 100),
+        blurOn = o.optBoolean("blurOn", false),
+        edgeOn = o.optBoolean("edgeOn", true),
+        edgeApps = o.optJSONArray("edgeApps").toStringList(),
         rules = o.optJSONArray("rules").toStringList(),
         lockedPages = o.optJSONArray("lockedPages")?.let { a -> List(a.length()) { i -> a.optInt(i) }.toSet() } ?: emptySet(),
         lang = o.optString("lang", "ar").let { if (it in listOf("ar", "en", "auto")) it else "ar" },

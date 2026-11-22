@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.asImageBitmap
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -54,6 +55,15 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val raw = app.dataStore.data.first()[STATE_KEY]
             if (raw != null) runCatching { _state.value = auraStateFromJson(JSONObject(raw)) }
+            if (CrashLog.safeModeNeeded(app)) {
+                runCatching { java.io.File(app.filesDir, "pre-safe-mode-backup.json").writeText(_state.value.toJson().toString(2)) }
+                val d = AuraState()
+                _state.value = _state.value.copy(
+                    pages = d.pages, rules = emptyList(), lockedPages = emptySet(), focusOn = false, relaxOn = false,
+                )
+                CrashLog.clearRecent(app)
+                _message.value = tr("حصل كراش متكرر، فرجّعنا الشاشة الرئيسية للوضع الآمن (نسخة من القديم محفوظة).", "Repeated crashes: home reset to safe mode (old copy saved).")
+            }
             loadAppsNow()
             if (!_state.value.dockInitialized) {
                 val dock = AppRepository.defaultDock(app, _apps.value)
@@ -74,8 +84,20 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
         val list = AppRepository.loadApps(app, s.iconPack, s.iconStyle, icons)
         Perf.loadMs = System.currentTimeMillis() - t0
         Perf.appCount = list.size
-        _apps.value = list
-        if (prev.isNotEmpty()) trackRemoved(prev, list)
+        val customized = if (s.appNames.isEmpty() && s.customIcons.isEmpty()) list else withContext(Dispatchers.Default) {
+            list.map { a ->
+                var e = a
+                s.appNames[a.key]?.takeIf { it.isNotBlank() }?.let { e = e.copy(label = it) }
+                if (a.key in s.customIcons) {
+                    runCatching {
+                        BitmapFactory.decodeFile(customIconFile(a.key).path)?.let { e = e.copy(icon = it.asImageBitmap()) }
+                    }
+                }
+                e
+            }.sortedBy { it.normLabel }
+        }
+        _apps.value = customized
+        if (prev.isNotEmpty()) trackRemoved(prev, customized)
     }
 
     /** بنفتكر التطبيقات اللي اتحذفت علشان ترجّعها من Play بسرعة. */
@@ -288,6 +310,42 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
             ThemeStore.delete(app, id)
             _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
         }
+    }
+
+    private fun customIconFile(key: String): java.io.File =
+        java.io.File(app.filesDir, "appicons").apply { mkdirs() }.resolve(Integer.toHexString(key.hashCode()) + ".png")
+
+    fun setAppIcon(key: String, uri: Uri) {
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val b = decodeUri(uri, 256) ?: return@runCatching false
+                    val side = minOf(b.width, b.height)
+                    val sq = android.graphics.Bitmap.createBitmap(b, (b.width - side) / 2, (b.height - side) / 2, side, side)
+                    val out = android.graphics.Bitmap.createScaledBitmap(sq, 192, 192, true)
+                    customIconFile(key).outputStream().use { out.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                    true
+                }.getOrDefault(false)
+            }
+            if (ok) { update { it.copy(customIcons = it.customIcons + key) }; loadAppsNow() }
+        }
+    }
+
+    fun renameApp(key: String, name: String) {
+        update { it.copy(appNames = if (name.isBlank()) it.appNames - key else it.appNames + (key to name.trim())) }
+        reloadApps()
+    }
+
+    fun resetAppCustom(key: String) {
+        runCatching { customIconFile(key).delete() }
+        update { it.copy(customIcons = it.customIcons - key, appNames = it.appNames - key) }
+        reloadApps()
+    }
+
+    fun addHistory(q: String) {
+        val t = q.trim()
+        if (t.length < 2) return
+        update { it.copy(searchHistory = (listOf(t) + it.searchHistory.filter { h -> h != t }).take(8)) }
     }
 
     fun reloadApps() {

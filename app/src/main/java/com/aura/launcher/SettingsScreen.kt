@@ -344,6 +344,10 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                     Text(tr("يبدأ الساعة", "Starts at"), color = pal.onPanel, modifier = Modifier.padding(top = 6.dp, bottom = 6.dp))
                     ScrollRow { (18..23).forEach { h -> Chip("$h:00", state.relaxHour == h, pal) { vm.update { it.copy(relaxHour = h) } } } }
                 }
+                SwitchRow(tr("اقتراحات بحث من الإنترنت (بيبعت اللي بتكتبه لجوجل)", "Web search suggestions (sends typing to Google)"), state.webSuggest, pal) { b ->
+                    vm.update { it.copy(webSuggest = b) }
+                }
+                ActionRow(tr("إعادة الجولة التعريفية", "Replay intro tour"), pal) { ui.tourOpen = true }
                 SwitchRow(tr("أيقونات حيّة للساعة والتقويم", "Live clock & calendar icons"), state.liveIcons, pal) { b ->
                     vm.update { it.copy(liveIcons = b) }
                 }

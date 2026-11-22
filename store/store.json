@@ -234,6 +234,552 @@
     "ar": "داكن",
     "en": "Dark"
    }
+  },
+  {
+   "id": "n-midnight-peak",
+   "name": {
+    "ar": "قمة منتصف الليل",
+    "en": "Midnight Peak"
+   },
+   "category": {
+    "ar": "ليلي",
+    "en": "Night"
+   },
+   "tags": {
+    "ar": [
+     "أسود",
+     "جبال",
+     "فخم",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Black",
+     "Mountains",
+     "Elegant",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 187,
+   "wallpaper": "themes/n-midnight-peak/wallpaper.jpg",
+   "preview": "themes/n-midnight-peak/preview.jpg",
+   "icons": "themes/n-midnight-peak/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#9CB4FF",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E61b2540",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-alpine-mist",
+   "name": {
+    "ar": "ضباب الألب",
+    "en": "Alpine Mist"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "أخضر",
+     "جبال",
+     "هادئ",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Green",
+     "Mountains",
+     "Calm",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 100,
+   "wallpaper": "themes/n-alpine-mist/wallpaper.jpg",
+   "preview": "themes/n-alpine-mist/preview.jpg",
+   "icons": "themes/n-alpine-mist/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#4F7A63",
+    "homeText": "#1E2E26",
+    "clock": "BIG_SERIF",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E67f9f8d",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-pastel-puffs",
+   "name": {
+    "ar": "سحب باستيل",
+    "en": "Pastel Puffs"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "وردي",
+     "كاواي",
+     "ناعم",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Pink",
+     "Kawaii",
+     "Soft",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 122,
+   "wallpaper": "themes/n-pastel-puffs/wallpaper.jpg",
+   "preview": "themes/n-pastel-puffs/preview.jpg",
+   "icons": "themes/n-pastel-puffs/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#FF7FAE",
+    "homeText": "#5A2D45",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6ffb3cf",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-galactic",
+   "name": {
+    "ar": "رحلة المجرة",
+    "en": "Galactic Drift"
+   },
+   "category": {
+    "ar": "فضاء",
+    "en": "Space"
+   },
+   "tags": {
+    "ar": [
+     "أرجواني",
+     "فضاء",
+     "نيون",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Purple",
+     "Space",
+     "Neon",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 240,
+   "wallpaper": "themes/n-galactic/wallpaper.jpg",
+   "preview": "themes/n-galactic/preview.jpg",
+   "icons": "themes/n-galactic/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#B79CFF",
+    "homeText": "#F2EEFF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6120e2c",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-golden-hour",
+   "name": {
+    "ar": "الساعة الذهبية",
+    "en": "Golden Hour"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "برتقالي",
+     "غروب",
+     "دافئ",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Orange",
+     "Sunset",
+     "Warm",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 154,
+   "wallpaper": "themes/n-golden-hour/wallpaper.jpg",
+   "preview": "themes/n-golden-hour/preview.jpg",
+   "icons": "themes/n-golden-hour/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#FFC27A",
+    "homeText": "#FFF4E3",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E65a2548",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-blue-sky",
+   "name": {
+    "ar": "سماء زرقاء",
+    "en": "Blue Sky"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "أزرق",
+     "سحاب",
+     "منعش",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Blue",
+     "Clouds",
+     "Fresh",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 122,
+   "wallpaper": "themes/n-blue-sky/wallpaper.jpg",
+   "preview": "themes/n-blue-sky/preview.jpg",
+   "icons": "themes/n-blue-sky/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#1F6FE0",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6ffffff",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-neon-grid",
+   "name": {
+    "ar": "شبكة النيون",
+    "en": "Neon Grid"
+   },
+   "category": {
+    "ar": "مستقبلي",
+    "en": "Futuristic"
+   },
+   "tags": {
+    "ar": [
+     "نيون",
+     "ريترو",
+     "سينثويف",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Neon",
+     "Retro",
+     "Synthwave",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 205,
+   "wallpaper": "themes/n-neon-grid/wallpaper.jpg",
+   "preview": "themes/n-neon-grid/preview.jpg",
+   "icons": "themes/n-neon-grid/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#FF3D9A",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E614052e",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-soft-check",
+   "name": {
+    "ar": "مربعات ناعمة",
+    "en": "Soft Check"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "بنفسجي",
+     "قلب",
+     "ناعم",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Lilac",
+     "Heart",
+     "Soft",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 188,
+   "wallpaper": "themes/n-soft-check/wallpaper.jpg",
+   "preview": "themes/n-soft-check/preview.jpg",
+   "icons": "themes/n-soft-check/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#B78BFF",
+    "homeText": "#4B3A73",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6fbf8ff",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-hearts",
+   "name": {
+    "ar": "حب وقلوب",
+    "en": "Hearts"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "وردي",
+     "قلوب",
+     "رومانسي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Pink",
+     "Hearts",
+     "Romantic",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 149,
+   "wallpaper": "themes/n-hearts/wallpaper.jpg",
+   "preview": "themes/n-hearts/preview.jpg",
+   "icons": "themes/n-hearts/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#FF3E7F",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "TEARDROP",
+     "plate": "#E6ff5d8f",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-fresh-green",
+   "name": {
+    "ar": "أخضر منعش",
+    "en": "Fresh Green"
+   },
+   "category": {
+    "ar": "بسيط",
+    "en": "Minimal"
+   },
+   "tags": {
+    "ar": [
+     "أخضر",
+     "بسيط",
+     "قلب",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Green",
+     "Minimal",
+     "Heart",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 109,
+   "wallpaper": "themes/n-fresh-green/wallpaper.jpg",
+   "preview": "themes/n-fresh-green/preview.jpg",
+   "icons": "themes/n-fresh-green/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#2E9D5B",
+    "homeText": "#FFFFFF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6ffffff",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-gold-flow",
+   "name": {
+    "ar": "تدفق ذهبي",
+    "en": "Gold Flow"
+   },
+   "category": {
+    "ar": "فخامة",
+    "en": "Luxury"
+   },
+   "tags": {
+    "ar": [
+     "ذهبي",
+     "أسود",
+     "تجريدي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Gold",
+     "Black",
+     "Abstract",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 147,
+   "wallpaper": "themes/n-gold-flow/wallpaper.jpg",
+   "preview": "themes/n-gold-flow/preview.jpg",
+   "icons": "themes/n-gold-flow/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#E0AA5A",
+    "homeText": "#F6E7CC",
+    "clock": "BIG_SERIF",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E61c1a17",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-lighthouse",
+   "name": {
+    "ar": "جزيرة المنارة",
+    "en": "Lighthouse Isle"
+   },
+   "category": {
+    "ar": "لطيف",
+    "en": "Cute"
+   },
+   "tags": {
+    "ar": [
+     "أزرق",
+     "بحر",
+     "ملوّن",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Blue",
+     "Sea",
+     "Colorful",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 107,
+   "wallpaper": "themes/n-lighthouse/wallpaper.jpg",
+   "preview": "themes/n-lighthouse/preview.jpg",
+   "icons": "themes/n-lighthouse/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#E8554E",
+    "homeText": "#10405A",
+    "clock": "BIG",
+    "icon": {
+     "shape": "ROUNDED",
+     "plate": "#E6ffffff",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "n-bamboo",
+   "name": {
+    "ar": "غابة الخيزران",
+    "en": "Bamboo Mist"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "أخضر",
+     "خيزران",
+     "هادئ",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Green",
+     "Bamboo",
+     "Calm",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs",
+   "sizeKb": 252,
+   "wallpaper": "themes/n-bamboo/wallpaper.jpg",
+   "preview": "themes/n-bamboo/preview.jpg",
+   "icons": "themes/n-bamboo/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#4C7A34",
+    "homeText": "#23381A",
+    "clock": "BIG_SERIF",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6e9f3d5",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
   }
  ]
 }

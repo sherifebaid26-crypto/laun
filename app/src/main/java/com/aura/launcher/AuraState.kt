@@ -13,7 +13,7 @@ enum class ClockStyle { NONE, BIG, BIG_SERIF, SMALL }
 enum class MenuStyle { IOS, SAMSUNG, VIVO }
 
 /** إيماءات الشاشة الرئيسية. */
-enum class GestureAction { NONE, NOTIFICATIONS, SEARCH, DRAWER, SETTINGS, LOCK }
+enum class GestureAction { NONE, NOTIFICATIONS, SEARCH, DRAWER, SETTINGS, LOCK, RECENTS }
 
 /** ستايل الأيقونات اللي بيجي مع الثيم: شكل + صحيفة خلفية + (اختياري) أيقونة أحادية اللون. */
 data class IconStyle(
@@ -219,6 +219,9 @@ fun AuraState.addItem(item: HomeItem): AuraState {
 fun AuraState.isOnHome(key: String): Boolean = pages.any { page ->
     page.any { (it is HomeItem.App && it.key == key) || (it is HomeItem.Folder && key in it.keys) }
 }
+
+fun AuraState.removeRef(ref: String): AuraState =
+    copy(pages = pages.map { p -> p.filterNot { it.ref == ref } })
 
 fun AuraState.removeApp(key: String): AuraState {
     val newPages = pages.map { page ->

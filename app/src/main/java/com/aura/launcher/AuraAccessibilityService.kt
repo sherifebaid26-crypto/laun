@@ -24,6 +24,9 @@ class AuraAccessibilityService : AccessibilityService() {
         @Volatile
         var instance: AuraAccessibilityService? = null
 
+        fun recents(): Boolean =
+            instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS) ?: false
+
         fun lock(): Boolean =
             instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN) ?: false
     }

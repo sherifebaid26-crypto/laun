@@ -44,6 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.zIndex
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
@@ -242,7 +244,7 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(pal.drawerBg)
+            .background(pal.drawerBg.copy(alpha = pal.drawerBg.alpha * state.drawerAlpha / 100f))
             .padding(top = insets.calculateTopPadding())
             .imePadding()
             // سحب لتحت من أي مكان وإحنا في أول القائمة = نرجع للشاشة الرئيسية
@@ -344,9 +346,28 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
         }
 
         Box(Modifier.weight(1f)) {
+            val land = androidx.compose.ui.platform.LocalConfiguration.current.orientation ==
+                android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val scope = androidx.compose.runtime.rememberCoroutineScope()
+            val showAlpha = q.isEmpty() && cat == Cat.ALL && state.drawerSort == 0 && results.size > 24
+            if (showAlpha) {
+                val letters = remember(results) {
+                    results.mapNotNull { it.normLabel.firstOrNull()?.uppercaseChar() }.distinct()
+                }
+                val header = (if (calcResult != null) 1 else 0) +
+                    (if (state.searchHistory.isNotEmpty()) 1 else 0) +
+                    (if (suggestions.isNotEmpty()) suggestions.size + 2 else 0)
+                AlphaScroller(
+                    letters, pal.accent,
+                    Modifier.align(androidx.compose.ui.Alignment.CenterEnd).zIndex(2f),
+                ) { ch ->
+                    val i = results.indexOfFirst { it.normLabel.firstOrNull()?.uppercaseChar() == ch }
+                    if (i >= 0) scope.launch { gridState.scrollToItem(header + i) }
+                }
+            }
             LazyVerticalGrid(
                 state = gridState,
-                columns = GridCells.Fixed(state.drawerColumns),
+                columns = GridCells.Fixed(state.drawerColumns * (if (land) 2 else 1)),
                 contentPadding = PaddingValues(
                     start = 8.dp, end = 8.dp, top = 4.dp, bottom = insets.calculateBottomPadding() + 12.dp,
                 ),

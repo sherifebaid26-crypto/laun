@@ -220,6 +220,16 @@ class MainActivity : FragmentActivity(), LauncherActions {
         }
     }
 
+    override fun openRecents() {
+        if (!AuraAccessibilityService.recents()) {
+            vm.postMessage(tr("فعّل خدمة «Aura» من إمكانية الوصول علشان يشتغل زر الأحدث", "Enable the Aura accessibility service for Recents"))
+        }
+    }
+
+    override fun setBlur(radius: Int) {
+        runCatching { window.setBackgroundBlurRadius(radius) }
+    }
+
     override fun lockScreen() {
         if (!AuraAccessibilityService.lock()) {
             vm.postMessage(

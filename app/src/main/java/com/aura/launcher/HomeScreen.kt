@@ -493,7 +493,23 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
         ui2.showMenu(rect, entries)
     }
 
+    val zoneH = with(density) { 84.dp.toPx() + insets.calculateTopPadding().toPx() }
+    fun zoneAt(p: Offset): Int = if (p.y < zoneH) (if (p.x < gridWin.right / 2f) 1 else 2) else 0
+
     fun performDrop(d: DragState) {
+        val z = zoneAt(d.pos)
+        if (z != 0) {
+            val isApp = d.ref.startsWith("a:")
+            val key = d.ref.removePrefix("a:")
+            if (z == 2 && isApp) {
+                appsRef.value[key]?.let { ui.actions.uninstall(it) }
+            } else if (isApp && d.fromDock) {
+                ui.vm.update { it.dockRemove(key) }
+            } else {
+                ui.vm.update { it.removeRef(d.ref) }
+            }
+            return
+        }
         val w = d.pos + rootPos
         if (dockWin.contains(w)) {
             val idx = dockIndexAt(w)
@@ -733,7 +749,7 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                     .padding(horizontal = 12.dp, vertical = 6.dp)
                     .onGloballyPositioned { dockWin = it.boundsInWindow() }
                     .clip(shape)
-                    .background(pal.panel)
+                    .background(pal.panel.copy(alpha = pal.panel.alpha * state.dockAlpha / 100f))
                     .border(1.dp, pal.border, shape)
                     .padding(horizontal = 6.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -791,6 +807,26 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                 )
             }
 
+            run {
+                val zn = zoneAt(d.pos)
+                val isApp = d.ref.startsWith("a:")
+                Row(
+                    Modifier.fillMaxWidth().height(with(density) { zoneH.toDp() }).padding(top = insets.calculateTopPadding()),
+                ) {
+                    Box(
+                        Modifier.weight(1f).fillMaxSize().padding(6.dp).clip(RoundedCornerShape(16.dp))
+                            .background(if (zn == 1 || (zn == 2 && !isApp)) Color(0xDDFF5252) else Color(0x99000000)),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("⊖  " + tr("إزالة", "Remove"), color = Color.White) }
+                    if (isApp) {
+                        Box(
+                            Modifier.weight(1f).fillMaxSize().padding(6.dp).clip(RoundedCornerShape(16.dp))
+                                .background(if (zn == 2) Color(0xDDB71C1C) else Color(0x99000000)),
+                            contentAlignment = Alignment.Center,
+                        ) { Text("🗑  " + tr("إلغاء التثبيت", "Uninstall"), color = Color.White) }
+                    }
+                }
+            }
             val gw = if (d.wCells > 1 || d.hCells > 1) cellW() * d.wCells else with(density) { 64.dp.toPx() }
             val gh = if (d.wCells > 1 || d.hCells > 1) cellH() * d.hCells else gw
             Box(

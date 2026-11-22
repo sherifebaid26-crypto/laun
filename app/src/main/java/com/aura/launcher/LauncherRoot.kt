@@ -3,6 +3,10 @@ package com.aura.launcher
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
@@ -100,6 +104,20 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
         lifeOwner.lifecycle.addObserver(obs)
         onDispose { lifeOwner.lifecycle.removeObserver(obs) }
     }
+
+    // لون ديناميكي من الخلفية (Material You)
+    val dynCtx = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(state.dynamicColor) {
+        if (state.dynamicColor) {
+            runCatching {
+                val c = androidx.compose.material3.dynamicDarkColorScheme(dynCtx).primary.toArgb().toLong() and 0xFFFFFFFFL
+                if (c != vm.state.value.accent) vm.update { it.copy(accent = c) }
+            }
+        }
+    }
+
+    // تمويه خلف الدرج
+    LaunchedEffect(ui.drawerOpen, state.blurOn) { actions.setBlur(if (ui.drawerOpen && state.blurOn) 90 else 0) }
 
     // ساعة بتتحدّث كل دقيقة (وضع التركيز + أيقونات الليل)
     LaunchedEffect(Unit) {
@@ -225,6 +243,11 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 )
             }
 
+            if (state.edgeOn && !ui.drawerOpen && !ui.overlayOpen) {
+                EdgeHandle(ui, Modifier.align(Alignment.CenterEnd))
+            }
+            if (ui.edgeOpen) EdgePanel(ui, state, appList, pal)
+            if (ui.editMode) EditPanel(ui, state, pal, Modifier.align(Alignment.BottomCenter).padding(bottom = 90.dp))
             if (ui.tourOpen) TourDialog {
                 ui.tourOpen = false
                 val askPerms = !vm.state.value.badgePrompted

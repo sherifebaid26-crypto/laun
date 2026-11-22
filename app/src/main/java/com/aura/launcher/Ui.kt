@@ -61,6 +61,8 @@ interface LauncherActions {
     fun requestCalendar(onDone: () -> Unit)
     fun appVersion(): String
     fun shareText(text: String)
+    fun openRecents()
+    fun setBlur(radius: Int)
     fun deviceStatus(): DeviceStatus
     fun openSystemSetting(action: String)
     fun dailyScreenMinutes(): List<Int>
@@ -103,6 +105,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var headphones by mutableStateOf(false)
     var searchText by mutableStateOf("")
     var tourOpen by mutableStateOf(false)
+    var editMode by mutableStateOf(false)
+    var edgeOpen by mutableStateOf(false)
     var page by androidx.compose.runtime.mutableIntStateOf(0)
     val unlockedPages = androidx.compose.runtime.mutableStateListOf<Int>()
     var ruleDialog by mutableStateOf(false)
@@ -134,6 +138,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             GestureAction.DRAWER -> openDrawer(false)
             GestureAction.SETTINGS -> settingsOpen = true
             GestureAction.LOCK -> actions.lockScreen()
+            GestureAction.RECENTS -> actions.openRecents()
         }
     }
 
@@ -162,7 +167,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
             widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
-            editWidget != null || permsOpen || diagOpen || ruleDialog || tourOpen
+            editWidget != null || permsOpen || diagOpen || ruleDialog || tourOpen || editMode || edgeOpen
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -245,6 +250,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
                 unlockedPages.remove(page)
             }
         },
+        MenuEntry(tr("تعديل الشاشة", "Edit home"), "✎") { editMode = true },
         MenuEntry(tr("إضافة ودجت", "Add widget"), "▦") { widgetPicker = true },
         MenuEntry(tr("مجلد جديد", "New folder"), "🗀") { newFolder() },
         MenuEntry(tr("متجر الثيمات", "Theme store"), "✦") { storeOpen = true },

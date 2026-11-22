@@ -134,6 +134,7 @@ private fun gestureLabel(a: GestureAction): String = when (a) {
     GestureAction.DRAWER -> tr("التطبيقات", "Apps")
     GestureAction.SETTINGS -> tr("الإعدادات", "Settings")
     GestureAction.LOCK -> tr("قفل الشاشة", "Lock screen")
+    GestureAction.RECENTS -> tr("التطبيقات الأخيرة", "Recents")
 }
 
 private enum class PinStage { NONE, NEW, CONFIRM }
@@ -422,6 +423,42 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
             }
 
             item {
+                Section(tr("الشفافية والألوان", "Transparency & colors"), pal)
+                SwitchRow(tr("لون الواجهة من الخلفية (Material You)", "Accent from wallpaper (Material You)"), state.dynamicColor, pal) { b ->
+                    vm.update { it.copy(dynamicColor = b) }
+                }
+                SliderRow(tr("شفافية الدرج", "Drawer opacity"), state.drawerAlpha.toFloat(), 40f..100f, 5, pal, { it.toInt().toString() + "%" }) { n ->
+                    vm.update { it.copy(drawerAlpha = n.toInt()) }
+                }
+                SliderRow(tr("شفافية الدوك", "Dock opacity"), state.dockAlpha.toFloat(), 0f..100f, 9, pal, { it.toInt().toString() + "%" }) { n ->
+                    vm.update { it.copy(dockAlpha = n.toInt()) }
+                }
+                SwitchRow(tr("تمويه الخلفية خلف الدرج (لو الجهاز يدعم)", "Blur behind drawer (if supported)"), state.blurOn, pal) { b ->
+                    vm.update { it.copy(blurOn = b) }
+                }
+                SwitchRow(tr("اللوحة الجانبية (اسحب من حافة الشاشة اليمنى)", "Edge panel (swipe from right edge)"), state.edgeOn, pal) { b ->
+                    vm.update { it.copy(edgeOn = b) }
+                }
+                ActionRow(tr("أيقونات أحادية بلون الثيم", "Themed single-color icons"), pal) {
+                    fun mix(c: Long, t: Int, f: Float): Long {
+                        val r = ((c shr 16 and 0xFF) * (1 - f) + t * f).toInt()
+                        val g = ((c shr 8 and 0xFF) * (1 - f) + t * f).toInt()
+                        val b = ((c and 0xFF) * (1 - f) + t * f).toInt()
+                        return 0xFF000000L or (r.toLong() shl 16) or (g.toLong() shl 8) or b.toLong()
+                    }
+                    vm.update {
+                        it.copy(
+                            iconStyle = IconStyle(
+                                shape = IconShape.SQUIRCLE, plate = mix(it.accent, 0, 0.78f),
+                                mono = true, tint = mix(it.accent, 255, 0.7f),
+                            ),
+                        )
+                    }
+                    vm.reloadApps()
+                }
+            }
+
+            item {
                 Section(tr("الشبكة والأيقونات", "Grid & icons"), pal)
                 SliderRow(
                     tr("عدد الأعمدة", "Columns"), state.columns.toFloat(), 3f..6f, 2, pal,
@@ -470,7 +507,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                 )
                 ScrollRow {
                     listOf(
-                        GestureAction.NONE, GestureAction.LOCK, GestureAction.SEARCH,
+                        GestureAction.NONE, GestureAction.LOCK, GestureAction.RECENTS, GestureAction.SEARCH,
                         GestureAction.DRAWER, GestureAction.SETTINGS, GestureAction.NOTIFICATIONS,
                     ).forEach { a -> Chip(gestureLabel(a), state.doubleTap == a, pal) { vm.update { it.copy(doubleTap = a) } } }
                 }

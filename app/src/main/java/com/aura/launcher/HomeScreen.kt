@@ -190,6 +190,7 @@ fun AppCell(
                 modifier = Modifier.size((56 * state.iconScale).dp),
                 colorFilter = if (night) ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(0.82f, 0.78f, 0.7f, 1f) }) else null,
             )
+            if (state.liveIcons) LiveIconOverlay(app, (56 * state.iconScale).dp)
             if (badge > 0) {
                 Box(
                     Modifier
@@ -660,8 +661,18 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                 val cw = (maxWidth - 16.dp) / state.columns
                 val ch = maxHeight / state.rows
 
+                androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) { ui.page = pagerState.currentPage }
                 HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
-                    PageGrid(
+                    val locked = pageIndex in state.lockedPages && pageIndex !in ui.unlockedPages
+                    if (locked) {
+                        Box(
+                            Modifier.fillMaxSize().background(Color(0xF0101018))
+                                .clickable { ui.requireAuth { ui.unlockedPages.add(pageIndex) } },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("🔒  " + tr("صفحة مقفولة — اضغط للفتح", "Locked page — tap to unlock"), color = Color.White)
+                        }
+                    } else PageGrid(
                         page = state.pages.getOrNull(pageIndex) ?: emptyList(),
                         ui = ui, state = state, apps = apps, pal = pal,
                         cellW = cw, cellH = ch,

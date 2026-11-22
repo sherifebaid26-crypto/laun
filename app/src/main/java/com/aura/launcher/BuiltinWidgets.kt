@@ -73,6 +73,7 @@ val BuiltinKinds = listOf(
     "weather" to ("الطقس" to "Weather"),
     "prayer" to ("مواعيد الصلاة" to "Prayer times"),
     "ayat" to ("آيات" to "Quran verses"),
+    "usage7" to ("وقت الشاشة (7 أيام)" to "Screen time (7 days)"),
     "agenda" to ("المواعيد القادمة" to "Upcoming events"),
     "stack" to ("ستاك ودجت (سحب للتبديل)" to "Widget stack (swipe)"),
     "dhikr" to ("أذكار ومسبحة" to "Adhkar & tasbih"),
@@ -171,6 +172,7 @@ fun BuiltinWidget(
             "photo" -> PhotoWidget(item, ui, fg)
             "weather" -> WeatherWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
             "prayer" -> PrayerWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)
+            "usage7" -> ScreenTimeWidget(ui, fg, if (item.bg == 3) fg else pal.accent)
             "ayat" -> AyatWidget(fg, if (item.bg == 3) fg else pal.accent)
             "agenda" -> AgendaWidget(ui, fg, if (item.bg == 3) fg else pal.accent)
             "dhikr" -> DhikrWidget(item, ui, fg, if (item.bg == 3) fg else pal.accent)

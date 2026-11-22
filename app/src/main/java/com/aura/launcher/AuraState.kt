@@ -60,7 +60,7 @@ sealed class HomeItem {
     }
 }
 
-data class UsageStat(val count: Int, val last: Long)
+data class UsageStat(val count: Int, val last: Long, val slots: List<Int> = emptyList())
 
 data class AuraState(
     val theme: ThemeMode = ThemeMode.DARK,
@@ -99,6 +99,9 @@ data class AuraState(
     val removed: List<String> = emptyList(),
     val swipeDown: GestureAction = GestureAction.SEARCH,
     val lang: String = "ar",
+    val liveIcons: Boolean = true,
+    val rules: List<String> = emptyList(),
+    val lockedPages: Set<Int> = emptySet(),
     val iconShape: Int = 0,
     val relaxOn: Boolean = false,
     val relaxHour: Int = 23,
@@ -132,7 +135,7 @@ fun defaultBuiltinRows(kind: String): Int = when (kind) {
     "calendar" -> 3
     "notes" -> 2
     "apps" -> 1
-    "photo", "prayer", "stack", "agenda" -> 3
+    "photo", "prayer", "stack", "agenda", "usage7" -> 3
     else -> 2
 }
 
@@ -451,7 +454,7 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("hidden", JSONArray(hidden.toList()))
     o.put("locked", JSONArray(locked.toList()))
     val u = JSONObject()
-    for ((k, v) in usage) u.put(k, JSONObject().put("c", v.count).put("l", v.last))
+    for ((k, v) in usage) u.put(k, JSONObject().put("c", v.count).put("l", v.last).put("s", JSONArray(v.slots)))
     o.put("usage", u)
     themeId?.let { o.put("themeId", it) }
     homeText?.let { o.put("homeText", it) }
@@ -471,6 +474,9 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("removed", JSONArray(removed))
     o.put("swipeDown", swipeDown.name)
     o.put("lang", lang)
+    o.put("liveIcons", liveIcons)
+    o.put("rules", JSONArray(rules))
+    o.put("lockedPages", JSONArray(lockedPages.toList()))
     o.put("iconShape", iconShape)
     o.put("relaxOn", relaxOn)
     o.put("relaxHour", relaxHour)
@@ -500,7 +506,7 @@ fun auraStateFromJson(o: JSONObject): AuraState {
     val usage = o.optJSONObject("usage")?.let { u ->
         u.keys().asSequence().associateWith { k ->
             val e = u.getJSONObject(k)
-            UsageStat(e.optInt("c"), e.optLong("l"))
+            UsageStat(e.optInt("c"), e.optLong("l"), e.optJSONArray("s")?.let { a -> List(a.length()) { i -> a.optInt(i) } } ?: emptyList())
         }
     } ?: emptyMap()
     val icon = o.optJSONObject("icon")?.let { j ->
@@ -547,6 +553,9 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         drawerSort = o.optInt("drawerSort", 0).coerceIn(0, 2),
         nightIcons = o.optBoolean("nightIcons", false),
         removed = o.optJSONArray("removed").toStringList(),
+        liveIcons = o.optBoolean("liveIcons", true),
+        rules = o.optJSONArray("rules").toStringList(),
+        lockedPages = o.optJSONArray("lockedPages")?.let { a -> List(a.length()) { i -> a.optInt(i) }.toSet() } ?: emptySet(),
         lang = o.optString("lang", "ar").let { if (it in listOf("ar", "en", "auto")) it else "ar" },
         iconShape = o.optInt("iconShape", 0).coerceIn(0, 3),
         relaxOn = o.optBoolean("relaxOn", false),

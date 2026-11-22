@@ -210,11 +210,10 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
         if (q.isEmpty()) base
         else base.filter { it.normLabel.contains(q) || it.packageName.lowercase().contains(q) }
     }
-    val suggestions = remember(visible, state.usage) {
-        visible.filter { (state.usage[it.key]?.count ?: 0) > 0 }
-            .sortedByDescending { state.usage[it.key]?.count ?: 0 }
-            .take(state.drawerColumns)
+    val suggestions = remember(visible, state.usage, ui.hour, ui.headphones) {
+        smartSuggestions(state, visible, ui.hour, ui.headphones, state.drawerColumns)
     }
+    val sysMatches = remember(q) { matchSettings(q) }
     val calcResult = remember(query) { calc(query) }
     val contacts by produceState(emptyList<Pair<String, String>>(), query, hasContacts) {
         val t = query.trim()
@@ -356,7 +355,7 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                 if (q.isEmpty() && cat == Cat.ALL && suggestions.isNotEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Text(
-                            tr("الأكثر استخداماً", "Most used"),
+                            if (ui.headphones) tr("مقترح (سماعة موصّلة 🎧)", "Suggested (headphones 🎧)") else tr("مقترح لك الآن", "Suggested now"),
                             color = pal.accent,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 2.dp),
@@ -377,6 +376,16 @@ fun Drawer(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPalette) {
                 items(results, key = { it.key }) { app -> DrawerCell(ui, app, state, pal) }
 
                 if (q.isNotEmpty()) {
+                    items(sysMatches, key = { "set:" + it.action }, span = { GridItemSpan(maxLineSpan) }) { st ->
+                        Text(
+                            "⚙ " + tr("إعدادات: ", "Settings: ") + tr(st.ar, st.en),
+                            color = pal.onPanel,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { ui.actions.openSystemSetting(st.action) }
+                                .padding(16.dp),
+                        )
+                    }
                     if (query.trim().length >= 2 && !hasContacts) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             Text(

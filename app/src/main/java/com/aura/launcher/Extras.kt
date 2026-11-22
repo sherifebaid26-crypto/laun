@@ -216,6 +216,7 @@ val StackKinds = listOf(
     "battery" to ("بطارية" to "Battery"),
     "storage" to ("تخزين" to "Storage"),
     "music" to ("موسيقى" to "Music"),
+    "usage7" to ("وقت الشاشة" to "Screen time"),
 )
 
 @OptIn(ExperimentalFoundationApi::class)

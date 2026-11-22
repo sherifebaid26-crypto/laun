@@ -308,7 +308,9 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
     fun recordLaunch(key: String) {
         update { s ->
             val old = s.usage[key]
-            s.copy(usage = s.usage + (key to UsageStat((old?.count ?: 0) + 1, System.currentTimeMillis())))
+            val slot = java.time.LocalTime.now().hour / 6
+            val slots = (old?.slots?.takeIf { it.size == 4 } ?: List(4) { 0 }).toMutableList().also { it[slot] = it[slot] + 1 }
+            s.copy(usage = s.usage + (key to UsageStat((old?.count ?: 0) + 1, System.currentTimeMillis(), slots)))
         }
     }
 
@@ -326,12 +328,37 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
             runCatching { photos.put(f.nameWithoutExtension, android.util.Base64.encodeToString(f.readBytes(), android.util.Base64.NO_WRAP)) }
         }
         o.put("photos", photos)
+        val themes = JSONObject()
+        java.io.File(app.filesDir, "themes").listFiles()?.filter { it.isDirectory && it.name.startsWith("my-") }?.forEach { d ->
+            runCatching {
+                themes.put(
+                    d.name,
+                    JSONObject()
+                        .put("json", java.io.File(d, "theme.json").readText())
+                        .put("wp", android.util.Base64.encodeToString(java.io.File(d, "wallpaper.jpg").readBytes(), android.util.Base64.NO_WRAP)),
+                )
+            }
+        }
+        o.put("themes", themes)
         return o.toString(2)
     }
 
     fun importJson(text: String): Boolean {
         val root = runCatching { JSONObject(text) }.getOrNull() ?: return false
         val parsed = runCatching { auraStateFromJson(root) }.getOrNull() ?: return false
+        root.optJSONObject("themes")?.let { th ->
+            th.keys().forEach { id ->
+                runCatching {
+                    if (id.startsWith("my-") && id.all { it.isLetterOrDigit() || it == '-' }) {
+                        val d = java.io.File(app.filesDir, "themes/$id").apply { mkdirs() }
+                        val e = th.getJSONObject(id)
+                        java.io.File(d, "theme.json").writeText(e.getString("json"))
+                        java.io.File(d, "wallpaper.jpg").writeBytes(android.util.Base64.decode(e.getString("wp"), android.util.Base64.NO_WRAP))
+                    }
+                }
+            }
+            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+        }
         root.optJSONObject("photos")?.let { ph ->
             val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
             ph.keys().forEach { k ->

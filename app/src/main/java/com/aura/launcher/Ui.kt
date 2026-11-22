@@ -61,6 +61,9 @@ interface LauncherActions {
     fun requestCalendar(onDone: () -> Unit)
     fun appVersion(): String
     fun shareText(text: String)
+    fun deviceStatus(): DeviceStatus
+    fun openSystemSetting(action: String)
+    fun dailyScreenMinutes(): List<Int>
     fun hasContactsPermission(): Boolean
     fun requestContacts(onDone: () -> Unit)
     fun notificationAccessEnabled(): Boolean
@@ -97,6 +100,10 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var resizeUid by mutableStateOf<String?>(null)
     var hour by androidx.compose.runtime.mutableIntStateOf(java.time.LocalTime.now().hour)
     var limitDialog by mutableStateOf<LimitRequest?>(null)
+    var headphones by mutableStateOf(false)
+    var page by androidx.compose.runtime.mutableIntStateOf(0)
+    val unlockedPages = androidx.compose.runtime.mutableStateListOf<Int>()
+    var ruleDialog by mutableStateOf(false)
     var permsOpen by mutableStateOf(false)
     var diagOpen by mutableStateOf(false)
     private val snoozed = HashMap<String, Long>()
@@ -153,7 +160,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
             widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
-            editWidget != null || permsOpen || diagOpen
+            editWidget != null || permsOpen || diagOpen || ruleDialog
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -220,6 +227,20 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
                 settingsOpen = true
                 vm.postMessage(tr("اختار تطبيقات التركيز من الإعدادات الأول", "Choose Focus apps in Settings first"))
             } else vm.update { it.copy(focusOn = !it.focusOn) }
+        },
+        MenuEntry(
+            if (page in vm.state.value.lockedPages) tr("فتح قفل هذه الصفحة", "Unlock this page") else tr("قفل هذه الصفحة بالبصمة", "Lock this page"),
+            "🔒",
+        ) {
+            val s = vm.state.value
+            if (s.pinHash == null) {
+                vm.postMessage(tr("فعّل PIN من الإعدادات > الأمان الأول", "Set a PIN in Settings > Security first"))
+            } else if (page in s.lockedPages) {
+                requireAuth { vm.update { it.copy(lockedPages = it.lockedPages - page) } }
+            } else {
+                vm.update { it.copy(lockedPages = it.lockedPages + page) }
+                unlockedPages.remove(page)
+            }
         },
         MenuEntry(tr("إضافة ودجت", "Add widget"), "▦") { widgetPicker = true },
         MenuEntry(tr("مجلد جديد", "New folder"), "🗀") { newFolder() },

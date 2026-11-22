@@ -261,6 +261,49 @@ class MainActivity : FragmentActivity(), LauncherActions {
         }.onFailure { miscPrefs.edit().remove("pending_photo").apply() }
     }
 
+    override fun deviceStatus(): DeviceStatus {
+        val charging = runCatching { getSystemService(android.os.BatteryManager::class.java)?.isCharging == true }.getOrDefault(false)
+        val hp = runCatching {
+            val types = setOf(
+                android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES, android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET,
+                android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, android.media.AudioDeviceInfo.TYPE_USB_HEADSET,
+                android.media.AudioDeviceInfo.TYPE_BLE_HEADSET,
+            )
+            getSystemService(android.media.AudioManager::class.java)
+                .getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS).any { it.type in types }
+        }.getOrDefault(false)
+        val wifi = runCatching {
+            val cm = getSystemService(android.net.ConnectivityManager::class.java)
+            cm.getNetworkCapabilities(cm.activeNetwork)?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) == true
+        }.getOrDefault(false)
+        return DeviceStatus(charging, hp, wifi)
+    }
+
+    override fun openSystemSetting(action: String) {
+        runCatching { startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+    }
+
+    override fun dailyScreenMinutes(): List<Int> {
+        if (!hasUsageAccess()) return emptyList()
+        return runCatching {
+            val usm = getSystemService(UsageStatsManager::class.java)
+            val cal = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+                add(java.util.Calendar.DAY_OF_YEAR, -6)
+            }
+            val start = cal.timeInMillis
+            val day = 86_400_000L
+            val totals = LongArray(7)
+            usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, System.currentTimeMillis()).forEach { st ->
+                if (st.packageName == packageName) return@forEach
+                val i = ((st.firstTimeStamp - start + day / 2) / day).toInt()
+                if (i in 0..6) totals[i] += st.totalTimeInForeground
+            }
+            totals.map { (it / 60_000L).toInt() }
+        }.getOrDefault(emptyList())
+    }
+
     override fun hasLocationPermission(): Boolean = DeviceLoc.granted(this)
 
     override fun requestLocation(onDone: () -> Unit) {

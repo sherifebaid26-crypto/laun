@@ -58,6 +58,49 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
         }
     }
 
+    // قواعد تلقائية + حالة الجهاز (سماعة/شحن/واي فاي) كل 20 ثانية
+    LaunchedEffect(ready) {
+        val prev = HashMap<String, Boolean>()
+        while (ready) {
+            val st = actions.deviceStatus()
+            ui.headphones = st.headphones
+            val s = vm.state.value
+            s.rules.forEach { r ->
+                val p = r.split("|")
+                val t = p.getOrNull(0)?.toIntOrNull() ?: return@forEach
+                val a = p.getOrNull(1)?.toIntOrNull() ?: return@forEach
+                val now = ruleActive(t, st, s, ui.hour)
+                val was = prev[r]
+                prev[r] = now
+                if (was == null && !now) return@forEach
+                if (now && was != true) {
+                    when (a) {
+                        0 -> vm.update { it.copy(focusOn = true) }
+                        1 -> vm.update { it.copy(relaxOn = true) }
+                        2 -> s.nightTheme?.let { id -> vm.installed.value[id]?.let { d -> vm.applyTheme(d, true) } }
+                        3 -> s.dayTheme?.let { id -> vm.installed.value[id]?.let { d -> vm.applyTheme(d, true) } }
+                    }
+                } else if (!now && was == true) {
+                    when (a) {
+                        0 -> vm.update { it.copy(focusOn = false) }
+                        1 -> vm.update { it.copy(relaxOn = false) }
+                    }
+                }
+            }
+            delay(20_000L)
+        }
+    }
+
+    // نقفل الصفحات المقفولة لما نخرج من الشاشة
+    val lifeOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifeOwner) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) ui.unlockedPages.clear()
+        }
+        lifeOwner.lifecycle.addObserver(obs)
+        onDispose { lifeOwner.lifecycle.removeObserver(obs) }
+    }
+
     // ساعة بتتحدّث كل دقيقة (وضع التركيز + أيقونات الليل)
     LaunchedEffect(Unit) {
         while (true) {
@@ -183,6 +226,7 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 )
             }
 
+            if (ui.ruleDialog) RuleDialog(ui) { ui.ruleDialog = false }
             if (ui.permsOpen) PermissionsDialog(ui) { ui.permsOpen = false }
             if (ui.diagOpen) DiagnosticsDialog(ui) { ui.diagOpen = false }
 

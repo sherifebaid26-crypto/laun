@@ -328,6 +328,14 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
             }
 
             item {
+                Section(tr("قواعد تلقائية (لو … يبقى …)", "Automation rules (if … then …)"), pal)
+                state.rules.forEachIndexed { i, r ->
+                    ActionRow(ruleLabel(r) + "   ✕", pal) { vm.update { st -> st.copy(rules = st.rules.filterIndexed { j, _ -> j != i }) } }
+                }
+                ActionRow(tr("إضافة قاعدة…", "Add a rule…"), pal) { ui.ruleDialog = true }
+            }
+
+            item {
                 Section(tr("مظهر ذكي", "Smart look"), pal)
                 SwitchRow(tr("وضع الاسترخاء بالليل (لمسة دافئة على الشاشة)", "Night relax (warm tint)"), state.relaxOn, pal) { b ->
                     vm.update { it.copy(relaxOn = b) }
@@ -335,6 +343,9 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                 if (state.relaxOn) {
                     Text(tr("يبدأ الساعة", "Starts at"), color = pal.onPanel, modifier = Modifier.padding(top = 6.dp, bottom = 6.dp))
                     ScrollRow { (18..23).forEach { h -> Chip("$h:00", state.relaxHour == h, pal) { vm.update { it.copy(relaxHour = h) } } } }
+                }
+                SwitchRow(tr("أيقونات حيّة للساعة والتقويم", "Live clock & calendar icons"), state.liveIcons, pal) { b ->
+                    vm.update { it.copy(liveIcons = b) }
                 }
                 SwitchRow(tr("أيقونات أدفأ بالليل", "Warmer icons at night"), state.nightIcons, pal) { b ->
                     vm.update { it.copy(nightIcons = b) }

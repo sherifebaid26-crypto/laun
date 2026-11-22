@@ -357,7 +357,7 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
                     }
                 }
             }
-            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+            viewModelScope.launch { _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id } }
         }
         root.optJSONObject("photos")?.let { ph ->
             val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }

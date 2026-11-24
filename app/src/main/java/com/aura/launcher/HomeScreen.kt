@@ -231,8 +231,13 @@ private fun FolderCell(
     apps: Map<String, AppEntry>,
     state: AuraState,
     pal: AuraPalette,
+    ui: Ui,
     onClick: () -> Unit,
 ) {
+    if (folder.big && !folder.isPair) {
+        BigFolderCell(folder, apps, state, pal, ui, onClick)
+        return
+    }
     val size = (56 * state.iconScale).dp
     val st = state.iconStyle
     // شكل المجلد وخلفيته بيتبعوا شكل أيقونات الثيم
@@ -261,9 +266,17 @@ private fun FolderCell(
                 .background(plate)
                 .border(1.dp, pal.border, shape),
         ) {
-            folder.keys.mapNotNull { apps[it] }.take(4).chunked(2).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    row.forEach { Image(it.icon, null, Modifier.size(size * 0.38f)) }
+            if (folder.isPair) {
+                val pr = folder.keys.mapNotNull { apps[it] }
+                Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+                    pr.forEach { Image(it.icon, null, Modifier.size(size * 0.40f)) }
+                }
+                Text("◫", color = pal.homeText.copy(alpha = 0.8f), fontSize = 11.sp)
+            } else {
+                folder.keys.mapNotNull { apps[it] }.take(4).chunked(2).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        row.forEach { Image(it.icon, null, Modifier.size(size * 0.38f)) }
+                    }
                 }
             }
         }
@@ -281,6 +294,48 @@ private fun FolderCell(
                 modifier = Modifier.padding(top = 5.dp, start = 2.dp, end = 2.dp),
             )
         }
+    }
+}
+
+/** مجلد كبير 2×2: بيعرض ٤ تطبيقات تفتح بضغطة، والضغط على الاسم أو الخلفية يفتح المجلد. */
+@Composable
+private fun BigFolderCell(
+    folder: HomeItem.Folder,
+    apps: Map<String, AppEntry>,
+    state: AuraState,
+    pal: AuraPalette,
+    ui: Ui,
+    onClick: () -> Unit,
+) {
+    val shape = RoundedCornerShape(26.dp)
+    val list = folder.keys.mapNotNull { apps[it] }
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(4.dp)
+            .clip(shape)
+            .background(pal.panel)
+            .border(1.dp, pal.border, shape)
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        list.take(4).chunked(2).forEach { row ->
+            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                row.forEach { a ->
+                    Box(
+                        Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable { ui.launch(a) }.padding(4.dp),
+                        contentAlignment = Alignment.Center,
+                    ) { Image(a.icon, null, Modifier.size((46 * state.iconScale).dp)) }
+                }
+                if (row.size == 1) Box(Modifier.weight(1f))
+            }
+        }
+        Text(
+            folder.name + if (list.size > 4) "  +${list.size - 4}" else "",
+            color = pal.onPanel, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -364,7 +419,9 @@ private fun PageGrid(
                             is HomeItem.App -> apps[item.key]?.let {
                                 AppCell(ui, it, Where.HOME, state, pal.homeText, pal.homeShadow, interactive = false)
                             }
-                            is HomeItem.Folder -> FolderCell(item, apps, state, pal) { ui.folderId = item.id }
+                            is HomeItem.Folder -> FolderCell(item, apps, state, pal, ui) {
+                                if (item.isPair) ui.launchPair(item) else ui.folderId = item.id
+                            }
                             is HomeItem.Widget -> WidgetCell(ui, item.widgetId)
                             is HomeItem.Builtin -> {
                                 BuiltinWidget(item, state, apps, pal, ui, Modifier.fillMaxSize().padding(4.dp))
@@ -476,6 +533,12 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
     fun showItemMenu(d: DragState) {
         val s = st.value
         val ui2 = ui
+        if (d.fromDock && d.ref.startsWith("f:")) {
+            val f = s.dockFolders[d.ref.removePrefix("f:")] ?: return
+            val idx = s.dock.indexOf(d.ref)
+            ui2.showMenu(dockSlotRect(idx.coerceAtLeast(0)), ui2.folderEntries(f, inDock = true))
+            return
+        }
         if (d.fromDock) {
             val key = d.ref.removePrefix("a:")
             val app = appsRef.value[key] ?: return
@@ -553,6 +616,29 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
             .fillMaxSize()
             .onGloballyPositioned { rootPos = it.positionInWindow() }
             .pointerInput(Unit) {
+                // Feed: اسحب لليمين من أقصى اليسار | اليد الواحدة: اسحب لتحت من الدوك
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    if (ui.overlayOpen) return@awaitEachGesture
+                    val inDock = dockWin.contains(down.position + rootPos)
+                    var fired = false
+                    while (!fired) {
+                        val ev = awaitPointerEvent(PointerEventPass.Initial)
+                        val ch = ev.changes.firstOrNull { it.id == down.id } ?: break
+                        if (!ch.pressed || drag != null) break
+                        val dx = ch.position.x - down.position.x
+                        val dy = ch.position.y - down.position.y
+                        val s0 = st.value
+                        if (inDock) {
+                            if (s0.dockSwipe && dy > 90f && dy > kotlin.math.abs(dx) * 1.5f) { ui.oneHand = true; fired = true }
+                        } else if (s0.feedOn && dx > 130f && dx > kotlin.math.abs(dy) * 2f) {
+                            val edge = if (Lang.isAr) pagerState.pageCount - 1 else 0
+                            if (pagerState.currentPage == edge) { ui.feedOpen = true; fired = true }
+                        }
+                    }
+                }
+            }
+            .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                     if (ui.overlayOpen) return@awaitEachGesture
@@ -585,7 +671,7 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                         val idx = dockIndexAt(w0)
                         if (idx < dockCount()) {
                             val key = s.dock[idx]
-                            ref = "a:$key"
+                            ref = if (key.startsWith("f:")) key else "a:$key"
                             fromDock = true
                             icon = appsRef.value[key]?.icon
                         }
@@ -637,7 +723,7 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                     val d = drag
                     drag = null
                     if (d != null) {
-                        if (d.moved) performDrop(d) else showItemMenu(d)
+                        if (d.moved && !(d.fromDock && d.ref.startsWith("f:"))) performDrop(d) else showItemMenu(d)
                     }
                 }
             },
@@ -754,13 +840,23 @@ fun HomeLayer(ui: Ui, state: AuraState, apps: Map<String, AppEntry>, pal: AuraPa
                     .padding(horizontal = 6.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                state.dock.take(MAX_DOCK).mapNotNull { apps[it] }.forEach { app ->
-                    val hide = dragging && drag?.fromDock == true && drag?.ref == "a:${app.key}"
-                    AppCell(
-                        ui, app, Where.DOCK, state, pal.onPanel, Color.Transparent,
-                        Modifier.weight(1f).alpha(if (hide) 0f else 1f),
-                        showLabel = false, interactive = false,
-                    )
+                state.dock.take(MAX_DOCK).forEach { dk ->
+                    if (dk.startsWith("f:")) {
+                        state.dockFolders[dk.removePrefix("f:")]?.let { f ->
+                            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                                FolderCell(f, apps, state.copy(showLabels = false), pal, ui) {
+                                    if (f.isPair) ui.launchPair(f) else ui.folderId = f.id
+                                }
+                            }
+                        }
+                    } else apps[dk]?.let { app ->
+                        val hide = dragging && drag?.fromDock == true && drag?.ref == "a:${app.key}"
+                        AppCell(
+                            ui, app, Where.DOCK, state, pal.onPanel, Color.Transparent,
+                            Modifier.weight(1f).alpha(if (hide) 0f else 1f),
+                            showLabel = false, interactive = false,
+                        )
+                    }
                 }
                 Box(
                     contentAlignment = Alignment.Center,

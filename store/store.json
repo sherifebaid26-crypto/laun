@@ -780,6 +780,216 @@
      "tint": "#FFFFFF"
     }
    }
+  },
+  {
+   "id": "o-snow-day",
+   "name": {
+    "ar": "جبل الثلج نهاراً",
+    "en": "Snow Mountain Day"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "جبال",
+     "ثلج",
+     "هادئ",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Mountains",
+     "Snow",
+     "Calm",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs · wallpaper: sheepla/wallpapers (CC0)",
+   "sizeKb": 122,
+   "wallpaper": "themes/o-snow-day/wallpaper.jpg",
+   "preview": "themes/o-snow-day/preview.jpg",
+   "icons": "themes/o-snow-day/icons.zip",
+   "style": {
+    "mode": "LIGHT",
+    "accent": "#3B6EA8",
+    "homeText": "#16314F",
+    "clock": "BIG_SERIF",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E6eaf3fb",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "o-snow-dusk",
+   "name": {
+    "ar": "جبل الثلج غروباً",
+    "en": "Snow Mountain Dusk"
+   },
+   "category": {
+    "ar": "طبيعة",
+    "en": "Scenery"
+   },
+   "tags": {
+    "ar": [
+     "جبال",
+     "غروب",
+     "بنفسجي",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Mountains",
+     "Dusk",
+     "Purple",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs · wallpaper: sheepla/wallpapers (CC0)",
+   "sizeKb": 179,
+   "wallpaper": "themes/o-snow-dusk/wallpaper.jpg",
+   "preview": "themes/o-snow-dusk/preview.jpg",
+   "icons": "themes/o-snow-dusk/icons.zip",
+   "style": {
+    "mode": "GLASS",
+    "accent": "#C9A7FF",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E63a2f63",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "o-snow-night",
+   "name": {
+    "ar": "جبل الثلج ليلاً",
+    "en": "Snow Mountain Night"
+   },
+   "category": {
+    "ar": "ليلي",
+    "en": "Night"
+   },
+   "tags": {
+    "ar": [
+     "جبال",
+     "ليل",
+     "أزرق",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Mountains",
+     "Night",
+     "Blue",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs · wallpaper: sheepla/wallpapers (CC0)",
+   "sizeKb": 116,
+   "wallpaper": "themes/o-snow-night/wallpaper.jpg",
+   "preview": "themes/o-snow-night/preview.jpg",
+   "icons": "themes/o-snow-night/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#7FB2FF",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "SQUIRCLE",
+     "plate": "#E61d2b4a",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "o-iceberg-day",
+   "name": {
+    "ar": "جبل الجليد نهاراً",
+    "en": "Iceberg Day"
+   },
+   "category": {
+    "ar": "بسيط",
+    "en": "Minimal"
+   },
+   "tags": {
+    "ar": [
+     "أزرق",
+     "جليد",
+     "بسيط",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Blue",
+     "Ice",
+     "Minimal",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs · wallpaper: sheepla/wallpapers (CC0)",
+   "sizeKb": 166,
+   "wallpaper": "themes/o-iceberg-day/wallpaper.jpg",
+   "preview": "themes/o-iceberg-day/preview.jpg",
+   "icons": "themes/o-iceberg-day/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#7CC4FF",
+    "homeText": "#FFFFFF",
+    "clock": "SMALL",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E6f2f9ff",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
+  },
+  {
+   "id": "o-iceberg-night",
+   "name": {
+    "ar": "جبل الجليد ليلاً",
+    "en": "Iceberg Night"
+   },
+   "category": {
+    "ar": "ليلي",
+    "en": "Night"
+   },
+   "tags": {
+    "ar": [
+     "أزرق",
+     "جليد",
+     "نيون",
+     "أيقونات خاصة"
+    ],
+    "en": [
+     "Blue",
+     "Ice",
+     "Neon",
+     "Custom icons"
+    ]
+   },
+   "author": "Aura Labs · wallpaper: sheepla/wallpapers (CC0)",
+   "sizeKb": 197,
+   "wallpaper": "themes/o-iceberg-night/wallpaper.jpg",
+   "preview": "themes/o-iceberg-night/preview.jpg",
+   "icons": "themes/o-iceberg-night/icons.zip",
+   "style": {
+    "mode": "DARK",
+    "accent": "#5CE1E6",
+    "homeText": "#FFFFFF",
+    "clock": "BIG",
+    "icon": {
+     "shape": "CIRCLE",
+     "plate": "#E60c1a2b",
+     "mono": false,
+     "tint": "#FFFFFF"
+    }
+   }
   }
  ]
 }

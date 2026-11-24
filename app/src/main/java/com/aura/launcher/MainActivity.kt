@@ -182,6 +182,55 @@ class MainActivity : FragmentActivity(), LauncherActions {
         runCatching { startActivity(intent, opts) }
     }
 
+    private fun launchIntent(app: AppEntry) = Intent(Intent.ACTION_MAIN)
+        .addCategory(Intent.CATEGORY_LAUNCHER)
+        .setComponent(app.component)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+
+    /** شاشة مقسومة: نفتح الأول، نقسم بإمكانية الوصول، وبعدين نفتح التاني في النص التاني. */
+    override fun openSplit(a: AppEntry, b: AppEntry?) {
+        if (AuraAccessibilityService.instance == null) {
+            vm.say(tr("فعّل خدمة Aura من إمكانية الوصول علشان الشاشة المقسومة تشتغل", "Enable the Aura accessibility service for split screen"))
+            openAccessibilitySettings()
+            return
+        }
+        val h = android.os.Handler(mainLooper)
+        runCatching { startActivity(launchIntent(a)) }
+        h.postDelayed({
+            if (!AuraAccessibilityService.split()) vm.say(tr("جهازك مش بيدعم تقسيم الشاشة بالطريقة دي", "This device can't split this way"))
+        }, 800)
+        if (b != null) {
+            h.postDelayed({
+                runCatching {
+                    startActivity(
+                        launchIntent(b).addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK),
+                    )
+                }
+            }, 1900)
+        }
+    }
+
+    /** نافذة عائمة: بتشتغل بس على الأجهزة اللي فيها freeform مفعّل (خيارات المطور). */
+    override fun openFloating(app: AppEntry) {
+        if (!packageManager.hasSystemFeature("android.software.freeform_window_management") &&
+            android.provider.Settings.Global.getInt(contentResolver, "enable_freeform_support", 0) == 0
+        ) {
+            vm.say(tr("النوافذ العائمة مش مفعّلة: خيارات المطور ← Enable freeform windows", "Freeform windows are off: Developer options → Enable freeform windows"))
+        }
+        val dm = resources.displayMetrics
+        val w = (dm.widthPixels * 0.8f).toInt()
+        val h = (dm.heightPixels * 0.55f).toInt()
+        val l = (dm.widthPixels - w) / 2
+        val t = (dm.heightPixels - h) / 3
+        val opts = ActivityOptions.makeBasic().setLaunchBounds(android.graphics.Rect(l, t, l + w, t + h))
+        runCatching {
+            ActivityOptions::class.java.getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType).invoke(opts, 5)
+        }
+        runCatching {
+            startActivity(launchIntent(app).addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK), opts.toBundle())
+        }
+    }
+
     override fun shortcutsFor(app: AppEntry): List<AppShortcut> {
         return try {
             val la = getSystemService(LauncherApps::class.java) ?: return emptyList()
@@ -264,11 +313,60 @@ class MainActivity : FragmentActivity(), LauncherActions {
 
     override fun pickPhoto(uid: String) {
         miscPrefs.edit().putString("pending_photo", uid).apply()
+        // الطريقة القديمة (requestCode) بتفضل شغالة حتى لو الأكتيفيتي اتقفلت وإحنا في المعرض
+        val intent = Intent(Intent.ACTION_GET_CONTENT).setType("image/*").addCategory(Intent.CATEGORY_OPENABLE)
         runCatching {
-            photoLauncher.launch(
-                androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+            @Suppress("DEPRECATION")
+            startActivityForResult(Intent.createChooser(intent, null), REQ_PHOTO)
+        }.onFailure {
+            miscPrefs.edit().remove("pending_photo").apply()
+            vm.say(tr("مفيش تطبيق معرض يفتح الصور", "No gallery app found"))
+        }
+    }
+
+    @Deprecated("legacy result path for photo widget")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_PHOTO) {
+            val uid = miscPrefs.getString("pending_photo", null)
+            miscPrefs.edit().remove("pending_photo").apply()
+            val uri = data?.data
+            if (resultCode == RESULT_OK && uri != null && uid != null) vm.setPhoto(uid, uri)
+        }
+    }
+
+    private val permCallbacks = HashMap<Int, () -> Unit>()
+
+    private fun askPermissions(req: Int, perms: Array<String>, onDone: () -> Unit) {
+        val missing = perms.filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
+        if (missing.isEmpty()) { onDone(); return }
+        permCallbacks[req] = onDone
+        runCatching { requestPermissions(missing.toTypedArray(), req) }.onFailure {
+            permCallbacks.remove(req)
+            openAppPermissionSettings()
+        }
+    }
+
+    private fun openAppPermissionSettings() {
+        vm.say(tr("فعّل الإذن من إعدادات التطبيق ← الأذونات", "Enable it in App settings → Permissions"))
+        runCatching {
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
-        }.onFailure { miscPrefs.edit().remove("pending_photo").apply() }
+        }
+    }
+
+    @Deprecated("legacy permission path")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val cb = permCallbacks.remove(requestCode)
+        val granted = grantResults.isNotEmpty() && grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+        if (!granted && permissions.isNotEmpty() && permissions.none { shouldShowRequestPermissionRationale(it) }) {
+            // النظام مش هيعرض الحوار تاني (اترفض قبل كده أو فيفو مانعه) → نفتح إعدادات التطبيق
+            openAppPermissionSettings()
+        }
+        cb?.invoke()
     }
 
     override fun deviceStatus(): DeviceStatus {
@@ -317,18 +415,14 @@ class MainActivity : FragmentActivity(), LauncherActions {
     override fun hasLocationPermission(): Boolean = DeviceLoc.granted(this)
 
     override fun requestLocation(onDone: () -> Unit) {
-        locCallback = onDone
-        runCatching {
-            locLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
-        }.onFailure { locCallback = null }
+        askPermissions(REQ_LOC, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), onDone)
     }
 
     override fun hasCalendarPermission(): Boolean =
         ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
 
     override fun requestCalendar(onDone: () -> Unit) {
-        calCallback = onDone
-        runCatching { calLauncher.launch(Manifest.permission.READ_CALENDAR) }.onFailure { calCallback = null }
+        askPermissions(REQ_CAL, arrayOf(Manifest.permission.READ_CALENDAR), onDone)
     }
 
     override fun appVersion(): String =
@@ -376,8 +470,7 @@ class MainActivity : FragmentActivity(), LauncherActions {
     }
 
     override fun requestContacts(onDone: () -> Unit) {
-        contactsCallback = onDone
-        contactsLauncher.launch(Manifest.permission.READ_CONTACTS)
+        askPermissions(REQ_CONTACTS, arrayOf(Manifest.permission.READ_CONTACTS), onDone)
     }
 
     override fun openAppInfo(app: AppEntry) {
@@ -494,5 +587,12 @@ class MainActivity : FragmentActivity(), LauncherActions {
                 Intent.createChooser(Intent(Intent.ACTION_SET_WALLPAPER), tr("اختر الخلفية", "Choose wallpaper"))
             )
         }
+    }
+
+    companion object {
+        const val REQ_PHOTO = 7001
+        const val REQ_LOC = 7002
+        const val REQ_CAL = 7003
+        const val REQ_CONTACTS = 7004
     }
 }

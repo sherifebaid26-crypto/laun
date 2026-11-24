@@ -88,6 +88,26 @@ class AuraNotificationService : NotificationListenerService() {
             (sbn.notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY) == 0 &&
             sbn.packageName != packageName
 
+    @Suppress("DEPRECATION")
+    private fun extractMsgs(sbn: StatusBarNotification): List<PreviewMsg> {
+        val n = sbn.notification
+        if (n.category == android.app.Notification.CATEGORY_TRANSPORT || n.category == android.app.Notification.CATEGORY_PROGRESS) return emptyList()
+        val ex = n.extras ?: return emptyList()
+        val title = ex.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString().orEmpty()
+        val arr = ex.getParcelableArray(android.app.Notification.EXTRA_MESSAGES)
+        if (arr != null && arr.isNotEmpty()) {
+            return arr.mapNotNull { it as? android.os.Bundle }.mapNotNull { b ->
+                val t = b.getCharSequence("text")?.toString() ?: return@mapNotNull null
+                val who = b.getCharSequence("sender")?.toString()?.takeIf { it.isNotBlank() } ?: title
+                PreviewMsg(who, t, b.getLong("time", sbn.postTime))
+            }
+        }
+        val lines = ex.getCharSequenceArray(android.app.Notification.EXTRA_TEXT_LINES)
+        if (lines != null && lines.isNotEmpty()) return lines.map { PreviewMsg(title, it.toString(), sbn.postTime) }
+        val t = (ex.getCharSequence(android.app.Notification.EXTRA_BIG_TEXT) ?: ex.getCharSequence(android.app.Notification.EXTRA_TEXT))?.toString()
+        return if (t.isNullOrBlank()) emptyList() else listOf(PreviewMsg(title, t, sbn.postTime))
+    }
+
     override fun onListenerConnected() {
         Badges.init(this)
         val active = runCatching { activeNotifications }.getOrNull() ?: emptyArray()
@@ -96,6 +116,7 @@ class AuraNotificationService : NotificationListenerService() {
             if (!relevant(sbn)) continue
             val n = sbn.notification.number.coerceAtLeast(1)
             seen[sbn.key] = sbn.postTime
+            Previews.put(sbn.packageName, sbn.key, extractMsgs(sbn))
             contrib[sbn.key] = sbn.packageName to n
             per[sbn.packageName] = (per[sbn.packageName] ?: 0) + n
         }
@@ -106,6 +127,7 @@ class AuraNotificationService : NotificationListenerService() {
         sbn ?: return
         Badges.init(this)
         if (!relevant(sbn)) return
+        Previews.put(sbn.packageName, sbn.key, extractMsgs(sbn))
         val n = sbn.notification.number.coerceAtLeast(1)
         val prev = seen[sbn.key]
         seen[sbn.key] = sbn.postTime
@@ -121,6 +143,7 @@ class AuraNotificationService : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
         sbn ?: return
         seen.remove(sbn.key)
+        Previews.remove(sbn.packageName, sbn.key)
         val c = contrib.remove(sbn.key) ?: return
         if (reason == REASON_CLICK || reason == REASON_APP_CANCEL || reason == REASON_APP_CANCEL_ALL) {
             Badges.sub(c.first, c.second)

@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.Alignment
@@ -13,6 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
@@ -161,7 +165,22 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
             (if (Lang.isAr) androidx.compose.ui.unit.LayoutDirection.Rtl else androidx.compose.ui.unit.LayoutDirection.Ltr),
     ) {
     AuraTheme(pal) {
+        val ohScale by androidx.compose.animation.core.animateFloatAsState(if (ui.oneHand) 0.62f else 1f, tween(260), label = "oh")
         Box(Modifier.fillMaxSize()) {
+        if (ui.oneHand) {
+            Box(
+                Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { ui.oneHand = false },
+            )
+        }
+        Box(
+            Modifier.fillMaxSize().graphicsLayer {
+                scaleX = ohScale; scaleY = ohScale
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(if (state.oneHandLeft) 0f else 1f, 1f)
+                clip = ohScale < 0.99f
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp)
+            },
+        ) {
             if (ready) HomeLayer(ui, state, apps, pal)
 
             AnimatedVisibility(
@@ -186,8 +205,14 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
             }
 
             // مجلد مفتوح
+            AnimatedVisibility(
+                visible = ui.feedOpen,
+                enter = slideInHorizontally(tween(280)) { -it } + fadeIn(tween(200)),
+                exit = slideOutHorizontally(tween(240)) { -it } + fadeOut(tween(160)),
+            ) { FeedScreen(ui, state, pal) }
+
             ui.folderId?.let { id ->
-                val folder = state.pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id }
+                val folder = state.findFolder(id)
                 if (folder == null) ui.folderId = null
                 else FolderDialog(ui, state, apps, pal, folder)
             }
@@ -286,8 +311,11 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                 )
             }
         }
+        }
 
         // الرجوع: كل زرار يقفل أقرب طبقة مفتوحة (الأحدث تسجيلاً له الأولوية)
+        BackHandler(enabled = ui.oneHand) { ui.oneHand = false }
+        BackHandler(enabled = ui.feedOpen) { ui.feedOpen = false }
         BackHandler(enabled = ui.drawerOpen) { ui.drawerOpen = false }
         BackHandler(enabled = ui.folderId != null) { ui.folderId = null }
         BackHandler(enabled = ui.settingsOpen) { ui.settingsOpen = false }

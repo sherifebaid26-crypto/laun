@@ -27,6 +27,9 @@ class AuraAccessibilityService : AccessibilityService() {
         fun recents(): Boolean =
             instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS) ?: false
 
+        fun split(): Boolean =
+            instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN) ?: false
+
         fun lock(): Boolean =
             instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN) ?: false
     }

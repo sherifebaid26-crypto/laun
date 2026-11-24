@@ -135,6 +135,8 @@ private fun gestureLabel(a: GestureAction): String = when (a) {
     GestureAction.SETTINGS -> tr("الإعدادات", "Settings")
     GestureAction.LOCK -> tr("قفل الشاشة", "Lock screen")
     GestureAction.RECENTS -> tr("التطبيقات الأخيرة", "Recents")
+    GestureAction.ONE_HAND -> tr("وضع اليد الواحدة", "One-handed")
+    GestureAction.FEED -> tr("صفحة Feed", "Feed")
 }
 
 private enum class PinStage { NONE, NEW, CONFIRM }
@@ -493,12 +495,23 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                     tr("السحب لأعلى/لأسفل", "Swipe up/down"),
                     state.gestures, pal,
                 ) { b -> vm.update { it.copy(gestures = b) } }
+                SwitchRow(tr("صفحة Feed (اسحب يمين من أول صفحة)", "Feed page (swipe right on first page)"), state.feedOn, pal) { b -> vm.update { it.copy(feedOn = b) } }
+                ActionRow(
+                    tr("رابط أخبار RSS: ", "News RSS URL: ") + (state.feedUrl.ifBlank { tr("افتراضي (BBC)", "default (BBC)") }),
+                    pal,
+                ) {
+                    ui.textInput = TextRequest(tr("رابط RSS (فاضي = الافتراضي)", "RSS URL (empty = default)"), state.feedUrl) { u ->
+                        vm.update { it.copy(feedUrl = u.trim()) }
+                    }
+                }
+                SwitchRow(tr("اسحب لتحت على الدوك = وضع اليد الواحدة", "Swipe down on dock = one-handed mode"), state.dockSwipe, pal) { b -> vm.update { it.copy(dockSwipe = b) } }
+                SwitchRow(tr("اليد الواحدة: الشاشة على اليسار", "One-handed: shrink to the left"), state.oneHandLeft, pal) { b -> vm.update { it.copy(oneHandLeft = b) } }
                 Text(
                     tr("السحب لتحت على الشاشة الرئيسية", "Swipe down on home"),
                     color = pal.onPanel, modifier = Modifier.padding(top = 8.dp, bottom = 6.dp),
                 )
                 ScrollRow {
-                    listOf(GestureAction.NOTIFICATIONS, GestureAction.SEARCH, GestureAction.SETTINGS, GestureAction.NONE)
+                    listOf(GestureAction.NOTIFICATIONS, GestureAction.SEARCH, GestureAction.SETTINGS, GestureAction.ONE_HAND, GestureAction.FEED, GestureAction.NONE)
                         .forEach { a -> Chip(gestureLabel(a), state.swipeDown == a, pal) { vm.update { it.copy(swipeDown = a) } } }
                 }
                 Text(
@@ -508,7 +521,7 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                 ScrollRow {
                     listOf(
                         GestureAction.NONE, GestureAction.LOCK, GestureAction.RECENTS, GestureAction.SEARCH,
-                        GestureAction.DRAWER, GestureAction.SETTINGS, GestureAction.NOTIFICATIONS,
+                        GestureAction.DRAWER, GestureAction.SETTINGS, GestureAction.NOTIFICATIONS, GestureAction.ONE_HAND, GestureAction.FEED,
                     ).forEach { a -> Chip(gestureLabel(a), state.doubleTap == a, pal) { vm.update { it.copy(doubleTap = a) } } }
                 }
                 if (state.doubleTap == GestureAction.LOCK) {

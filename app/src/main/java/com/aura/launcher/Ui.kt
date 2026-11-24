@@ -82,6 +82,8 @@ interface LauncherActions {
     fun importBackup()
     fun requestDefaultLauncher()
     fun openWallpaperPicker()
+    fun openSplit(a: AppEntry, b: AppEntry?)
+    fun openFloating(app: AppEntry)
 }
 
 /** حالة الواجهة المؤقتة + العمليات اللي بتربط الشاشات ببعض. */
@@ -107,6 +109,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     var tourOpen by mutableStateOf(false)
     var editMode by mutableStateOf(false)
     var edgeOpen by mutableStateOf(false)
+    var feedOpen by mutableStateOf(false)
+    var oneHand by mutableStateOf(false)
     var page by androidx.compose.runtime.mutableIntStateOf(0)
     val unlockedPages = androidx.compose.runtime.mutableStateListOf<Int>()
     var ruleDialog by mutableStateOf(false)
@@ -139,6 +143,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             GestureAction.SETTINGS -> settingsOpen = true
             GestureAction.LOCK -> actions.lockScreen()
             GestureAction.RECENTS -> actions.openRecents()
+            GestureAction.ONE_HAND -> oneHand = !oneHand
+            GestureAction.FEED -> feedOpen = true
         }
     }
 
@@ -167,7 +173,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
     val overlayOpen: Boolean
         get() = drawerOpen || settingsOpen || hiddenOpen || storeOpen || folderId != null ||
             widgetPicker || menu != null || auth != null || textInput != null || picker != null ||
-            editWidget != null || permsOpen || diagOpen || ruleDialog || tourOpen || editMode || edgeOpen
+            feedOpen || editWidget != null || permsOpen || diagOpen || ruleDialog || tourOpen || editMode || edgeOpen
 
     fun showMenu(anchor: Rect, entries: List<MenuEntry>) {
         if (entries.isNotEmpty()) menu = MenuRequest(anchor, entries)
@@ -270,15 +276,42 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         }
     }
 
-    fun folderEntries(f: HomeItem.Folder): List<MenuEntry> = listOf(
-        MenuEntry(tr("إضافة / إزالة تطبيقات", "Add / remove apps"), "⊕") { editFolderApps(f) },
-        MenuEntry(tr("إعادة تسمية", "Rename"), "✎") {
+    fun launchPair(f: HomeItem.Folder) {
+        val all = vm.apps.value
+        val a = all.firstOrNull { it.key == f.keys.getOrNull(0) }
+        val b = all.firstOrNull { it.key == f.keys.getOrNull(1) }
+        if (a == null || b == null) { vm.say(tr("أحد تطبيقات الزوج غير موجود", "A pair app is missing")); return }
+        vm.recordLaunch(a.key); vm.recordLaunch(b.key)
+        actions.openSplit(a, b)
+    }
+
+    fun pickPartner(a: AppEntry) {
+        picker = PickerRequest(tr("اختر التطبيق التاني للزوج", "Pick the second app"), emptySet()) { sel ->
+            val b = vm.apps.value.firstOrNull { it.key in sel && it.key != a.key } ?: return@PickerRequest
+            vm.update { it.addPair(a.key, b.key, "${a.label} + ${b.label}") }
+            vm.say(tr("اتضاف زوج على الشاشة الرئيسية", "Pair added to home"))
+        }
+    }
+
+    fun folderEntries(f: HomeItem.Folder, inDock: Boolean = false): List<MenuEntry> {
+        val out = mutableListOf<MenuEntry>()
+        if (f.isPair) out += MenuEntry(tr("تشغيل الزوج", "Launch pair"), "▶") { launchPair(f) }
+        else out += MenuEntry(tr("إضافة / إزالة تطبيقات", "Add / remove apps"), "⊕") { editFolderApps(f) }
+        if (!f.isPair && !inDock) {
+            out += MenuEntry(if (f.big) tr("تصغير المجلد", "Small folder") else tr("مجلد كبير (٤ تطبيقات)", "Big folder (4 apps)"), "⊞") {
+                vm.update { it.setFolderBig(f.id, !f.big) }
+            }
+        }
+        if (inDock) out += MenuEntry(tr("إخراج من الدوك", "Remove from dock"), "⊖") { vm.update { it.folderToHome(f.id) } }
+        else if (vm.state.value.dock.size < MAX_DOCK) out += MenuEntry(tr("نقل للدوك", "Move to dock"), "⌑") { vm.update { it.folderToDock(f.id) } }
+        out += MenuEntry(tr("إعادة تسمية", "Rename"), "✎") {
             textInput = TextRequest(tr("اسم المجلد", "Folder name"), f.name) { n ->
                 vm.update { it.renameFolder(f.id, n.ifBlank { f.name }) }
             }
-        },
-        MenuEntry(tr("حذف المجلد", "Delete folder"), "⌫", danger = true) { vm.update { it.deleteFolder(f.id) } },
-    )
+        }
+        out += MenuEntry(tr("حذف المجلد", "Delete folder"), "⌫", danger = true) { vm.update { it.deleteFolder(f.id) } }
+        return out
+    }
 
     fun widgetEntries(item: HomeItem): List<MenuEntry> {
         val out = mutableListOf<MenuEntry>()
@@ -306,6 +339,11 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         val s = vm.state.value
         val k = app.key
         val out = mutableListOf<MenuEntry>()
+
+        Previews.latest(app.packageName).forEach { m ->
+            val who = if (m.who.isNotBlank()) m.who.take(18) + ": " else ""
+            out += MenuEntry("💬 " + who + m.text.replace('\n', ' ').take(42), "") { launch(app) }
+        }
 
         actions.shortcutsFor(app).forEach { sc ->
             out += MenuEntry(sc.label, "↗") { actions.startShortcut(sc) }
@@ -346,6 +384,10 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
                 }
             }
         }
+
+        out += MenuEntry(tr("فتح في شاشة مقسومة", "Open in split screen"), "◫") { actions.openSplit(app, null) }
+        out += MenuEntry(tr("فتح في نافذة عائمة", "Open in floating window"), "❐") { actions.openFloating(app) }
+        out += MenuEntry(tr("زوج تطبيقات (شاشة مقسومة)", "App pair (split screen)"), "⫼") { pickPartner(app) }
 
         out += MenuEntry(tr("تغيير الاسم", "Rename"), "✎") {
             textInput = TextRequest(tr("اسم التطبيق", "App name"), app.label) { n -> vm.renameApp(k, n) }

@@ -13,7 +13,7 @@ enum class ClockStyle { NONE, BIG, BIG_SERIF, SMALL }
 enum class MenuStyle { IOS, SAMSUNG, VIVO }
 
 /** إيماءات الشاشة الرئيسية. */
-enum class GestureAction { NONE, NOTIFICATIONS, SEARCH, DRAWER, SETTINGS, LOCK, RECENTS }
+enum class GestureAction { NONE, NOTIFICATIONS, SEARCH, DRAWER, SETTINGS, LOCK, RECENTS, ONE_HAND, FEED }
 
 /** ستايل الأيقونات اللي بيجي مع الثيم: شكل + صحيفة خلفية + (اختياري) أيقونة أحادية اللون. */
 data class IconStyle(
@@ -34,7 +34,8 @@ sealed class HomeItem {
         override fun at(cell: Int): HomeItem = copy(cell = cell)
     }
 
-    data class Folder(val id: String, val name: String, val keys: List<String>, override val cell: Int = -1) : HomeItem() {
+    data class Folder(val id: String, val name: String, val keys: List<String>, override val cell: Int = -1, val big: Boolean = false) : HomeItem() {
+        val isPair: Boolean get() = id.startsWith("pair-")
         override val ref: String get() = "f:$id"
         override fun at(cell: Int): HomeItem = copy(cell = cell)
     }
@@ -123,6 +124,12 @@ data class AuraState(
     val nightTheme: String? = null,
     val dayHour: Int = 7,
     val nightHour: Int = 19,
+    val feedOn: Boolean = true,
+    val feedUrl: String = "",
+    val tasks: List<String> = emptyList(),   // "0|نص" أو "1|نص" (1 = منجزة)
+    val oneHandLeft: Boolean = false,
+    val dockSwipe: Boolean = true,
+    val dockFolders: Map<String, HomeItem.Folder> = emptyMap(),
 )
 
 const val MAX_DOCK = 5
@@ -130,13 +137,15 @@ const val MAX_DOCK = 5
 // ───────────────────────── هندسة الشبكة ─────────────────────────
 
 fun AuraState.colsOf(i: HomeItem): Int = when (i) {
-    is HomeItem.App, is HomeItem.Folder -> 1
+    is HomeItem.App -> 1
+    is HomeItem.Folder -> if (i.big) 2.coerceAtMost(columns) else 1
     is HomeItem.Widget -> columns
     is HomeItem.Builtin -> if (i.cols <= 0) columns else i.cols.coerceAtMost(columns)
 }
 
 fun AuraState.rowsOf(i: HomeItem): Int = when (i) {
-    is HomeItem.App, is HomeItem.Folder -> 1
+    is HomeItem.App -> 1
+    is HomeItem.Folder -> if (i.big) 2.coerceAtMost(rows) else 1
     is HomeItem.Widget -> 2
     is HomeItem.Builtin -> (if (i.rows > 0) i.rows else defaultBuiltinRows(i.kind)).coerceAtMost(rows)
 }
@@ -248,8 +257,12 @@ fun AuraState.addFolder(id: String, name: String, keys: List<String>): AuraState
 }
 
 fun AuraState.renameFolder(id: String, name: String): AuraState = copy(
-    pages = pages.map { p -> p.map { if (it is HomeItem.Folder && it.id == id) it.copy(name = name) else it } }
+    pages = pages.map { p -> p.map { if (it is HomeItem.Folder && it.id == id) it.copy(name = name) else it } },
+    dockFolders = dockFolders.mapValues { (k, f) -> if (k == id) f.copy(name = name) else f },
 )
+
+fun AuraState.findFolder(id: String): HomeItem.Folder? =
+    pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id } ?: dockFolders[id]
 
 fun AuraState.setFolderApps(id: String, keys: List<String>): AuraState {
     val set = keys.toSet()
@@ -264,18 +277,30 @@ fun AuraState.setFolderApps(id: String, keys: List<String>): AuraState {
             }
         }
     }
-    return copy(pages = newPages).trim()
+    val df = dockFolders.mapValues { (fid, f) ->
+        if (fid == id) f.copy(keys = keys) else f.copy(keys = f.keys.filter { it !in set })
+    }
+    return copy(pages = newPages, dockFolders = df).trim()
 }
 
-fun AuraState.folderKeys(id: String): List<String> =
-    pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id }?.keys ?: emptyList()
+fun AuraState.folderKeys(id: String): List<String> = findFolder(id)?.keys ?: emptyList()
 
 fun AuraState.deleteFolder(id: String): AuraState {
+    dockFolders[id]?.let { f ->
+        var s = copy(dock = dock - "f:$id", dockFolders = dockFolders - id)
+        for (k in f.keys) s = s.addItem(HomeItem.App(k))
+        return s
+    }
     val folder = pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id }
         ?: return this
     var s = removeByRef(folder.ref)
     for (k in folder.keys) s = s.addItem(HomeItem.App(k))
     return s
+}
+
+fun AuraState.folderToHome(id: String): AuraState {
+    val f = dockFolders[id] ?: return this
+    return copy(dock = dock - "f:$id", dockFolders = dockFolders - id).addItem(f.copy(cell = -1))
 }
 
 fun AuraState.hideApp(key: String): AuraState =
@@ -412,7 +437,7 @@ fun AuraState.dropNewApp(key: String, page: Int, cell: Int, center: Boolean): Au
 private fun itemToJson(item: HomeItem): JSONObject = when (item) {
     is HomeItem.App -> JSONObject().put("t", "a").put("k", item.key)
     is HomeItem.Folder -> JSONObject().put("t", "f").put("id", item.id)
-        .put("n", item.name).put("ks", JSONArray(item.keys))
+        .put("n", item.name).put("ks", JSONArray(item.keys)).put("big", item.big)
     is HomeItem.Widget -> JSONObject().put("t", "w").put("id", item.widgetId)
     is HomeItem.Builtin -> JSONObject().put("t", "b").put("kind", item.kind).put("uid", item.uid)
         .put("cols", item.cols).put("rows", item.rows).put("bg", item.bg)
@@ -426,7 +451,7 @@ private fun itemFromJson(o: JSONObject): HomeItem? {
     val cell = o.optInt("c", -1)
     return when (o.optString("t")) {
         "a" -> HomeItem.App(o.getString("k"), cell)
-        "f" -> HomeItem.Folder(o.getString("id"), o.optString("n"), o.optJSONArray("ks").toStringList(), cell)
+        "f" -> HomeItem.Folder(o.getString("id"), o.optString("n"), o.optJSONArray("ks").toStringList(), cell, o.optBoolean("big", false))
         "w" -> HomeItem.Widget(o.getInt("id"), cell)
         "b" -> HomeItem.Builtin(
             o.optString("kind", "clock"), o.getString("uid"), cell,
@@ -505,6 +530,12 @@ fun AuraState.toJson(forBackup: Boolean = false): JSONObject {
     o.put("iconShape", iconShape)
     o.put("relaxOn", relaxOn)
     o.put("relaxHour", relaxHour)
+    o.put("feedOn", feedOn)
+    o.put("feedUrl", feedUrl)
+    o.put("tasks", JSONArray(tasks))
+    o.put("oneHandLeft", oneHandLeft)
+    o.put("dockSwipe", dockSwipe)
+    o.put("dockFolders", JSONArray(dockFolders.values.map { itemToJson(it) }))
     o.put("doubleTap", doubleTap.name)
     o.put("badges", badges)
     o.put("schedOn", scheduleOn)
@@ -596,6 +627,14 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         iconShape = o.optInt("iconShape", 0).coerceIn(0, 3),
         relaxOn = o.optBoolean("relaxOn", false),
         relaxHour = o.optInt("relaxHour", 23).coerceIn(0, 23),
+        feedOn = o.optBoolean("feedOn", true),
+        feedUrl = o.optString("feedUrl", ""),
+        tasks = o.optJSONArray("tasks").toStringList(),
+        oneHandLeft = o.optBoolean("oneHandLeft", false),
+        dockSwipe = o.optBoolean("dockSwipe", true),
+        dockFolders = o.optJSONArray("dockFolders")?.let { a ->
+            (0 until a.length()).mapNotNull { i -> itemFromJson(a.getJSONObject(i)) as? HomeItem.Folder }.associateBy { it.id }
+        } ?: emptyMap(),
         swipeDown = runCatching { GestureAction.valueOf(o.optString("swipeDown", "SEARCH")) }
             .getOrDefault(GestureAction.SEARCH),
         doubleTap = runCatching { GestureAction.valueOf(o.optString("doubleTap", "NONE")) }
@@ -607,4 +646,24 @@ fun auraStateFromJson(o: JSONObject): AuraState {
         dayHour = o.optInt("dayHour", d.dayHour).coerceIn(0, 23),
         nightHour = o.optInt("nightHour", d.nightHour).coerceIn(0, 23),
     ).normalizeCells()
+}
+
+
+// ───────────────────────── مجلدات وأزواج ─────────────────────────
+
+fun AuraState.setFolderBig(id: String, big: Boolean): AuraState {
+    val f = pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id } ?: return this
+    val nf = f.copy(big = big, cell = -1)
+    // نشيله ونعيد وضعه في أول مكان يسع حجمه الجديد
+    return removeByRef(f.ref).addItem(nf).trim()
+}
+
+fun AuraState.addPair(a: String, b: String, name: String): AuraState =
+    addItem(HomeItem.Folder("pair-" + newId(), name, listOf(a, b)))
+
+/** مجلد في الدوك: بيتخزن كمفتاح "f:<id>" ويتشال من الصفحات. */
+fun AuraState.folderToDock(id: String): AuraState {
+    val f = pages.flatten().filterIsInstance<HomeItem.Folder>().firstOrNull { it.id == id } ?: return this
+    if (dock.size >= MAX_DOCK) return this
+    return removeByRef(f.ref).copy(dock = dock + "f:$id", dockFolders = dockFolders + (id to f.copy(big = false, cell = -1)))
 }

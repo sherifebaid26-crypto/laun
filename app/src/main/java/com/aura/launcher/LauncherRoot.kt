@@ -25,6 +25,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.draw.alpha
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,13 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     val appList by vm.apps.collectAsState()
     val ready by vm.ready.collectAsState()
 
+    // الحلقات الدورية بتقف لما الشاشة تخرج من الـ foreground (توفير بطارية)
+    var appStarted by remember { mutableStateOf(true) }
+    var pinMsg by remember { mutableStateOf<String?>(null) }
+    val pinScope = androidx.compose.runtime.rememberCoroutineScope()
+    val pinCtx = androidx.compose.ui.platform.LocalContext.current
+    val rulePrev = remember { HashMap<String, Boolean>() }
+
     Lang.code = state.lang
     val ui = remember { Ui(vm, actions) }
     val apps = remember(appList) { appList.associateBy { it.key } }
@@ -59,17 +67,17 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     }
 
     val installed by vm.installed.collectAsState()
-    LaunchedEffect(state.scheduleOn, state.dayTheme, state.nightTheme, state.dayHour, state.nightHour, installed.size) {
-        while (vm.state.value.scheduleOn) {
+    LaunchedEffect(state.scheduleOn, state.dayTheme, state.nightTheme, state.dayHour, state.nightHour, installed.size, appStarted) {
+        while (appStarted && vm.state.value.scheduleOn) {
             vm.applyScheduled()
             delay(60_000L)
         }
     }
 
     // قواعد تلقائية + حالة الجهاز (سماعة/شحن/واي فاي) كل 20 ثانية
-    LaunchedEffect(ready) {
-        val prev = HashMap<String, Boolean>()
-        while (ready) {
+    LaunchedEffect(ready, appStarted) {
+        val prev = rulePrev
+        while (ready && appStarted) {
             val st = actions.deviceStatus()
             ui.headphones = st.headphones
             val s = vm.state.value
@@ -103,7 +111,8 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     val lifeOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifeOwner) {
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
-            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) ui.unlockedPages.clear()
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) { ui.unlockedPages.clear(); appStarted = false }
+            else if (e == androidx.lifecycle.Lifecycle.Event.ON_START) appStarted = true
         }
         lifeOwner.lifecycle.addObserver(obs)
         onDispose { lifeOwner.lifecycle.removeObserver(obs) }
@@ -124,8 +133,8 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
     LaunchedEffect(ui.drawerOpen, state.blurOn) { actions.setBlur(if (ui.drawerOpen && state.blurOn) 90 else 0) }
 
     // ساعة بتتحدّث كل دقيقة (وضع التركيز + أيقونات الليل)
-    LaunchedEffect(Unit) {
-        while (true) {
+    LaunchedEffect(appStarted) {
+        while (appStarted) {
             ui.hour = java.time.LocalTime.now().hour
             delay(60_000L)
         }
@@ -295,6 +304,8 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
             // التحقق من PIN
             ui.auth?.let { callback ->
                 val done = {
+                    PinLock.success(pinCtx)
+                    pinMsg = null
                     ui.auth = null
                     authErrors = 0
                     callback()
@@ -303,11 +314,35 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
                     title = tr("أدخل PIN", "Enter PIN"),
                     errorTick = authErrors,
                     pal = pal,
-                    onSubmit = { pin -> if (Security.verify(state, pin)) done() else authErrors++ },
+                    errorText = pinMsg,
+                    onSubmit = { pin ->
+                        val left = PinLock.remainingMs(pinCtx)
+                        if (left > 0) {
+                            val sec = (left + 999) / 1000
+                            pinMsg = tr("محاولات كتير — جرّب بعد $sec ثانية", "Too many attempts — try again in ${sec}s")
+                            authErrors++
+                        } else {
+                            val snapshot = state
+                            pinScope.launch {
+                                // PBKDF2 تقيل: بنحسبه في خلفية مش على الـ UI thread
+                                val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                                    Security.verify(snapshot, pin)
+                                }
+                                if (ok) done() else {
+                                    val lock = PinLock.fail(pinCtx)
+                                    pinMsg = if (lock > 0) {
+                                        val sec = (lock + 999) / 1000
+                                        tr("محاولات كتير — جرّب بعد $sec ثانية", "Too many attempts — try again in ${sec}s")
+                                    } else null
+                                    authErrors++
+                                }
+                            }
+                        }
+                    },
                     onBiometric = if (state.biometric && actions.biometricAvailable()) {
                         { actions.biometricPrompt { done() } }
                     } else null,
-                    onDismiss = { ui.auth = null; authErrors = 0 },
+                    onDismiss = { ui.auth = null; authErrors = 0; pinMsg = null },
                 )
             }
         }

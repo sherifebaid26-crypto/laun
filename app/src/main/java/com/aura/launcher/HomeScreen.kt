@@ -82,6 +82,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 
 private data class DragState(
@@ -118,8 +120,10 @@ fun AppCell(
         if (pressed) 0.9f else 1f, spring(dampingRatio = 0.6f, stiffness = 500f), label = "press",
     )
     val night = state.nightIcons && state.isNight(ui.hour)
-    val counts by Badges.counts.collectAsState()
-    val badge = if (state.badges) counts[app.packageName] ?: 0 else 0
+    // كل خلية بتتابع رقم تطبيقها بس — تغيّر شارة واحدة ما يعيدش رسم باقي الخلايا
+    val badgeFlow = remember(app.packageName) { Badges.counts.map { it[app.packageName] ?: 0 }.distinctUntilChanged() }
+    val badgeCount by badgeFlow.collectAsState(initial = Badges.counts.value[app.packageName] ?: 0)
+    val badge = if (state.badges) badgeCount else 0
 
     val click = when {
         where == Where.DRAWER -> Modifier.clickable(interactionSource = src, indication = null) { ui.launch(app, rect) }

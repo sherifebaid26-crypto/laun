@@ -38,7 +38,18 @@ object IconPacks {
         return found.values.sortedBy { it.label.lowercase() }
     }
 
-    fun load(context: Context, pkg: String): IconPack? = runCatching {
+    private var cached: Triple<String, Long, IconPack?>? = null
+
+    /** بنحلّل appfilter.xml مرة بس لكل إصدار من الحزمة (مش مع كل تحميل للتطبيقات). */
+    fun load(context: Context, pkg: String): IconPack? {
+        val updated = runCatching { context.packageManager.getPackageInfo(pkg, 0).lastUpdateTime }.getOrDefault(0L)
+        cached?.let { if (it.first == pkg && it.second == updated) return it.third }
+        val p = loadUncached(context, pkg)
+        cached = Triple(pkg, updated, p)
+        return p
+    }
+
+    private fun loadUncached(context: Context, pkg: String): IconPack? = runCatching {
         val res = context.packageManager.getResourcesForApplication(pkg)
         val xmlId = res.getIdentifier("appfilter", "xml", pkg)
         val parser: XmlPullParser = if (xmlId != 0) {

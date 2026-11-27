@@ -36,11 +36,13 @@ class AuraWallpaperService : WallpaperService() {
         private val paint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
         private val handler = Handler(Looper.getMainLooper())
         private var visible = false
+        private var destroyed = false
+        @Volatile private var loadingId: String? = null
         private val tick = object : Runnable {
             override fun run() {
                 if (!visible) return
                 draw()
-                if (motion(applicationContext)) handler.postDelayed(this, 40L)
+                if (motion(applicationContext)) handler.postDelayed(this, 50L)
             }
         }
 
@@ -54,6 +56,7 @@ class AuraWallpaperService : WallpaperService() {
             w = width
             h = height
             loadedId = "\u0000" // نجبر إعادة التحميل بمقاس الشاشة
+            loadingId = null
             draw()
         }
 
@@ -64,6 +67,7 @@ class AuraWallpaperService : WallpaperService() {
         }
 
         override fun onDestroy() {
+            destroyed = true
             visible = false
             handler.removeCallbacks(tick)
             super.onDestroy()
@@ -76,22 +80,34 @@ class AuraWallpaperService : WallpaperService() {
             draw()
         }
 
+        /** فك الصورة بيتم في Thread خلفي (مش على الـ main thread)، وبنفضل نرسم القديمة لحد ما الجديدة تجهز. */
         private fun reloadIfNeeded() {
             val id = ThemeStore.liveTheme(applicationContext)
-            if (id == loadedId && bmp != null) return
-            loadedId = id
-            bmp = runCatching {
-                if (id == null || w <= 0) null else {
-                    val f = ThemeStore.wallpaperFile(applicationContext, id)
+            if (id == loadedId || id == loadingId) return
+            if (id == null || w <= 0) { loadedId = id; bmp = null; return }
+            loadingId = id
+            val ww = w
+            val hh = h
+            val ctx = applicationContext
+            Thread {
+                val decoded = runCatching {
+                    val f = ThemeStore.wallpaperFile(ctx, id)
                     if (!f.exists()) null else {
                         val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                         BitmapFactory.decodeFile(f.path, o)
                         var s = 1
-                        while (o.outWidth / (s * 2) >= w && o.outHeight / (s * 2) >= h) s *= 2
+                        while (o.outWidth / (s * 2) >= ww && o.outHeight / (s * 2) >= hh) s *= 2
                         BitmapFactory.decodeFile(f.path, BitmapFactory.Options().apply { inSampleSize = s })
                     }
+                }.getOrNull()
+                handler.post {
+                    if (destroyed || loadingId != id) return@post
+                    bmp = decoded
+                    loadedId = id
+                    loadingId = null
+                    draw()
                 }
-            }.getOrNull()
+            }.start()
         }
 
         private fun draw() {

@@ -501,7 +501,9 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
                     pal,
                 ) {
                     ui.textInput = TextRequest(tr("رابط RSS (فاضي = الافتراضي)", "RSS URL (empty = default)"), state.feedUrl) { u ->
-                        vm.update { it.copy(feedUrl = u.trim()) }
+                        val t = u.trim()
+                        if (t.isEmpty() || t.startsWith("https://")) vm.update { it.copy(feedUrl = t) }
+                        else vm.say(tr("رابط RSS لازم يبدأ بـ https://", "RSS URL must start with https://"))
                     }
                 }
                 SwitchRow(tr("اسحب لتحت على الدوك = وضع اليد الواحدة", "Swipe down on dock = one-handed mode"), state.dockSwipe, pal) { b -> vm.update { it.copy(dockSwipe = b) } }

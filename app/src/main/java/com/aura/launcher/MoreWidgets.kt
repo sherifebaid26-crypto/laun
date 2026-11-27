@@ -61,14 +61,28 @@ import kotlin.math.tan
 
 // ───────────── شبكة بسيطة + بحث المدينة ─────────────
 
+private const val MAX_HTTP_CHARS = 2_000_000
+
+/** https بس، وبحد أقصى للحجم (الأخبار/الطقس/الاقتراحات كلها جاية من الإنترنت). */
 internal fun httpText(url: String): String {
+    require(url.startsWith("https://")) { "https only" }
     val c = URL(url).openConnection() as HttpURLConnection
     c.connectTimeout = 10_000
     c.readTimeout = 15_000
     c.setRequestProperty("User-Agent", "AuraLauncher")
     try {
         if (c.responseCode != 200) error("HTTP ${c.responseCode}")
-        return c.inputStream.bufferedReader().use { it.readText() }
+        c.inputStream.bufferedReader().use { r ->
+            val sb = StringBuilder()
+            val buf = CharArray(8192)
+            while (true) {
+                val n = r.read(buf)
+                if (n < 0) break
+                sb.append(buf, 0, n)
+                if (sb.length > MAX_HTTP_CHARS) error("too large")
+            }
+            return sb.toString()
+        }
     } finally {
         c.disconnect()
     }

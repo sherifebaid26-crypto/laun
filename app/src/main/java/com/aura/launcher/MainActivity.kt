@@ -40,7 +40,7 @@ class MainActivity : FragmentActivity(), LauncherActions {
 
     private val packageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            vm.reloadApps()
+            vm.reloadAppsDebounced()
         }
     }
 
@@ -70,58 +70,20 @@ class MainActivity : FragmentActivity(), LauncherActions {
         }
 
     private val miscPrefs get() = getSharedPreferences("aura_misc", MODE_PRIVATE)
-    private val photoLauncher =
-        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            val uid = miscPrefs.getString("pending_photo", null)
-            miscPrefs.edit().remove("pending_photo").apply()
-            if (uri != null && uid != null) vm.setPhoto(uid, uri)
-        }
-
-    private var locCallback: (() -> Unit)? = null
-    private val locLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            locCallback?.invoke()
-            locCallback = null
-        }
-
-    private var calCallback: (() -> Unit)? = null
-    private val calLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            calCallback?.invoke()
-            calCallback = null
-        }
-
-    private var contactsCallback: (() -> Unit)? = null
-    private val contactsLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            contactsCallback?.invoke()
-            contactsCallback = null
-        }
-
     private val roleLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
 
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-            if (uri != null) {
-                runCatching {
-                    contentResolver.openOutputStream(uri)?.use { it.write(vm.exportJson().toByteArray()) }
-                }
-            }
+            if (uri != null) vm.exportBackupTo(uri)
         }
 
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
-                val text = runCatching {
-                    contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                }.getOrNull()
-                if (text != null) {
-                    // نشيل الودجتس الحالية قبل الاستعادة علشان ما يتسربوش
-                    vm.state.value.pages.flatten().filterIsInstance<HomeItem.Widget>()
-                        .forEach { widgetHost.delete(it.widgetId) }
-                    vm.importJson(text)
-                }
+                // نسجّل الودجتس الحالية الأول، ونمسحها بس لو الاستعادة نجحت
+                val old = vm.state.value.pages.flatten().filterIsInstance<HomeItem.Widget>().map { it.widgetId }
+                vm.restoreBackupFrom(uri) { old.forEach { widgetHost.delete(it) } }
             }
         }
 
@@ -149,6 +111,7 @@ class MainActivity : FragmentActivity(), LauncherActions {
 
     override fun onStop() {
         widgetHost.stop()
+        vm.flushState()
         super.onStop()
     }
 
@@ -300,7 +263,10 @@ class MainActivity : FragmentActivity(), LauncherActions {
     }
 
     override fun openUrl(url: String) {
-        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        // روابط الأخبار جاية من الإنترنت: http/https بس
+        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
+        if (uri.scheme != "https" && uri.scheme != "http") return
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
     }
 
     override fun pickImage(onResult: (Uri?) -> Unit) {
@@ -395,17 +361,15 @@ class MainActivity : FragmentActivity(), LauncherActions {
         if (!hasUsageAccess()) return emptyList()
         return runCatching {
             val usm = getSystemService(UsageStatsManager::class.java)
-            val cal = java.util.Calendar.getInstance().apply {
-                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
-                set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-                add(java.util.Calendar.DAY_OF_YEAR, -6)
-            }
-            val start = cal.timeInMillis
-            val day = 86_400_000L
+            // الأيام بتتحسب بالتاريخ المحلي (مش بقسمة ٢٤ ساعة) علشان التوقيت الصيفي ما يغلّطش اليوم
+            val zone = java.time.ZoneId.systemDefault()
+            val startDate = java.time.LocalDate.now(zone).minusDays(6)
+            val start = startDate.atStartOfDay(zone).toInstant().toEpochMilli()
             val totals = LongArray(7)
             usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, System.currentTimeMillis()).forEach { st ->
                 if (st.packageName == packageName) return@forEach
-                val i = ((st.firstTimeStamp - start + day / 2) / day).toInt()
+                val d = java.time.Instant.ofEpochMilli(st.firstTimeStamp).atZone(zone).toLocalDate()
+                val i = java.time.temporal.ChronoUnit.DAYS.between(startDate, d).toInt()
                 if (i in 0..6) totals[i] += st.totalTimeInForeground
             }
             totals.map { (it / 60_000L).toInt() }
@@ -415,7 +379,7 @@ class MainActivity : FragmentActivity(), LauncherActions {
     override fun hasLocationPermission(): Boolean = DeviceLoc.granted(this)
 
     override fun requestLocation(onDone: () -> Unit) {
-        askPermissions(REQ_LOC, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), onDone)
+        askPermissions(REQ_LOC, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), onDone)
     }
 
     override fun hasCalendarPermission(): Boolean =

@@ -12,16 +12,21 @@ android {
         applicationId = "com.aura.launcher"
         minSdk = 31          // Android 12+
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.4.0"
+        versionCode = 15
+        versionName = "1.4.1"
     }
 
+    // مفتاح التوقيع بييجي من متغيرات البيئة (GitHub Secrets) — مفيش مفتاح ولا كلمة سر جوه الريبو.
+    // لو المتغيرات مش موجودة (بناء محلي/PR) بنوقّع بمفتاح الـ debug علشان البناء يكمّل.
+    val ksPath = System.getenv("AURA_KEYSTORE_FILE")
     signingConfigs {
-        create("aura") {
-            storeFile = file("aura-release.jks")
-            storePassword = "aura1234"
-            keyAlias = "aura"
-            keyPassword = "aura1234"
+        if (!ksPath.isNullOrBlank() && file(ksPath).exists()) {
+            create("aura") {
+                storeFile = file(ksPath)
+                storePassword = System.getenv("AURA_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("AURA_KEY_ALIAS")
+                keyPassword = System.getenv("AURA_KEY_PASSWORD")
+            }
         }
     }
 
@@ -31,7 +36,7 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
-            signingConfig = signingConfigs.getByName("aura")
+            signingConfig = signingConfigs.findByName("aura") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

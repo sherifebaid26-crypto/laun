@@ -148,8 +148,8 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(tr("لك اليوم", "Today"), color = pal.onPanel, fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text("⟳", color = pal.accent, fontSize = 22.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { reload++ }.padding(8.dp))
-                Text("✕", color = pal.onPanel, fontSize = 20.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { ui.feedOpen = false }.padding(8.dp))
+                Text("⟳", color = pal.accent, fontSize = 22.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { reload++ }.a11yButton(tr("تحديث", "Refresh")).padding(8.dp))
+                Text("✕", color = pal.onPanel, fontSize = 20.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { ui.feedOpen = false }.a11yButton(tr("إغلاق", "Close")).padding(8.dp))
             }
 
             // الطقس
@@ -179,7 +179,7 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
                         )
                         Text("✕", color = pal.onPanel.copy(alpha = 0.5f), modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable {
                             vm.update { s -> s.copy(tasks = s.tasks.filterIndexed { j, _ -> j != i }) }
-                        }.padding(6.dp))
+                        }.a11yButton(tr("حذف المهمة", "Delete task")).padding(6.dp))
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -196,7 +196,7 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
                     Text("＋", color = pal.accent, fontSize = 26.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable {
                         val t = newTask.trim()
                         if (t.isNotEmpty()) { vm.update { s -> s.copy(tasks = s.tasks + "0|$t") }; newTask = "" }
-                    }.padding(horizontal = 12.dp))
+                    }.a11yButton(tr("إضافة مهمة", "Add task")).padding(horizontal = 12.dp))
                 }
             }
 

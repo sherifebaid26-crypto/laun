@@ -66,6 +66,8 @@ object Badges {
                     else -> i.getStringExtra("package")?.substringBefore('/') to i.getIntExtra("count", 0)
                 }
                 if (pkg.isNullOrBlank() || pkg == app.packageName) return
+                // بث الشارات القديم مفتوح لأي تطبيق: نقبله بس لتطبيق مثبّت وقابل للتشغيل
+                if (app.packageManager.getLaunchIntentForPackage(pkg) == null) return
                 setExact(pkg, n)
             }
         }

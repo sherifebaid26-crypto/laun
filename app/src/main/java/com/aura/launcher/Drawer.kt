@@ -133,6 +133,7 @@ private class ExprParser(private val s: String) {
 }
 
 private fun calc(query: String): String? {
+    if (query.length > 100) return null   // المحلل تكراري: نمنع الأقواس/الإشارات الطويلة (StackOverflow)
     val q = buildString {
         for (c in query.trim()) {
             append(

@@ -3,6 +3,10 @@ package com.aura.launcher
 import android.appwidget.AppWidgetProviderInfo
 import android.content.pm.ApplicationInfo
 import android.net.Uri
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -202,25 +206,45 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         if (vm.state.value.pinHash == null) onOk() else auth = onOk
     }
 
-    fun launch(app: AppEntry, bounds: Rect? = null) {
-        val go = {
-            vm.recordLaunch(app.key)
-            Badges.clear(app.packageName)
-            if (searchText.trim().length >= 2) vm.addHistory(searchText)
-            drawerOpen = false
-            folderId = null
-            actions.launchApp(app, bounds)
-        }
+    private fun isLockedPkg(pkg: String): Boolean =
+        vm.state.value.locked.any { it.substringBefore('/') == pkg }
+
+    /**
+     * نقطة الفحص الوحيدة لأي مسار بيفتح تطبيق (أيقونة، اختصار، شاشة مقسومة، نافذة عائمة، زوج):
+     * حد الاستخدام ثم قفل الـ PIN، وبعدين ننفّذ [go]. تعدّي أي مسار من غيرها = ثغرة.
+     */
+    fun guarded(app: AppEntry, bounds: Rect? = null, pkgLock: Boolean = false, go: () -> Unit) {
         val s = vm.state.value
+        val proceed = {
+            val locked = if (pkgLock) isLockedPkg(app.packageName) else app.key in s.locked
+            if (locked) requireAuth(go) else go()
+        }
         val limit = s.limits[app.key]
         if (limit != null && (snoozed[app.key] ?: 0L) < System.currentTimeMillis()) {
-            val used = actions.usageMinutes(app.packageName)
-            if (used >= limit) {
-                limitDialog = LimitRequest(app, used, limit, bounds)
-                return
+            // استعلام الاستخدام بيتم في خلفية مش على الـ UI thread
+            vm.viewModelScope.launch {
+                val used = withContext(Dispatchers.IO) { actions.usageMinutes(app.packageName) }
+                if (used >= limit) limitDialog = LimitRequest(app, used, limit, bounds) else proceed()
             }
+            return
         }
-        if (app.key in s.locked) requireAuth(go) else go()
+        proceed()
+    }
+
+    fun launch(app: AppEntry, bounds: Rect? = null) = guarded(app, bounds) {
+        vm.recordLaunch(app.key)
+        Badges.clear(app.packageName)
+        if (searchText.trim().length >= 2) vm.addHistory(searchText)
+        drawerOpen = false
+        folderId = null
+        actions.launchApp(app, bounds)
+    }
+
+    fun launchShortcut(sc: AppShortcut) {
+        val app = vm.apps.value.firstOrNull { it.packageName == sc.pkg }
+        if (app != null) guarded(app, null, pkgLock = true) { actions.startShortcut(sc) }
+        else if (isLockedPkg(sc.pkg)) requireAuth { actions.startShortcut(sc) }
+        else actions.startShortcut(sc)
     }
 
     fun newFolder() {
@@ -281,8 +305,12 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         val a = all.firstOrNull { it.key == f.keys.getOrNull(0) }
         val b = all.firstOrNull { it.key == f.keys.getOrNull(1) }
         if (a == null || b == null) { vm.say(tr("أحد تطبيقات الزوج غير موجود", "A pair app is missing")); return }
-        vm.recordLaunch(a.key); vm.recordLaunch(b.key)
-        actions.openSplit(a, b)
+        guarded(a) {
+            guarded(b) {
+                vm.recordLaunch(a.key); vm.recordLaunch(b.key)
+                actions.openSplit(a, b)
+            }
+        }
     }
 
     fun pickPartner(a: AppEntry) {
@@ -346,7 +374,7 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
         }
 
         actions.shortcutsFor(app).forEach { sc ->
-            out += MenuEntry(sc.label, "↗") { actions.startShortcut(sc) }
+            out += MenuEntry(sc.label, "↗") { launchShortcut(sc) }
         }
 
         when (where) {
@@ -385,8 +413,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
             }
         }
 
-        out += MenuEntry(tr("فتح في شاشة مقسومة", "Open in split screen"), "◫") { actions.openSplit(app, null) }
-        out += MenuEntry(tr("فتح في نافذة عائمة", "Open in floating window"), "❐") { actions.openFloating(app) }
+        out += MenuEntry(tr("فتح في شاشة مقسومة", "Open in split screen"), "◫") { guarded(app) { actions.openSplit(app, null) } }
+        out += MenuEntry(tr("فتح في نافذة عائمة", "Open in floating window"), "❐") { guarded(app) { actions.openFloating(app) } }
         out += MenuEntry(tr("زوج تطبيقات (شاشة مقسومة)", "App pair (split screen)"), "⫼") { pickPartner(app) }
 
         out += MenuEntry(tr("تغيير الاسم", "Rename"), "✎") {

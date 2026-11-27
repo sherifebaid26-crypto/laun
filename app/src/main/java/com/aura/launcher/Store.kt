@@ -13,6 +13,8 @@ import android.graphics.Paint
 import android.graphics.Shader
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import androidx.datastore.preferences.core.edit
@@ -35,6 +37,8 @@ sealed interface CatalogState {
 }
 
 private val Application.dataStore by preferencesDataStore(name = "aura")
+
+private const val MAX_BACKUP_BYTES = 40L * 1024 * 1024
 private val STATE_KEY = stringPreferencesKey("state")
 
 class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -54,12 +58,24 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             val raw = app.dataStore.data.first()[STATE_KEY]
-            if (raw != null) runCatching { _state.value = auraStateFromJson(JSONObject(raw)) }
+            if (raw != null) {
+                val ok = runCatching { _state.value = auraStateFromJson(JSONObject(raw)) }.isSuccess
+                if (!ok) {
+                    // الحالة المحفوظة تالفة: نحتفظ بنسخة منها قبل ما أي تعديل جاي يكتب فوقها
+                    withContext(Dispatchers.IO) {
+                        runCatching { java.io.File(app.filesDir, "state-corrupt-backup.json").writeText(raw) }
+                    }
+                    _message.value = tr(
+                        "تعذّرت قراءة إعداداتك المحفوظة، بدأنا بإعدادات جديدة (نسخة من القديم محفوظة).",
+                        "Couldn't read saved settings; starting fresh (old copy kept).",
+                    )
+                }
+            }
             if (CrashLog.safeModeNeeded(app)) {
                 runCatching { java.io.File(app.filesDir, "pre-safe-mode-backup.json").writeText(_state.value.toJson().toString(2)) }
                 val d = AuraState()
                 _state.value = _state.value.copy(
-                    pages = d.pages, rules = emptyList(), lockedPages = emptySet(), focusOn = false, relaxOn = false,
+                    pages = d.pages, rules = emptyList(), focusOn = false, relaxOn = false,
                 )
                 CrashLog.clearRecent(app)
                 _message.value = tr("حصل كراش متكرر، فرجّعنا الشاشة الرئيسية للوضع الآمن (نسخة من القديم محفوظة).", "Repeated crashes: home reset to safe mode (old copy saved).")
@@ -348,14 +364,40 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
         update { it.copy(searchHistory = (listOf(t) + it.searchHistory.filter { h -> h != t }).take(8)) }
     }
 
+    private var reloadJob: Job? = null
+
     fun reloadApps() {
-        viewModelScope.launch { loadAppsNow() }
+        reloadJob?.cancel()
+        reloadJob = viewModelScope.launch { loadAppsNow() }
     }
 
+    /** لأحداث تثبيت/تحديث الحزم: بتيجي دفعات، فنستنى ونعمل تحميل واحد بس. */
+    fun reloadAppsDebounced() {
+        reloadJob?.cancel()
+        reloadJob = viewModelScope.launch { delay(500); loadAppsNow() }
+    }
+
+    private var persistJob: Job? = null
+
+    /** تعديل الحالة: بيتطبّق فوراً، والحفظ بيتأجّل ٢٥٠ms (debounce) وبيتبني الـ JSON خارج الـ UI thread. */
     fun update(block: (AuraState) -> AuraState) {
         _state.update(block)
-        val json = _state.value.toJson().toString()
-        viewModelScope.launch { app.dataStore.edit { it[STATE_KEY] = json } }
+        persistJob?.cancel()
+        persistJob = viewModelScope.launch {
+            delay(250)
+            persistNow()
+        }
+    }
+
+    private suspend fun persistNow() {
+        val json = withContext(Dispatchers.Default) { _state.value.toJson().toString() }
+        app.dataStore.edit { it[STATE_KEY] = json }
+    }
+
+    /** نحفظ فوراً لما الشاشة تخرج، علشان آخر تعديل ما يضيعش لو العملية اتقفلت. */
+    fun flushState() {
+        persistJob?.cancel()
+        persistJob = viewModelScope.launch { persistNow() }
     }
 
     fun setIconPack(pkg: String?) {
@@ -379,7 +421,7 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
     fun say(m: String) { _message.value = m }
 
     /** نسخة احتياطية كاملة: الترتيب + الإعدادات + صور الودجتس. */
-    fun exportJson(): String {
+    suspend fun exportJson(): String = withContext(Dispatchers.IO) {
         val o = _state.value.toJson(forBackup = true)
         val photos = JSONObject()
         java.io.File(app.filesDir, "photos").listFiles()?.forEach { f ->
@@ -398,33 +440,86 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
             }
         }
         o.put("themes", themes)
-        return o.toString(2)
+        o.toString(2)
     }
 
-    fun importJson(text: String): Boolean {
-        val root = runCatching { JSONObject(text) }.getOrNull() ?: return false
-        val parsed = runCatching { auraStateFromJson(root) }.getOrNull() ?: return false
-        root.optJSONObject("themes")?.let { th ->
-            th.keys().forEach { id ->
+    fun exportBackupTo(uri: Uri) {
+        viewModelScope.launch {
+            val ok = runCatching {
+                val text = exportJson()
+                withContext(Dispatchers.IO) {
+                    app.contentResolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray()) } ?: error("no stream")
+                }
+            }.isSuccess
+            say(if (ok) tr("تم حفظ النسخة الاحتياطية", "Backup saved") else tr("فشل حفظ النسخة الاحتياطية", "Backup failed"))
+        }
+    }
+
+    /**
+     * يستعيد من ملف: بيقرأ بحد أقصى للحجم، بيتحقق الأول، وبعدين يطبّق.
+     * [onApplied] بيتنادى بس لو الاستعادة نجحت (علشان الودجتس القديمة تتمسح بعد النجاح مش قبله).
+     */
+    fun restoreBackupFrom(uri: Uri, onApplied: () -> Unit) {
+        viewModelScope.launch {
+            val text = withContext(Dispatchers.IO) {
                 runCatching {
-                    if (id.startsWith("my-") && id.all { it.isLetterOrDigit() || it == '-' }) {
-                        val d = java.io.File(app.filesDir, "themes/$id").apply { mkdirs() }
-                        val e = th.getJSONObject(id)
-                        java.io.File(d, "theme.json").writeText(e.getString("json"))
-                        java.io.File(d, "wallpaper.jpg").writeBytes(android.util.Base64.decode(e.getString("wp"), android.util.Base64.NO_WRAP))
+                    app.contentResolver.openInputStream(uri)?.use { ins ->
+                        val out = ByteArrayOutputStream()
+                        val buf = ByteArray(64 * 1024)
+                        var total = 0L
+                        while (true) {
+                            val n = ins.read(buf)
+                            if (n < 0) break
+                            total += n
+                            if (total > MAX_BACKUP_BYTES) error("too large")
+                            out.write(buf, 0, n)
+                        }
+                        out.toString(Charsets.UTF_8.name())
+                    }
+                }.getOrNull()
+            }
+            when {
+                text == null -> say(tr("الملف كبير أو مش مقروء", "File is too large or unreadable"))
+                importJson(text) -> { onApplied(); say(tr("تمت الاستعادة", "Backup restored")) }
+                else -> say(tr("الملف مش نسخة احتياطية صالحة — ما اتغيّرش حاجة", "Not a valid backup — nothing was changed"))
+            }
+        }
+    }
+
+    suspend fun importJson(text: String): Boolean {
+        // التحليل (وممكن يكون كبير) بره الـ UI thread، ولازم الملف يبان نسخة Aura فعلاً
+        val pair = withContext(Dispatchers.Default) {
+            val r = runCatching { JSONObject(text) }.getOrNull() ?: return@withContext null
+            if (!r.has("pages")) return@withContext null
+            val p = runCatching { auraStateFromJson(r) }.getOrNull() ?: return@withContext null
+            r to p
+        } ?: return false
+        val (root, parsed) = pair
+        withContext(Dispatchers.IO) {
+            root.optJSONObject("themes")?.let { th ->
+                th.keys().forEach { id ->
+                    runCatching {
+                        if (id.startsWith("my-") && id.all { it.isLetterOrDigit() || it == '-' }) {
+                            val d = java.io.File(app.filesDir, "themes/$id").apply { mkdirs() }
+                            val e = th.getJSONObject(id)
+                            java.io.File(d, "theme.json").writeText(e.getString("json"))
+                            java.io.File(d, "wallpaper.jpg").writeBytes(android.util.Base64.decode(e.getString("wp"), android.util.Base64.NO_WRAP))
+                        }
                     }
                 }
             }
-            viewModelScope.launch { _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id } }
-        }
-        root.optJSONObject("photos")?.let { ph ->
-            val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
-            ph.keys().forEach { k ->
-                runCatching {
-                    if (k.all { it.isLetterOrDigit() || it == '-' || it == '_' })
-                        java.io.File(dir, "$k.jpg").writeBytes(android.util.Base64.decode(ph.getString(k), android.util.Base64.NO_WRAP))
+            root.optJSONObject("photos")?.let { ph ->
+                val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
+                ph.keys().forEach { k ->
+                    runCatching {
+                        if (k.all { it.isLetterOrDigit() || it == '-' || it == '_' })
+                            java.io.File(dir, "$k.jpg").writeBytes(android.util.Base64.decode(ph.getString(k), android.util.Base64.NO_WRAP))
+                    }
                 }
             }
+        }
+        if (root.optJSONObject("themes") != null) {
+            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
         }
         update { cur ->
             parsed.copy(

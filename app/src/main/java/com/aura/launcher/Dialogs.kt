@@ -54,6 +54,7 @@ fun PinDialog(
     onSubmit: (String) -> Unit,
     onBiometric: (() -> Unit)?,
     onDismiss: () -> Unit,
+    errorText: String? = null,
 ) {
     var pin by remember { mutableStateOf("") }
     LaunchedEffect(errorTick) { if (errorTick > 0) pin = "" }
@@ -76,7 +77,7 @@ fun PinDialog(
                     }
                 }
                 if (errorTick > 0) {
-                    Text(tr("PIN غير صحيح", "Wrong PIN"), color = Color(0xFFFF5252), fontSize = 13.sp)
+                    Text(errorText ?: tr("PIN غير صحيح", "Wrong PIN"), color = Color(0xFFFF5252), fontSize = 13.sp)
                 }
                 val rows = listOf(
                     listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"),

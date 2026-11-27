@@ -1,0 +1,605 @@
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 8cef91f..d0fc0ee 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -13 +12,0 @@
+-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+@@ -52 +51 @@
+-        android:allowBackup="true"
++        android:allowBackup="false"
+diff --git a/app/src/main/java/com/aura/launcher/AuraWallpaperService.kt b/app/src/main/java/com/aura/launcher/AuraWallpaperService.kt
+index 2dab49d..a535bc4 100644
+--- a/app/src/main/java/com/aura/launcher/AuraWallpaperService.kt
++++ b/app/src/main/java/com/aura/launcher/AuraWallpaperService.kt
+@@ -38,0 +39,2 @@ class AuraWallpaperService : WallpaperService() {
++        private var destroyed = false
++        @Volatile private var loadingId: String? = null
+@@ -43 +45 @@ class AuraWallpaperService : WallpaperService() {
+-                if (motion(applicationContext)) handler.postDelayed(this, 40L)
++                if (motion(applicationContext)) handler.postDelayed(this, 50L)
+@@ -56,0 +59 @@ class AuraWallpaperService : WallpaperService() {
++            loadingId = null
+@@ -66,0 +70 @@ class AuraWallpaperService : WallpaperService() {
++            destroyed = true
+@@ -78,0 +83 @@ class AuraWallpaperService : WallpaperService() {
++        /** فك الصورة بيتم في Thread خلفي (مش على الـ main thread)، وبنفضل نرسم القديمة لحد ما الجديدة تجهز. */
+@@ -81,5 +86,9 @@ class AuraWallpaperService : WallpaperService() {
+-            if (id == loadedId && bmp != null) return
+-            loadedId = id
+-            bmp = runCatching {
+-                if (id == null || w <= 0) null else {
+-                    val f = ThemeStore.wallpaperFile(applicationContext, id)
++            if (id == loadedId || id == loadingId) return
++            if (id == null || w <= 0) { loadedId = id; bmp = null; return }
++            loadingId = id
++            val ww = w
++            val hh = h
++            val ctx = applicationContext
++            Thread {
++                val decoded = runCatching {
++                    val f = ThemeStore.wallpaperFile(ctx, id)
+@@ -90 +99 @@ class AuraWallpaperService : WallpaperService() {
+-                        while (o.outWidth / (s * 2) >= w && o.outHeight / (s * 2) >= h) s *= 2
++                        while (o.outWidth / (s * 2) >= ww && o.outHeight / (s * 2) >= hh) s *= 2
+@@ -92,0 +102,7 @@ class AuraWallpaperService : WallpaperService() {
++                }.getOrNull()
++                handler.post {
++                    if (destroyed || loadingId != id) return@post
++                    bmp = decoded
++                    loadedId = id
++                    loadingId = null
++                    draw()
+@@ -94 +110 @@ class AuraWallpaperService : WallpaperService() {
+-            }.getOrNull()
++            }.start()
+diff --git a/app/src/main/java/com/aura/launcher/Badges.kt b/app/src/main/java/com/aura/launcher/Badges.kt
+index 135e1d3..5f4cc2f 100644
+--- a/app/src/main/java/com/aura/launcher/Badges.kt
++++ b/app/src/main/java/com/aura/launcher/Badges.kt
+@@ -68,0 +69,2 @@ object Badges {
++                // بث الشارات القديم مفتوح لأي تطبيق: نقبله بس لتطبيق مثبّت وقابل للتشغيل
++                if (app.packageManager.getLaunchIntentForPackage(pkg) == null) return
+diff --git a/app/src/main/java/com/aura/launcher/Dialogs.kt b/app/src/main/java/com/aura/launcher/Dialogs.kt
+index 193e48c..8b420f3 100644
+--- a/app/src/main/java/com/aura/launcher/Dialogs.kt
++++ b/app/src/main/java/com/aura/launcher/Dialogs.kt
+@@ -56,0 +57 @@ fun PinDialog(
++    errorText: String? = null,
+@@ -79 +80 @@ fun PinDialog(
+-                    Text(tr("PIN غير صحيح", "Wrong PIN"), color = Color(0xFFFF5252), fontSize = 13.sp)
++                    Text(errorText ?: tr("PIN غير صحيح", "Wrong PIN"), color = Color(0xFFFF5252), fontSize = 13.sp)
+diff --git a/app/src/main/java/com/aura/launcher/Drawer.kt b/app/src/main/java/com/aura/launcher/Drawer.kt
+index e1b3aa0..9ec04f9 100644
+--- a/app/src/main/java/com/aura/launcher/Drawer.kt
++++ b/app/src/main/java/com/aura/launcher/Drawer.kt
+@@ -135,0 +136 @@ private fun calc(query: String): String? {
++    if (query.length > 100) return null   // المحلل تكراري: نمنع الأقواس/الإشارات الطويلة (StackOverflow)
+diff --git a/app/src/main/java/com/aura/launcher/Extras4.kt b/app/src/main/java/com/aura/launcher/Extras4.kt
+index 8431d36..37e34b4 100644
+--- a/app/src/main/java/com/aura/launcher/Extras4.kt
++++ b/app/src/main/java/com/aura/launcher/Extras4.kt
+@@ -151,2 +151,2 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
+-                Text("⟳", color = pal.accent, fontSize = 22.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { reload++ }.padding(8.dp))
+-                Text("✕", color = pal.onPanel, fontSize = 20.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { ui.feedOpen = false }.padding(8.dp))
++                Text("⟳", color = pal.accent, fontSize = 22.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { reload++ }.a11yButton(tr("تحديث", "Refresh")).padding(8.dp))
++                Text("✕", color = pal.onPanel, fontSize = 20.sp, modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { ui.feedOpen = false }.a11yButton(tr("إغلاق", "Close")).padding(8.dp))
+@@ -182 +182 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
+-                        }.padding(6.dp))
++                        }.a11yButton(tr("حذف المهمة", "Delete task")).padding(6.dp))
+@@ -199 +199 @@ fun FeedScreen(ui: Ui, state: AuraState, pal: AuraPalette) {
+-                    }.padding(horizontal = 12.dp))
++                    }.a11yButton(tr("إضافة مهمة", "Add task")).padding(horizontal = 12.dp))
+diff --git a/app/src/main/java/com/aura/launcher/HomeScreen.kt b/app/src/main/java/com/aura/launcher/HomeScreen.kt
+index 6caac62..61fc5fe 100644
+--- a/app/src/main/java/com/aura/launcher/HomeScreen.kt
++++ b/app/src/main/java/com/aura/launcher/HomeScreen.kt
+@@ -84,0 +85,2 @@ import kotlinx.coroutines.delay
++import kotlinx.coroutines.flow.distinctUntilChanged
++import kotlinx.coroutines.flow.map
+@@ -121,2 +123,4 @@ fun AppCell(
+-    val counts by Badges.counts.collectAsState()
+-    val badge = if (state.badges) counts[app.packageName] ?: 0 else 0
++    // كل خلية بتتابع رقم تطبيقها بس — تغيّر شارة واحدة ما يعيدش رسم باقي الخلايا
++    val badgeFlow = remember(app.packageName) { Badges.counts.map { it[app.packageName] ?: 0 }.distinctUntilChanged() }
++    val badgeCount by badgeFlow.collectAsState(initial = Badges.counts.value[app.packageName] ?: 0)
++    val badge = if (state.badges) badgeCount else 0
+diff --git a/app/src/main/java/com/aura/launcher/IconPacks.kt b/app/src/main/java/com/aura/launcher/IconPacks.kt
+index c92b8d0..d3cc803 100644
+--- a/app/src/main/java/com/aura/launcher/IconPacks.kt
++++ b/app/src/main/java/com/aura/launcher/IconPacks.kt
+@@ -41 +41,12 @@ object IconPacks {
+-    fun load(context: Context, pkg: String): IconPack? = runCatching {
++    private var cached: Triple<String, Long, IconPack?>? = null
++
++    /** بنحلّل appfilter.xml مرة بس لكل إصدار من الحزمة (مش مع كل تحميل للتطبيقات). */
++    fun load(context: Context, pkg: String): IconPack? {
++        val updated = runCatching { context.packageManager.getPackageInfo(pkg, 0).lastUpdateTime }.getOrDefault(0L)
++        cached?.let { if (it.first == pkg && it.second == updated) return it.third }
++        val p = loadUncached(context, pkg)
++        cached = Triple(pkg, updated, p)
++        return p
++    }
++
++    private fun loadUncached(context: Context, pkg: String): IconPack? = runCatching {
+diff --git a/app/src/main/java/com/aura/launcher/LauncherRoot.kt b/app/src/main/java/com/aura/launcher/LauncherRoot.kt
+index 6d73621..36033eb 100644
+--- a/app/src/main/java/com/aura/launcher/LauncherRoot.kt
++++ b/app/src/main/java/com/aura/launcher/LauncherRoot.kt
+@@ -27,0 +28 @@ import kotlinx.coroutines.delay
++import kotlinx.coroutines.launch
+@@ -45,0 +47,7 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
++    // الحلقات الدورية بتقف لما الشاشة تخرج من الـ foreground (توفير بطارية)
++    var appStarted by remember { mutableStateOf(true) }
++    var pinMsg by remember { mutableStateOf<String?>(null) }
++    val pinScope = androidx.compose.runtime.rememberCoroutineScope()
++    val pinCtx = androidx.compose.ui.platform.LocalContext.current
++    val rulePrev = remember { HashMap<String, Boolean>() }
++
+@@ -62,2 +70,2 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-    LaunchedEffect(state.scheduleOn, state.dayTheme, state.nightTheme, state.dayHour, state.nightHour, installed.size) {
+-        while (vm.state.value.scheduleOn) {
++    LaunchedEffect(state.scheduleOn, state.dayTheme, state.nightTheme, state.dayHour, state.nightHour, installed.size, appStarted) {
++        while (appStarted && vm.state.value.scheduleOn) {
+@@ -70,3 +78,3 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-    LaunchedEffect(ready) {
+-        val prev = HashMap<String, Boolean>()
+-        while (ready) {
++    LaunchedEffect(ready, appStarted) {
++        val prev = rulePrev
++        while (ready && appStarted) {
+@@ -106 +114,2 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) ui.unlockedPages.clear()
++            if (e == androidx.lifecycle.Lifecycle.Event.ON_STOP) { ui.unlockedPages.clear(); appStarted = false }
++            else if (e == androidx.lifecycle.Lifecycle.Event.ON_START) appStarted = true
+@@ -127,2 +136,2 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-    LaunchedEffect(Unit) {
+-        while (true) {
++    LaunchedEffect(appStarted) {
++        while (appStarted) {
+@@ -297,0 +307,2 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
++                    PinLock.success(pinCtx)
++                    pinMsg = null
+@@ -306 +317,25 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-                    onSubmit = { pin -> if (Security.verify(state, pin)) done() else authErrors++ },
++                    errorText = pinMsg,
++                    onSubmit = { pin ->
++                        val left = PinLock.remainingMs(pinCtx)
++                        if (left > 0) {
++                            val sec = (left + 999) / 1000
++                            pinMsg = tr("محاولات كتير — جرّب بعد $sec ثانية", "Too many attempts — try again in ${sec}s")
++                            authErrors++
++                        } else {
++                            val snapshot = state
++                            pinScope.launch {
++                                // PBKDF2 تقيل: بنحسبه في خلفية مش على الـ UI thread
++                                val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
++                                    Security.verify(snapshot, pin)
++                                }
++                                if (ok) done() else {
++                                    val lock = PinLock.fail(pinCtx)
++                                    pinMsg = if (lock > 0) {
++                                        val sec = (lock + 999) / 1000
++                                        tr("محاولات كتير — جرّب بعد $sec ثانية", "Too many attempts — try again in ${sec}s")
++                                    } else null
++                                    authErrors++
++                                }
++                            }
++                        }
++                    },
+@@ -310 +345 @@ fun LauncherRoot(vm: LauncherViewModel, actions: LauncherActions) {
+-                    onDismiss = { ui.auth = null; authErrors = 0 },
++                    onDismiss = { ui.auth = null; authErrors = 0; pinMsg = null },
+diff --git a/app/src/main/java/com/aura/launcher/MainActivity.kt b/app/src/main/java/com/aura/launcher/MainActivity.kt
+index 5d86b0c..ba66857 100644
+--- a/app/src/main/java/com/aura/launcher/MainActivity.kt
++++ b/app/src/main/java/com/aura/launcher/MainActivity.kt
+@@ -43 +43 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-            vm.reloadApps()
++            vm.reloadAppsDebounced()
+@@ -73,28 +72,0 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-    private val photoLauncher =
+-        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+-            val uid = miscPrefs.getString("pending_photo", null)
+-            miscPrefs.edit().remove("pending_photo").apply()
+-            if (uri != null && uid != null) vm.setPhoto(uid, uri)
+-        }
+-
+-    private var locCallback: (() -> Unit)? = null
+-    private val locLauncher =
+-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+-            locCallback?.invoke()
+-            locCallback = null
+-        }
+-
+-    private var calCallback: (() -> Unit)? = null
+-    private val calLauncher =
+-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+-            calCallback?.invoke()
+-            calCallback = null
+-        }
+-
+-    private var contactsCallback: (() -> Unit)? = null
+-    private val contactsLauncher =
+-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+-            contactsCallback?.invoke()
+-            contactsCallback = null
+-        }
+-
+@@ -106,5 +78 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-            if (uri != null) {
+-                runCatching {
+-                    contentResolver.openOutputStream(uri)?.use { it.write(vm.exportJson().toByteArray()) }
+-                }
+-            }
++            if (uri != null) vm.exportBackupTo(uri)
+@@ -116,9 +84,3 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-                val text = runCatching {
+-                    contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+-                }.getOrNull()
+-                if (text != null) {
+-                    // نشيل الودجتس الحالية قبل الاستعادة علشان ما يتسربوش
+-                    vm.state.value.pages.flatten().filterIsInstance<HomeItem.Widget>()
+-                        .forEach { widgetHost.delete(it.widgetId) }
+-                    vm.importJson(text)
+-                }
++                // نسجّل الودجتس الحالية الأول، ونمسحها بس لو الاستعادة نجحت
++                val old = vm.state.value.pages.flatten().filterIsInstance<HomeItem.Widget>().map { it.widgetId }
++                vm.restoreBackupFrom(uri) { old.forEach { widgetHost.delete(it) } }
+@@ -151,0 +114 @@ class MainActivity : FragmentActivity(), LauncherActions {
++        vm.flushState()
+@@ -303 +266,4 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
++        // روابط الأخبار جاية من الإنترنت: http/https بس
++        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
++        if (uri.scheme != "https" && uri.scheme != "http") return
++        runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+@@ -398,7 +364,4 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-            val cal = java.util.Calendar.getInstance().apply {
+-                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+-                set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+-                add(java.util.Calendar.DAY_OF_YEAR, -6)
+-            }
+-            val start = cal.timeInMillis
+-            val day = 86_400_000L
++            // الأيام بتتحسب بالتاريخ المحلي (مش بقسمة ٢٤ ساعة) علشان التوقيت الصيفي ما يغلّطش اليوم
++            val zone = java.time.ZoneId.systemDefault()
++            val startDate = java.time.LocalDate.now(zone).minusDays(6)
++            val start = startDate.atStartOfDay(zone).toInstant().toEpochMilli()
+@@ -408 +371,2 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-                val i = ((st.firstTimeStamp - start + day / 2) / day).toInt()
++                val d = java.time.Instant.ofEpochMilli(st.firstTimeStamp).atZone(zone).toLocalDate()
++                val i = java.time.temporal.ChronoUnit.DAYS.between(startDate, d).toInt()
+@@ -418 +382 @@ class MainActivity : FragmentActivity(), LauncherActions {
+-        askPermissions(REQ_LOC, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), onDone)
++        askPermissions(REQ_LOC, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), onDone)
+diff --git a/app/src/main/java/com/aura/launcher/MoreWidgets.kt b/app/src/main/java/com/aura/launcher/MoreWidgets.kt
+index 8f03de5..9f9e99c 100644
+--- a/app/src/main/java/com/aura/launcher/MoreWidgets.kt
++++ b/app/src/main/java/com/aura/launcher/MoreWidgets.kt
+@@ -63,0 +64,3 @@ import kotlin.math.tan
++private const val MAX_HTTP_CHARS = 2_000_000
++
++/** https بس، وبحد أقصى للحجم (الأخبار/الطقس/الاقتراحات كلها جاية من الإنترنت). */
+@@ -64,0 +68 @@ internal fun httpText(url: String): String {
++    require(url.startsWith("https://")) { "https only" }
+@@ -71 +75,11 @@ internal fun httpText(url: String): String {
+-        return c.inputStream.bufferedReader().use { it.readText() }
++        c.inputStream.bufferedReader().use { r ->
++            val sb = StringBuilder()
++            val buf = CharArray(8192)
++            while (true) {
++                val n = r.read(buf)
++                if (n < 0) break
++                sb.append(buf, 0, n)
++                if (sb.length > MAX_HTTP_CHARS) error("too large")
++            }
++            return sb.toString()
++        }
+diff --git a/app/src/main/java/com/aura/launcher/SettingsScreen.kt b/app/src/main/java/com/aura/launcher/SettingsScreen.kt
+index a636f73..83fc980 100644
+--- a/app/src/main/java/com/aura/launcher/SettingsScreen.kt
++++ b/app/src/main/java/com/aura/launcher/SettingsScreen.kt
+@@ -504 +504,3 @@ fun SettingsScreen(ui: Ui, state: AuraState, apps: List<AppEntry>, pal: AuraPale
+-                        vm.update { it.copy(feedUrl = u.trim()) }
++                        val t = u.trim()
++                        if (t.isEmpty() || t.startsWith("https://")) vm.update { it.copy(feedUrl = t) }
++                        else vm.say(tr("رابط RSS لازم يبدأ بـ https://", "RSS URL must start with https://"))
+diff --git a/app/src/main/java/com/aura/launcher/Store.kt b/app/src/main/java/com/aura/launcher/Store.kt
+index 7bbda23..a501f3b 100644
+--- a/app/src/main/java/com/aura/launcher/Store.kt
++++ b/app/src/main/java/com/aura/launcher/Store.kt
+@@ -15,0 +16,2 @@ import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.Job
++import kotlinx.coroutines.delay
+@@ -37,0 +40,2 @@ private val Application.dataStore by preferencesDataStore(name = "aura")
++
++private const val MAX_BACKUP_BYTES = 40L * 1024 * 1024
+@@ -57 +61,13 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-            if (raw != null) runCatching { _state.value = auraStateFromJson(JSONObject(raw)) }
++            if (raw != null) {
++                val ok = runCatching { _state.value = auraStateFromJson(JSONObject(raw)) }.isSuccess
++                if (!ok) {
++                    // الحالة المحفوظة تالفة: نحتفظ بنسخة منها قبل ما أي تعديل جاي يكتب فوقها
++                    withContext(Dispatchers.IO) {
++                        runCatching { java.io.File(app.filesDir, "state-corrupt-backup.json").writeText(raw) }
++                    }
++                    _message.value = tr(
++                        "تعذّرت قراءة إعداداتك المحفوظة، بدأنا بإعدادات جديدة (نسخة من القديم محفوظة).",
++                        "Couldn't read saved settings; starting fresh (old copy kept).",
++                    )
++                }
++            }
+@@ -62 +78 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-                    pages = d.pages, rules = emptyList(), lockedPages = emptySet(), focusOn = false, relaxOn = false,
++                    pages = d.pages, rules = emptyList(), focusOn = false, relaxOn = false,
+@@ -350,0 +367,2 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
++    private var reloadJob: Job? = null
++
+@@ -352 +370,2 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-        viewModelScope.launch { loadAppsNow() }
++        reloadJob?.cancel()
++        reloadJob = viewModelScope.launch { loadAppsNow() }
+@@ -354,0 +374,9 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
++    /** لأحداث تثبيت/تحديث الحزم: بتيجي دفعات، فنستنى ونعمل تحميل واحد بس. */
++    fun reloadAppsDebounced() {
++        reloadJob?.cancel()
++        reloadJob = viewModelScope.launch { delay(500); loadAppsNow() }
++    }
++
++    private var persistJob: Job? = null
++
++    /** تعديل الحالة: بيتطبّق فوراً، والحفظ بيتأجّل ٢٥٠ms (debounce) وبيتبني الـ JSON خارج الـ UI thread. */
+@@ -357,2 +385,16 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-        val json = _state.value.toJson().toString()
+-        viewModelScope.launch { app.dataStore.edit { it[STATE_KEY] = json } }
++        persistJob?.cancel()
++        persistJob = viewModelScope.launch {
++            delay(250)
++            persistNow()
++        }
++    }
++
++    private suspend fun persistNow() {
++        val json = withContext(Dispatchers.Default) { _state.value.toJson().toString() }
++        app.dataStore.edit { it[STATE_KEY] = json }
++    }
++
++    /** نحفظ فوراً لما الشاشة تخرج، علشان آخر تعديل ما يضيعش لو العملية اتقفلت. */
++    fun flushState() {
++        persistJob?.cancel()
++        persistJob = viewModelScope.launch { persistNow() }
+@@ -382 +424 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-    fun exportJson(): String {
++    suspend fun exportJson(): String = withContext(Dispatchers.IO) {
+@@ -401 +443,13 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-        return o.toString(2)
++        o.toString(2)
++    }
++
++    fun exportBackupTo(uri: Uri) {
++        viewModelScope.launch {
++            val ok = runCatching {
++                val text = exportJson()
++                withContext(Dispatchers.IO) {
++                    app.contentResolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray()) } ?: error("no stream")
++                }
++            }.isSuccess
++            say(if (ok) tr("تم حفظ النسخة الاحتياطية", "Backup saved") else tr("فشل حفظ النسخة الاحتياطية", "Backup failed"))
++        }
+@@ -404,5 +458,7 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-    fun importJson(text: String): Boolean {
+-        val root = runCatching { JSONObject(text) }.getOrNull() ?: return false
+-        val parsed = runCatching { auraStateFromJson(root) }.getOrNull() ?: return false
+-        root.optJSONObject("themes")?.let { th ->
+-            th.keys().forEach { id ->
++    /**
++     * يستعيد من ملف: بيقرأ بحد أقصى للحجم، بيتحقق الأول، وبعدين يطبّق.
++     * [onApplied] بيتنادى بس لو الاستعادة نجحت (علشان الودجتس القديمة تتمسح بعد النجاح مش قبله).
++     */
++    fun restoreBackupFrom(uri: Uri, onApplied: () -> Unit) {
++        viewModelScope.launch {
++            val text = withContext(Dispatchers.IO) {
+@@ -410,5 +466,12 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-                    if (id.startsWith("my-") && id.all { it.isLetterOrDigit() || it == '-' }) {
+-                        val d = java.io.File(app.filesDir, "themes/$id").apply { mkdirs() }
+-                        val e = th.getJSONObject(id)
+-                        java.io.File(d, "theme.json").writeText(e.getString("json"))
+-                        java.io.File(d, "wallpaper.jpg").writeBytes(android.util.Base64.decode(e.getString("wp"), android.util.Base64.NO_WRAP))
++                    app.contentResolver.openInputStream(uri)?.use { ins ->
++                        val out = ByteArrayOutputStream()
++                        val buf = ByteArray(64 * 1024)
++                        var total = 0L
++                        while (true) {
++                            val n = ins.read(buf)
++                            if (n < 0) break
++                            total += n
++                            if (total > MAX_BACKUP_BYTES) error("too large")
++                            out.write(buf, 0, n)
++                        }
++                        out.toString(Charsets.UTF_8.name())
+@@ -416 +479,6 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-                }
++                }.getOrNull()
++            }
++            when {
++                text == null -> say(tr("الملف كبير أو مش مقروء", "File is too large or unreadable"))
++                importJson(text) -> { onApplied(); say(tr("تمت الاستعادة", "Backup restored")) }
++                else -> say(tr("الملف مش نسخة احتياطية صالحة — ما اتغيّرش حاجة", "Not a valid backup — nothing was changed"))
+@@ -418 +485,0 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-            viewModelScope.launch { _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id } }
+@@ -420,6 +487,22 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
+-        root.optJSONObject("photos")?.let { ph ->
+-            val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
+-            ph.keys().forEach { k ->
+-                runCatching {
+-                    if (k.all { it.isLetterOrDigit() || it == '-' || it == '_' })
+-                        java.io.File(dir, "$k.jpg").writeBytes(android.util.Base64.decode(ph.getString(k), android.util.Base64.NO_WRAP))
++    }
++
++    suspend fun importJson(text: String): Boolean {
++        // التحليل (وممكن يكون كبير) بره الـ UI thread، ولازم الملف يبان نسخة Aura فعلاً
++        val pair = withContext(Dispatchers.Default) {
++            val r = runCatching { JSONObject(text) }.getOrNull() ?: return@withContext null
++            if (!r.has("pages")) return@withContext null
++            val p = runCatching { auraStateFromJson(r) }.getOrNull() ?: return@withContext null
++            r to p
++        } ?: return false
++        val (root, parsed) = pair
++        withContext(Dispatchers.IO) {
++            root.optJSONObject("themes")?.let { th ->
++                th.keys().forEach { id ->
++                    runCatching {
++                        if (id.startsWith("my-") && id.all { it.isLetterOrDigit() || it == '-' }) {
++                            val d = java.io.File(app.filesDir, "themes/$id").apply { mkdirs() }
++                            val e = th.getJSONObject(id)
++                            java.io.File(d, "theme.json").writeText(e.getString("json"))
++                            java.io.File(d, "wallpaper.jpg").writeBytes(android.util.Base64.decode(e.getString("wp"), android.util.Base64.NO_WRAP))
++                        }
++                    }
+@@ -427,0 +511,12 @@ class LauncherViewModel(private val app: Application) : AndroidViewModel(app) {
++            root.optJSONObject("photos")?.let { ph ->
++                val dir = java.io.File(app.filesDir, "photos").apply { mkdirs() }
++                ph.keys().forEach { k ->
++                    runCatching {
++                        if (k.all { it.isLetterOrDigit() || it == '-' || it == '_' })
++                            java.io.File(dir, "$k.jpg").writeBytes(android.util.Base64.decode(ph.getString(k), android.util.Base64.NO_WRAP))
++                    }
++                }
++            }
++        }
++        if (root.optJSONObject("themes") != null) {
++            _installed.value = ThemeStore.loadInstalled(app).associateBy { it.id }
+diff --git a/app/src/main/java/com/aura/launcher/ThemeIcons.kt b/app/src/main/java/com/aura/launcher/ThemeIcons.kt
+index f61c748..33a6016 100644
+--- a/app/src/main/java/com/aura/launcher/ThemeIcons.kt
++++ b/app/src/main/java/com/aura/launcher/ThemeIcons.kt
+@@ -10,0 +11 @@ object ThemeIcons {
++    /** بنطابق على أجزاء اسم الحزمة (com.google.android.dialer → dialer) علشان تطبيقات غريبة ما تاخدش أيقونة غلط. */
+@@ -12,0 +14,2 @@ object ThemeIcons {
++        val seg = p.split('.')
++        fun any(f: (String) -> Boolean) = seg.any(f)
+@@ -14,8 +17,8 @@ object ThemeIcons {
+-            "dialer" in p || p == "com.android.phone" || p.endsWith(".contacts") -> "phone"
+-            "mms" in p || "messaging" in p || p.endsWith(".messages") || "message" in p -> "message"
+-            "chrome" in p || "browser" in p || "firefox" in p || p == "com.microsoft.emmx" || "opera" in p -> "browser"
+-            "camera" in p -> "camera"
+-            "gallery" in p || "photos" in p -> "gallery"
+-            "music" in p || "spotify" in p || "anghami" in p || "soundcloud" in p -> "music"
+-            "clock" in p -> "clock"
+-            "calendar" in p -> "calendar"
++            any { it == "dialer" } || p == "com.android.phone" || any { it == "contacts" } -> "phone"
++            any { it == "mms" || it == "messaging" || it == "messages" || it == "message" } -> "message"
++            any { it == "chrome" || it == "firefox" || it == "opera" || it.endsWith("browser") } || p == "com.microsoft.emmx" -> "browser"
++            any { it == "camera" || it.endsWith("camera") } -> "camera"
++            any { it == "photos" || it.startsWith("gallery") } -> "gallery"
++            any { it == "music" || it == "spotify" || it == "anghami" || it == "soundcloud" } -> "music"
++            any { it.endsWith("clock") || it == "clockpackage" } -> "clock"
++            any { it == "calendar" } -> "calendar"
+@@ -24,2 +27,2 @@ object ThemeIcons {
+-            "weather" in p -> "weather"
+-            "filemanager" in p || "documentsui" in p || p.endsWith(".files") -> "folder"
++            any { it.contains("weather") } -> "weather"
++            any { it == "filemanager" || it == "files" || it == "documentsui" || it.endsWith("myfiles") } -> "folder"
+diff --git a/app/src/main/java/com/aura/launcher/Ui.kt b/app/src/main/java/com/aura/launcher/Ui.kt
+index b31a11b..388369b 100644
+--- a/app/src/main/java/com/aura/launcher/Ui.kt
++++ b/app/src/main/java/com/aura/launcher/Ui.kt
+@@ -5,0 +6,4 @@ import android.net.Uri
++import androidx.lifecycle.viewModelScope
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.launch
++import kotlinx.coroutines.withContext
+@@ -205,9 +209,8 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-    fun launch(app: AppEntry, bounds: Rect? = null) {
+-        val go = {
+-            vm.recordLaunch(app.key)
+-            Badges.clear(app.packageName)
+-            if (searchText.trim().length >= 2) vm.addHistory(searchText)
+-            drawerOpen = false
+-            folderId = null
+-            actions.launchApp(app, bounds)
+-        }
++    private fun isLockedPkg(pkg: String): Boolean =
++        vm.state.value.locked.any { it.substringBefore('/') == pkg }
++
++    /**
++     * نقطة الفحص الوحيدة لأي مسار بيفتح تطبيق (أيقونة، اختصار، شاشة مقسومة، نافذة عائمة، زوج):
++     * حد الاستخدام ثم قفل الـ PIN، وبعدين ننفّذ [go]. تعدّي أي مسار من غيرها = ثغرة.
++     */
++    fun guarded(app: AppEntry, bounds: Rect? = null, pkgLock: Boolean = false, go: () -> Unit) {
+@@ -214,0 +218,4 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
++        val proceed = {
++            val locked = if (pkgLock) isLockedPkg(app.packageName) else app.key in s.locked
++            if (locked) requireAuth(go) else go()
++        }
+@@ -217,4 +224,4 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-            val used = actions.usageMinutes(app.packageName)
+-            if (used >= limit) {
+-                limitDialog = LimitRequest(app, used, limit, bounds)
+-                return
++            // استعلام الاستخدام بيتم في خلفية مش على الـ UI thread
++            vm.viewModelScope.launch {
++                val used = withContext(Dispatchers.IO) { actions.usageMinutes(app.packageName) }
++                if (used >= limit) limitDialog = LimitRequest(app, used, limit, bounds) else proceed()
+@@ -221,0 +229 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
++            return
+@@ -223 +231,17 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-        if (app.key in s.locked) requireAuth(go) else go()
++        proceed()
++    }
++
++    fun launch(app: AppEntry, bounds: Rect? = null) = guarded(app, bounds) {
++        vm.recordLaunch(app.key)
++        Badges.clear(app.packageName)
++        if (searchText.trim().length >= 2) vm.addHistory(searchText)
++        drawerOpen = false
++        folderId = null
++        actions.launchApp(app, bounds)
++    }
++
++    fun launchShortcut(sc: AppShortcut) {
++        val app = vm.apps.value.firstOrNull { it.packageName == sc.pkg }
++        if (app != null) guarded(app, null, pkgLock = true) { actions.startShortcut(sc) }
++        else if (isLockedPkg(sc.pkg)) requireAuth { actions.startShortcut(sc) }
++        else actions.startShortcut(sc)
+@@ -284,2 +308,6 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-        vm.recordLaunch(a.key); vm.recordLaunch(b.key)
+-        actions.openSplit(a, b)
++        guarded(a) {
++            guarded(b) {
++                vm.recordLaunch(a.key); vm.recordLaunch(b.key)
++                actions.openSplit(a, b)
++            }
++        }
+@@ -349 +377 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-            out += MenuEntry(sc.label, "↗") { actions.startShortcut(sc) }
++            out += MenuEntry(sc.label, "↗") { launchShortcut(sc) }
+@@ -388,2 +416,2 @@ class Ui(val vm: LauncherViewModel, val actions: LauncherActions) {
+-        out += MenuEntry(tr("فتح في شاشة مقسومة", "Open in split screen"), "◫") { actions.openSplit(app, null) }
+-        out += MenuEntry(tr("فتح في نافذة عائمة", "Open in floating window"), "❐") { actions.openFloating(app) }
++        out += MenuEntry(tr("فتح في شاشة مقسومة", "Open in split screen"), "◫") { guarded(app) { actions.openSplit(app, null) } }
++        out += MenuEntry(tr("فتح في نافذة عائمة", "Open in floating window"), "❐") { guarded(app) { actions.openFloating(app) } }
+diff --git a/app/src/main/java/com/aura/launcher/Utils.kt b/app/src/main/java/com/aura/launcher/Utils.kt
+index afda751..7e59d2b 100644
+--- a/app/src/main/java/com/aura/launcher/Utils.kt
++++ b/app/src/main/java/com/aura/launcher/Utils.kt
+@@ -2,0 +3,9 @@ package com.aura.launcher
++import androidx.compose.foundation.layout.defaultMinSize
++import androidx.compose.foundation.layout.wrapContentSize
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.semantics.Role
++import androidx.compose.ui.semantics.contentDescription
++import androidx.compose.ui.semantics.role
++import androidx.compose.ui.semantics.semantics
++import androidx.compose.ui.unit.dp
+@@ -5,0 +15,9 @@ import java.util.UUID
++/** زر نصه رمز (⟳ ✕ ＋): اسم لقارئ الشاشة + دور زر + مساحة لمس ٤٨dp على الأقل. حطّه بعد clickable. */
++fun Modifier.a11yButton(label: String): Modifier = this
++    .semantics(mergeDescendants = true) {
++        contentDescription = label
++        role = Role.Button
++    }
++    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
++    .wrapContentSize(Alignment.Center)
++

@@ -1,0 +1,92 @@
+name: Apply review fixes (temporary)
+
+on:
+  push:
+    branches: [apply-fixes]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  apply-and-build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Stage files
+        shell: bash
+        run: |
+          mkdir -p /tmp/stage
+          cp -r payload /tmp/stage/payload
+          cp aura-fixes.patch /tmp/stage/aura-fixes.patch
+
+      - name: Build fix branch from main
+        shell: bash
+        run: |
+          set -o pipefail
+          git config user.name "claude-fixes"
+          git config user.email "claude-fixes@users.noreply.github.com"
+          git checkout -q -B fix/review-fixes origin/main
+          P=/tmp/stage/payload
+          cp $P/README.md README.md
+          cp $P/CHANGELOG.md CHANGELOG.md
+          cp $P/.gitignore .gitignore
+          cp $P/app/proguard-rules.pro app/proguard-rules.pro
+          cp $P/app/build.gradle.kts app/build.gradle.kts
+          cp $P/app/src/main/java/com/aura/launcher/Security.kt app/src/main/java/com/aura/launcher/Security.kt
+          git rm -q -f --ignore-unmatch app/aura-release.jks
+          git rm -rq --ignore-unmatch store/tools/__pycache__
+          git apply --unidiff-zero --whitespace=nowarn /tmp/stage/aura-fixes.patch 2>&1 | tee -a /tmp/job.log
+          git add -A
+          git commit -qm "Apply review fixes (security, stability, performance)"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build debug + release
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug :app:assembleRelease --stacktrace --console=plain 2>&1 | tee build.log
+
+      - name: Push result branch
+        run: git push -f origin fix/review-fixes
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AuraLauncher-apks
+          path: app/build/outputs/apk/**/*.apk
+
+      - name: Report success
+        run: gh issue create --title "apply-fixes OK" --body "Build passed. Run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Report failure
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            for f in /tmp/job.log build.log; do
+              if [ -f "$f" ]; then
+                echo "== $f"
+                echo '```'
+                grep -E "^e: |error:|What went wrong|FAILED|Could not|patch" -A2 "$f" | head -120 || true
+                echo '--- tail ---'
+                tail -30 "$f"
+                echo '```'
+              fi
+            done
+          } > report.md
+          gh issue create --title "CI failure (apply-fixes)" --body-file report.md
